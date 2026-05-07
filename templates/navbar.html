@@ -80,7 +80,7 @@
         font-weight: 700;
         letter-spacing: 1px;
         margin-top: -2px;
-        padding-right: 36px; /* لضبط المحاذاة مع النص مش الأيقونة */
+        padding-left: 36px; /* لضبط المحاذاة مع النص مش الأيقونة (LTR) */
     }
 
     .nav-links {
@@ -118,6 +118,7 @@
     
     .nav-links a:hover::after { 
         width: 100%; 
+        left: 0; /* لضمان التمدد بشكل صحيح */
     }
 
     /* أزرار الإدارة داخل قائمة الموبايل فقط */
@@ -144,6 +145,31 @@
         display: flex;
         align-items: center;
         gap: 25px;
+    }
+
+    /* =========================================
+       ✨ زر الترجمة ✨ 
+       ========================================= */
+    .lang-btn {
+        background: transparent;
+        color: var(--pure-white);
+        border: 1px solid rgba(100, 255, 218, 0.3);
+        padding: 5px 10px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-family: var(--font-main);
+        font-weight: 700;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.3s ease;
+    }
+
+    .lang-btn:hover {
+        background: rgba(100, 255, 218, 0.1);
+        color: var(--cyber-neon);
+        border-color: var(--cyber-neon);
     }
 
     /* =========================================
@@ -230,7 +256,7 @@
     .admin-dropdown-content a:hover {
         background: rgba(100, 255, 218, 0.1);
         color: var(--cyber-neon);
-        padding-right: 25px; /* حركة بسيطة لليسار عند الـ Hover */
+        padding-left: 25px; /* حركة بسيطة لليمين عند الـ Hover لأننا LTR */
     }
 
     .admin-dropdown-content a.gold-link:hover {
@@ -329,40 +355,48 @@
 <nav class="navbar">
     <a href="{% url 'home' %}" class="nav-logo">
         <div class="nav-logo-text">
-            <i class="fas fa-fingerprint logo-icon"></i> الباسطى جروب
+            <i class="fas fa-fingerprint logo-icon"></i> ElbastyGroup
         </div>
-        <div class="nav-logo-subtext">أبواب ذكية وكاميرات مراقبة</div>
+        <div class="nav-logo-subtext translatable" data-en="Smart Doors & Security Cameras" data-ar="أبواب ذكية وكاميرات مراقبة">Smart Doors & Security Cameras</div>
     </a>
 
     <div class="nav-links" id="navLinks">
-        <a href="{% url 'home' %}">الرئيسية</a>
-        <a href="{% url 'shop' %}">منتجاتنا الذكية</a>
-        <a href="{% url 'offers' %}">باقات وعروض</a>
+        <a href="{% url 'home' %}" class="translatable" data-en="Home" data-ar="الرئيسية">Home</a>
+        <a href="{% url 'shop' %}" class="translatable" data-en="Smart Products" data-ar="منتجاتنا الذكية">Smart Products</a>
+        <a href="{% url 'offers' %}" class="translatable" data-en="Packages & Offers" data-ar="باقات وعروض">Packages & Offers</a>
         
         {% if user.is_authenticated and user.is_staff %}
-            <a href="{% url 'dashboard' %}" class="admin-link mobile-only"><i class="fas fa-cogs"></i> لوحة التحكم</a>
-            <a href="{% url 'inventory_dashboard' %}" class="admin-link mobile-only" style="background:rgba(255,180,0,0.08); border-color:rgba(255,180,0,0.5); color:#ffd700;"><i class="fas fa-boxes"></i> إدارة المخزن</a>
+            <a href="{% url 'dashboard' %}" class="admin-link mobile-only">
+                <i class="fas fa-cogs"></i> <span class="translatable" data-en="Dashboard" data-ar="لوحة التحكم">Dashboard</span>
+            </a>
+            <a href="{% url 'inventory_dashboard' %}" class="admin-link mobile-only" style="background:rgba(255,180,0,0.08); border-color:rgba(255,180,0,0.5); color:#ffd700;">
+                <i class="fas fa-boxes"></i> <span class="translatable" data-en="Inventory" data-ar="إدارة المخزن">Inventory</span>
+            </a>
         {% endif %}
         
-        <a href="{% url 'policies' %}">الضمان والشروط</a>
-        <a href="{% url 'about' %}">عن الشركة</a>
-        <a href="{% url 'contact' %}">تواصل معنا</a>
+        <a href="{% url 'policies' %}" class="translatable" data-en="Warranty & Policies" data-ar="الضمان والشروط">Warranty & Policies</a>
+        <a href="{% url 'about' %}" class="translatable" data-en="About Us" data-ar="عن الشركة">About Us</a>
+        <a href="{% url 'contact' %}" class="translatable" data-en="Contact Us" data-ar="تواصل معنا">Contact Us</a>
     </div>
 
     <div class="nav-actions">
+        <button class="lang-btn langToggleBtn">
+            <i class="fas fa-globe"></i> <span class="langText">عربي</span>
+        </button>
+
         {% if user.is_authenticated and user.is_staff %}
             <div class="admin-dropdown">
                 <div class="admin-badge" id="adminBadgeBtn">
-                    <i class="fas fa-user-shield"></i> مدير النظام 
+                    <i class="fas fa-user-shield"></i> <span class="translatable" data-en="System Admin" data-ar="مدير النظام">System Admin</span> 
                     <i class="fas fa-chevron-down" style="font-size: 10px;"></i>
                 </div>
                 
                 <div class="admin-dropdown-content" id="adminDropdownMenu">
                     <a href="{% url 'dashboard' %}">
-                        <i class="fas fa-cogs" style="width: 20px;"></i> لوحة التحكم
+                        <i class="fas fa-cogs" style="width: 20px;"></i> <span class="translatable" data-en="Dashboard" data-ar="لوحة التحكم">Dashboard</span>
                     </a>
                     <a href="{% url 'inventory_dashboard' %}" class="gold-link" style="color: #ffd700;">
-                        <i class="fas fa-boxes" style="width: 20px;"></i> إدارة المخزن
+                        <i class="fas fa-boxes" style="width: 20px;"></i> <span class="translatable" data-en="Inventory" data-ar="إدارة المخزن">Inventory</span>
                     </a>
                 </div>
             </div>
@@ -377,6 +411,10 @@
     </div>
 
     <div class="mobile-controls">
+        <button class="lang-btn langToggleBtn">
+            <i class="fas fa-globe"></i> <span class="langText">عربي</span>
+        </button>
+
         <a href="{% url 'cart_view' %}" class="cart-icon-wrapper">
             <i class="fas fa-shopping-cart" style="font-size: 20px;"></i>
             {% if cart_count > 0 %}
@@ -393,29 +431,35 @@
 </nav>
 
 <script>
+    // ----------------------------------------------------
+    // منطق قائمة الموبايل
+    // ----------------------------------------------------
     const menuToggle = document.getElementById("menuToggle");
     const navLinks = document.getElementById("navLinks");
 
-    // منطق قائمة الموبايل
-    menuToggle.addEventListener("click", () => {
-        navLinks.classList.toggle("active");
-        
-        const spans = menuToggle.querySelectorAll('span');
-        spans.forEach((span, index) => {
-            span.style.background = navLinks.classList.contains('active') ? '#64ffda' : '#e6f1ff';
-        });
-    });
-
-    // إغلاق القائمة عند الضغط على أي رابط في الجوال
-    document.querySelectorAll('.nav-links a').forEach(link => {
-        link.addEventListener('click', () => {
-            navLinks.classList.remove('active');
+    if (menuToggle && navLinks) {
+        menuToggle.addEventListener("click", () => {
+            navLinks.classList.toggle("active");
+            
             const spans = menuToggle.querySelectorAll('span');
-            spans.forEach(span => span.style.background = '#e6f1ff');
+            spans.forEach((span, index) => {
+                span.style.background = navLinks.classList.contains('active') ? '#64ffda' : '#e6f1ff';
+            });
         });
-    });
 
+        // إغلاق القائمة عند الضغط على أي رابط في الجوال
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                navLinks.classList.remove('active');
+                const spans = menuToggle.querySelectorAll('span');
+                spans.forEach(span => span.style.background = '#e6f1ff');
+            });
+        });
+    }
+
+    // ----------------------------------------------------
     // منطق القائمة المنسدلة لمدير النظام
+    // ----------------------------------------------------
     (function() {
         const adminBtn = document.getElementById('adminBadgeBtn');
         const dropdownMenu = document.getElementById('adminDropdownMenu');

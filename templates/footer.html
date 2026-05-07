@@ -1,171 +1,161 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-    
-    <style>
-        .footer {
-            background-color: #0f172a; /* أزرق ليلي عميق (Enterprise Tech) */
-            color: #ffffff;
-            padding: 100px 8% 40px;
-            position: relative;
-            font-family: 'Cairo', sans-serif;
-            border-top: 1px solid rgba(37, 99, 235, 0.2); /* إطار أزرق تقني خفيف */
-        }
+<style>
+    .footer {
+        background-color: #0f172a; /* أزرق ليلي عميق (Enterprise Tech) */
+        color: #ffffff;
+        padding: 100px 8% 40px;
+        position: relative;
+        font-family: 'Cairo', sans-serif;
+        border-top: 1px solid rgba(37, 99, 235, 0.2); /* إطار أزرق تقني خفيف */
+    }
 
-        .footer-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 60px;
-            margin-bottom: 70px;
-        }
+    .footer-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 60px;
+        margin-bottom: 70px;
+    }
 
-        .footer h3 {
-            font-family: 'Cairo', sans-serif;
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 30px;
-            color: #0ea5e9; /* سماوي تقني */
-            letter-spacing: 0.5px;
-        }
+    .footer h3 {
+        font-family: 'Cairo', sans-serif;
+        font-size: 20px;
+        font-weight: 700;
+        margin-bottom: 30px;
+        color: #0ea5e9; /* سماوي تقني */
+        letter-spacing: 0.5px;
+    }
 
-        .footer p {
-            font-size: 15px;
-            line-height: 1.8;
-            color: #94a3b8; /* رمادي مريح للعين */
-            font-weight: 400;
-        }
+    .footer p {
+        font-size: 15px;
+        line-height: 1.8;
+        color: #94a3b8; /* رمادي مريح للعين */
+        font-weight: 400;
+    }
 
-        .footer-links {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
+    .footer-links {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
 
-        .footer-links li {
-            margin-bottom: 15px;
-        }
+    .footer-links li {
+        margin-bottom: 15px;
+    }
 
-        .footer-links a {
-            color: #94a3b8;
-            text-decoration: none;
-            font-size: 15px;
-            font-weight: 600;
-            transition: 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
+    .footer-links a {
+        color: #94a3b8;
+        text-decoration: none;
+        font-size: 15px;
+        font-weight: 600;
+        transition: 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
 
-        .footer-links a::before {
-            content: '\f104'; /* سهم لليسار من FontAwesome */
-            font-family: 'Font Awesome 6 Free';
-            font-weight: 900;
-            font-size: 12px;
-            opacity: 0;
-            transform: translateX(10px);
-            transition: 0.3s ease;
-            color: #0ea5e9;
-        }
+    .footer-links a::before {
+        content: '\f105'; /* تم التعديل لسهم يشير لليمين ليتناسب مع الاتجاه العام */
+        font-family: 'Font Awesome 6 Free';
+        font-weight: 900;
+        font-size: 12px;
+        opacity: 0;
+        transform: translateX(-10px);
+        transition: 0.3s ease;
+        color: #0ea5e9;
+    }
 
-        .footer-links a:hover {
-            color: #0ea5e9;
-            transform: translateX(-5px); /* حركة لليسار مع العربي */
-        }
+    .footer-links a:hover {
+        color: #0ea5e9;
+        transform: translateX(5px); /* حركة لليمين متناسقة */
+    }
 
-        .footer-links a:hover::before {
-            opacity: 1;
-            transform: translateX(0);
-        }
+    .footer-links a:hover::before {
+        opacity: 1;
+        transform: translateX(0);
+    }
 
-        .footer-social {
-            display: flex;
-            gap: 15px;
-            margin-top: 30px;
-        }
+    .footer-social {
+        display: flex;
+        gap: 15px;
+        margin-top: 30px;
+    }
 
-        .footer-social a {
-            width: 42px;
-            height: 42px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #ffffff;
-            font-size: 18px;
-            text-decoration: none;
-            transition: all 0.4s;
-            border-radius: 8px; /* زوايا مستديرة لمظهر حديث */
-            background: rgba(255, 255, 255, 0.03);
-        }
+    .footer-social a {
+        width: 42px;
+        height: 42px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+        font-size: 18px;
+        text-decoration: none;
+        transition: all 0.4s;
+        border-radius: 8px; /* زوايا مستديرة لمظهر حديث */
+        background: rgba(255, 255, 255, 0.03);
+    }
 
-        .footer-social a:hover {
-            background: #2563eb; /* أزرق الشركة */
-            border-color: #2563eb;
-            color: #ffffff;
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3);
-        }
+    .footer-social a:hover {
+        background: #2563eb; /* أزرق الشركة */
+        border-color: #2563eb;
+        color: #ffffff;
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3);
+    }
 
-        .footer-bottom {
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
-            padding-top: 40px;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            align-items: center;
-            gap: 20px;
-            font-size: 14px;
-            color: #64748b;
-            font-weight: 600;
-        }
+    .footer-bottom {
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        padding-top: 40px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+        font-size: 14px;
+        color: #64748b;
+        font-weight: 600;
+    }
 
-        /* تنسيق اسم البراند التقني */
-        .footer-brand {
-            font-family: 'Cairo', sans-serif;
-            font-size: 28px;
-            font-weight: 800;
-            color: #ffffff;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+    /* تنسيق اسم البراند التقني */
+    .footer-brand {
+        font-family: 'Cairo', sans-serif;
+        font-size: 28px;
+        font-weight: 800;
+        color: #ffffff;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
 
-        .brand-icon {
-            color: #0ea5e9;
-            font-size: 26px;
-            filter: drop-shadow(0 0 8px rgba(14, 165, 233, 0.4));
-        }
+    .brand-icon {
+        color: #0ea5e9;
+        font-size: 26px;
+        filter: drop-shadow(0 0 8px rgba(14, 165, 233, 0.4));
+    }
 
-        .footer-brand-text {
-            display: flex;
-            flex-direction: column;
-            line-height: 1.1;
-        }
+    .footer-brand-text {
+        display: flex;
+        flex-direction: column;
+        line-height: 1.1;
+    }
 
-        .footer-brand span {
-            color: #0ea5e9;
-            font-size: 13px;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-            margin-top: 2px;
-        }
+    .footer-brand span {
+        color: #0ea5e9;
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        margin-top: 2px;
+    }
 
-        @media (max-width: 768px) {
-            .footer { padding: 60px 5% 30px; }
-            .footer-bottom { text-align: center; justify-content: center; flex-direction: column; }
-            .footer-brand { justify-content: center; text-align: center; }
-            .footer-brand-text { align-items: center; }
-            .footer p { text-align: center; }
-            .footer-social { justify-content: center; }
-        }
-    </style>
-</head>
-<body>
+    @media (max-width: 768px) {
+        .footer { padding: 60px 5% 30px; }
+        .footer-bottom { text-align: center; justify-content: center; flex-direction: column; }
+        .footer-brand { justify-content: center; text-align: center; }
+        .footer-brand-text { align-items: center; }
+        .footer p { text-align: center; }
+        .footer-social { justify-content: center; }
+    }
+</style>
 
 <footer class="footer">
     <div class="footer-grid">
@@ -174,12 +164,12 @@
             <div class="footer-brand">
                 <i class="fas fa-fingerprint brand-icon"></i>
                 <div class="footer-brand-text">
-                    الباسطى جروب
-                    <span>للأنظمة الأمنية والذكية</span>
+                    ElbastyGroup
+                    <span class="translatable" data-en="For Smart & Security Systems" data-ar="للأنظمة الأمنية والذكية">For Smart & Security Systems</span>
                 </div>
             </div>
-            <p>
-                نوفر أحدث الحلول الأمنية المتكاملة وأنظمة التحكم الذكية. نعتمد على أحدث التقنيات العالمية لحماية منشأتك ومنزلك بلمسة تقنية عصرية وموثوقية عالية.
+            <p class="translatable" data-en="We provide the latest integrated security solutions and smart control systems. We rely on global technologies to protect your facility and home with a modern technical touch and high reliability." data-ar="نوفر أحدث الحلول الأمنية المتكاملة وأنظمة التحكم الذكية. نعتمد على أحدث التقنيات العالمية لحماية منشأتك ومنزلك بلمسة تقنية عصرية وموثوقية عالية.">
+                We provide the latest integrated security solutions and smart control systems. We rely on global technologies to protect your facility and home with a modern technical touch and high reliability.
             </p>
 
             <div class="footer-social">
@@ -191,35 +181,32 @@
         </div>
 
         <div>
-            <h3>أنظمتنا الذكية</h3>
+            <h3 class="translatable" data-en="Our Smart Systems" data-ar="أنظمتنا الذكية">Our Smart Systems</h3>
             <ul class="footer-links">
-                <li><a href="{% url 'shop' %}">أبواب البصمة و Face ID</a></li>
-                <li><a href="{% url 'shop' %}">كاميرات المراقبة (CCTV)</a></li>
-                <li><a href="{% url 'shop' %}">أنظمة التحكم والدخول</a></li>
-                <li><a href="{% url 'shop' %}">تجهيزات السمارت هوم</a></li>
+                <li><a href="{% url 'shop' %}" class="translatable" data-en="Fingerprint & Face ID Doors" data-ar="أبواب البصمة و Face ID">Fingerprint & Face ID Doors</a></li>
+                <li><a href="{% url 'shop' %}" class="translatable" data-en="Surveillance Cameras (CCTV)" data-ar="كاميرات المراقبة (CCTV)">Surveillance Cameras (CCTV)</a></li>
+                <li><a href="{% url 'shop' %}" class="translatable" data-en="Access Control Systems" data-ar="أنظمة التحكم والدخول">Access Control Systems</a></li>
+                <li><a href="{% url 'shop' %}" class="translatable" data-en="Smart Home Equipment" data-ar="تجهيزات السمارت هوم">Smart Home Equipment</a></li>
             </ul>
         </div>
 
         <div>
-            <h3>عن الشركة</h3>
+            <h3 class="translatable" data-en="About Company" data-ar="عن الشركة">About Company</h3>
             <ul class="footer-links">
-                <li><a href="{% url 'about' %}">من نحن</a></li>
-                <li><a href="{% url 'contact' %}">الدعم الفني والمبيعات</a></li>
-                <li><a href="{% url 'policies' %}">سياسة الضمان والاسترجاع</a></li>
-                <li><a href="{% url 'contact' %}">موقعنا</a></li>
+                <li><a href="{% url 'about' %}" class="translatable" data-en="Who We Are" data-ar="من نحن">Who We Are</a></li>
+                <li><a href="{% url 'contact' %}" class="translatable" data-en="Technical Support & Sales" data-ar="الدعم الفني والمبيعات">Technical Support & Sales</a></li>
+                <li><a href="{% url 'policies' %}" class="translatable" data-en="Warranty & Return Policy" data-ar="سياسة الضمان والاسترجاع">Warranty & Return Policy</a></li>
+                <li><a href="{% url 'contact' %}" class="translatable" data-en="Our Location" data-ar="موقعنا">Our Location</a></li>
             </ul>
         </div>
 
     </div>
 
     <div class="footer-bottom">
-        <div>© 2026 الباسطى جروب للأنظمة الأمنية والذكية. جميع الحقوق محفوظة.</div>
+        <div class="translatable" data-en="© 2026 ElbastyGroup for Smart & Security Systems. All rights reserved." data-ar="© 2026 الباسطى جروب للأنظمة الأمنية والذكية. جميع الحقوق محفوظة.">© 2026 ElbastyGroup for Smart & Security Systems. All rights reserved.</div>
         <div style="display: flex; align-items: center; gap: 8px;">
             <i class="fas fa-shield-check" style="color: #0ea5e9;"></i>
-            نحمي ما يهمك
+            <span class="translatable" data-en="We protect what matters to you" data-ar="نحمي ما يهمك">We protect what matters to you</span>
         </div>
     </div>
 </footer>
-
-</body>
-</html>

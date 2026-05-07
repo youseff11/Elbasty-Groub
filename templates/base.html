@@ -1,11 +1,11 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="ar" dir="ltr">
+<html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <title>الباسطى جروب | للأنظمة الأمنية </title>
+    <title class="translatable" data-en="ElbastyGroup | Security Systems" data-ar="الباسطى جروب | للأنظمة الأمنية">ElbastyGroup | Security Systems</title>
     
     <link rel="icon" type="image/png" href="https://img.icons8.com/ios-filled/50/007bff/fingerprint.png">
 
@@ -19,5 +19,45 @@
     {% endblock %}
 
     {% include 'footer.html' %}
+
+    <script>
+        // جلب اللغة المحفوظة أو تعيين الإنجليزية كافتراضي
+        let currentLang = localStorage.getItem('elbasty_lang') || 'en';
+
+        function applyLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('elbasty_lang', lang);
+            
+            // تغيير الـ lang attribute بتاع الـ HTML
+            document.documentElement.lang = lang;
+
+            // تطبيق الترجمة على كل العناصر في الصفحة
+            document.querySelectorAll('.translatable').forEach(el => {
+                const newText = el.getAttribute(`data-${lang}`);
+                if (newText) {
+                    el.textContent = newText;
+                }
+            });
+
+            // تغيير نص زر الترجمة نفسه
+            const btnText = lang === 'en' ? 'عربي' : 'EN';
+            document.querySelectorAll('.langText').forEach(txt => {
+                txt.textContent = btnText;
+            });
+        }
+
+        // تطبيق اللغة بمجرد ما عناصر الصفحة تحمل كلها
+        document.addEventListener("DOMContentLoaded", () => {
+            applyLanguage(currentLang);
+            
+            // إضافة حدث الضغط لزراير الترجمة في الموقع كله (ديسكتوب وموبايل)
+            document.querySelectorAll('.langToggleBtn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const newLang = currentLang === 'en' ? 'ar' : 'en';
+                    applyLanguage(newLang);
+                });
+            });
+        });
+    </script>
 </body>
 </html>
