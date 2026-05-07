@@ -288,14 +288,35 @@
     .card-text { font-size: 14px; color: var(--text-sec); margin-bottom: 0; opacity: 0; transform: translateY(20px); transition: var(--trans); }
     .smart-card:hover .card-text { opacity: 1; transform: translateY(0); }
 
+    /* --- التعديل المخصص للشاشات الصغيرة --- */
     @media (max-width: 768px) {
-        .hero-ultra { justify-content: center; text-align: center; padding: 0 5%; }
-        .hero-overlay { background: linear-gradient(to top, var(--bg-dark) 10%, rgba(2, 6, 23, 0.6) 100%); }
-        .hero-content { text-align: center; direction: rtl; }
-        .hero-desc { border-right: none; padding-right: 0; }
-        .status-badge { margin: 0 auto 25px; }
-        .card-text { opacity: 1; transform: translateY(0); } 
-        .hero-bg-img { object-position: left center; }
+        .hero-ultra { 
+            justify-content: flex-end; 
+            align-items: flex-start; /* إضافة هذا السطر لجعل المحتوى يبدأ من الأعلى */
+            padding: 130px 5% 0; /* تم إضافة مسافة علوية (130px) لتفادي التداخل مع القائمة العلوية */
+        }
+        .hero-overlay { 
+            background: linear-gradient(to left, var(--bg-dark) 20%, rgba(2, 6, 23, 0.7) 70%, rgba(2, 6, 23, 0.1) 100%); 
+        }
+        .hero-content { 
+            text-align: right; 
+            direction: rtl; 
+            width: 100%;
+        }
+        .hero-desc { 
+            border-right: 3px solid var(--neon-blue); 
+            padding-right: 15px; 
+        }
+        .status-badge { 
+            margin: 0 0 25px 0; 
+        }
+        .card-text { 
+            opacity: 1; 
+            transform: translateY(0); 
+        } 
+        .hero-bg-img { 
+            object-position: left center; 
+        }
     }
 </style>
 
@@ -306,7 +327,6 @@
             <i class="fa-brands fa-whatsapp"></i>
         </a>
         
-        <!-- تم تعديل هذا الجزء -->
         <a href="tel:01225793952" class="wa-contact-item">
             <span>مكالمات : 01225793952</span>
             <i class="fa-solid fa-phone"></i>
@@ -339,7 +359,6 @@
         <p class="hero-desc">
             في "الباسطى جروب"، نحن لا نقدم مجرد أجهزة، بل نبني منظومة أمان ذكية تمنحك السيطرة الكاملة. كاميرات مراقبة HD، أبواب بالبصمة، وأنظمة تحكم ذكية لمنزلك وشركتك.
         </p>
-
 
     </div>
 </section>
