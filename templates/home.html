@@ -293,7 +293,7 @@
         .hero-ultra { 
             justify-content: flex-end; 
             align-items: flex-start; /* إضافة هذا السطر لجعل المحتوى يبدأ من الأعلى */
-            padding: 130px 5% 0; /* تم إضافة مسافة علوية (130px) لتفادي التداخل مع القائمة العلوية */
+            padding: 90px 5% 0; /* تم تقليل المسافة العلوية لرفع الكلام لأعلى سيكا */
         }
         .hero-overlay { 
             background: linear-gradient(to left, var(--bg-dark) 20%, rgba(2, 6, 23, 0.7) 70%, rgba(2, 6, 23, 0.1) 100%); 
@@ -303,19 +303,27 @@
             direction: rtl; 
             width: 100%;
         }
+        /* تصغير الخطوط */
+        .hero-title {
+            font-size: clamp(32px, 8vw, 45px); /* تصغير حجم العنوان الرئيسي */
+        }
         .hero-desc { 
+            font-size: 15px; /* تصغير حجم الوصف */
             border-right: 3px solid var(--neon-blue); 
             padding-right: 15px; 
+            margin-bottom: 25px;
         }
         .status-badge { 
-            margin: 0 0 25px 0; 
+            margin: 0 0 20px 0; 
+            font-size: 12px; /* تصغير حجم البادج */
+            padding: 6px 15px;
         }
         .card-text { 
             opacity: 1; 
             transform: translateY(0); 
         } 
         .hero-bg-img { 
-            object-position: left center; 
+            object-position: left center; /* تم تركها كما هي */
         }
     }
 </style>
