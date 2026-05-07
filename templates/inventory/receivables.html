@@ -1,0 +1,243 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+    :root { --navy: #0a192f; --neon: #64ffda; --gold: #ffd700; --slate: #8892b0; --white: #e6f1ff; --card-bg: #112240; --border: rgba(100,255,218,0.15); --danger: #ff4d4d; --success: #00c853; }
+    body { background: var(--navy); color: var(--white); font-family: 'Cairo', sans-serif; }
+    {% include 'inventory/shared_css.html' %}
+    .page-wrap { max-width: 1200px; margin: 40px auto; padding: 0 20px 80px; }
+    .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 12px; }
+    .page-title { font-size: 22px; font-weight: 900; }
+    .page-title i { color: var(--success); margin-left: 10px; }
+    .btn-add { background: var(--success); color: #fff; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 14px; display:inline-flex;align-items:center;gap:6px; }
+    .summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 25px; }
+    .summary-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 20px; text-align: center; }
+    .summary-card .label { font-size: 13px; color: var(--slate); margin-bottom: 6px; }
+    .summary-card .value { font-size: 22px; font-weight: 900; }
+    .summary-card.total .value { color: var(--gold); }
+    .summary-card.paid .value { color: var(--success); }
+    .summary-card.remaining .value { color: var(--danger); }
+
+    /* Main table */
+    .main-table-wrap { background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+    table.main-table { width: 100%; border-collapse: collapse; }
+    table.main-table th { background: rgba(100,255,218,0.07); padding: 12px 15px; text-align: right; font-size: 13px; color: var(--slate); font-weight: 700; }
+    table.main-table td { padding: 0; border-bottom: 1px solid var(--border); }
+    table.main-table tr:last-child > td { border-bottom: none; }
+
+    /* Row wrapper */
+    .row-main { display: flex; align-items: center; padding: 12px 15px; gap: 0; flex-wrap: wrap; }
+    .col { font-size: 14px; }
+
+    .badge { padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+    .badge-pending { background: rgba(255,77,77,0.15); color: var(--danger); }
+    .badge-partial { background: rgba(255,193,7,0.15); color: #ffc107; }
+    .badge-paid { background: rgba(0,200,83,0.15); color: var(--success); }
+
+    /* Expand button */
+    .expand-btn {
+        background: rgba(100,255,218,0.07); border: 1px solid var(--border);
+        color: var(--neon); padding: 5px 12px; border-radius: 6px; font-size: 12px;
+        font-weight: 700; cursor: pointer; font-family: 'Cairo', sans-serif;
+        display: inline-flex; align-items: center; gap: 5px; white-space: nowrap;
+    }
+    .expand-btn:hover { background: rgba(100,255,218,0.15); }
+
+    /* Expandable payment panel */
+    .payment-panel {
+        display: none;
+        background: rgba(0,0,0,0.2);
+        border-top: 1px solid var(--border);
+        padding: 20px 25px;
+    }
+    .payment-panel.open { display: block; }
+    .panel-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 700px) { .panel-inner { grid-template-columns: 1fr; } }
+
+    /* Add payment form */
+    .add-pay-form { background: rgba(0,200,83,0.05); border: 1px solid rgba(0,200,83,0.2); border-radius: 10px; padding: 16px; }
+    .add-pay-form .form-title { font-size: 14px; font-weight: 700; color: var(--success); margin-bottom: 14px; }
+    .form-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+    .form-row2.one { grid-template-columns: 1fr; }
+    label { font-size: 12px; color: var(--slate); margin-bottom: 4px; display: block; }
+    input[type=number], input[type=date], input[type=text], select, textarea {
+        width: 100%; padding: 9px 11px; border-radius: 7px;
+        background: rgba(255,255,255,0.05); border: 1px solid rgba(100,255,218,0.2);
+        color: var(--white); font-family: 'Cairo', sans-serif; font-size: 13px;
+    }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--neon); }
+    select option { background: #112240; }
+    .pay-btn { background: var(--success); color: #fff; border: none; padding: 9px 20px; border-radius: 7px; font-family: 'Cairo', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; width: 100%; margin-top: 6px; }
+    .pay-btn:hover { opacity: 0.9; }
+
+    /* Payments history table */
+    .pay-history { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+    .pay-history .form-title { font-size: 14px; font-weight: 700; color: var(--neon); margin-bottom: 14px; }
+    .pay-history table { width: 100%; border-collapse: collapse; background: transparent; }
+    .pay-history th { background: transparent; padding: 7px 10px; font-size: 12px; color: var(--slate); border-bottom: 1px solid var(--border); }
+    .pay-history td { padding: 8px 10px; font-size: 13px; border-bottom: 1px solid rgba(100,255,218,0.07); background: transparent; }
+    .pay-history tr:last-child td { border-bottom: none; }
+
+    @media (max-width: 600px) { .summary-grid { grid-template-columns: 1fr; } }
+</style>
+
+<div class="page-wrap">
+    <a href="{% url 'inventory_dashboard' %}" style="color:var(--slate);text-decoration:none;font-size:14px;margin-bottom:15px;display:inline-block;"><i class="fas fa-arrow-right"></i> رجوع للمخزن</a>
+    <div class="top-bar">
+        <div class="page-title"><i class="fas fa-hand-holding-usd"></i> فلوس ليا (مديونيات العملاء)</div>
+        <a href="{% url 'add_receivable' %}" class="btn-add"><i class="fas fa-plus"></i> إضافة مديونية</a>
+    </div>
+
+    <div class="summary-grid">
+        <div class="summary-card total"><div class="label">إجمالي المديونيات</div><div class="value">{{ total_amount|floatformat:0 }} ج</div></div>
+        <div class="summary-card paid"><div class="label">تم تحصيله</div><div class="value">{{ total_paid|floatformat:0 }} ج</div></div>
+        <div class="summary-card remaining"><div class="label">المتبقي للتحصيل</div><div class="value">{{ total_remaining|floatformat:0 }} ج</div></div>
+    </div>
+
+    {% if receivables %}
+    <div class="main-table-wrap">
+        <table class="main-table">
+            <thead>
+                <tr>
+                    <th>العميل</th>
+                    <th>البيان</th>
+                    <th>الإجمالي</th>
+                    <th>المحصّل</th>
+                    <th>المتبقي</th>
+                    <th>الحالة</th>
+                    <th>التاريخ</th>
+                    <th>الاستحقاق</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for r in receivables %}
+            <tr id="row-r{{ r.pk }}">
+                <td>
+                    <div class="row-main">
+                        <div>
+                            <div style="font-weight:700;">{{ r.customer_name }}</div>
+                            {% if r.customer_phone %}<div style="font-size:12px;color:var(--slate);">{{ r.customer_phone }}</div>{% endif %}
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <div class="row-main" style="white-space: normal; word-wrap: break-word; min-width: 150px;">
+                        <a href="{% url 'receivable_detail' r.pk %}" style="color: var(--neon); text-decoration: none; font-weight: 700; transition: 0.3s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='var(--neon)'">
+                            {{ r.description|default:"-" }}
+                        </a>
+                    </div>
+                </td>                <td><div class="row-main" style="color:var(--gold);font-weight:700;">{{ r.total_amount|floatformat:0 }} ج</div></td>
+                <td><div class="row-main" style="color:var(--success);">{{ r.amount_paid|floatformat:0 }} ج</div></td>
+                <td><div class="row-main" style="color:var(--danger);font-weight:700;">{{ r.amount_remaining|floatformat:0 }} ج</div></td>
+                <td><div class="row-main"><span class="badge badge-{{ r.status }}">{{ r.get_status_display }}</span></div></td>
+                <td><div class="row-main">{{ r.date }}</div></td>
+                <td><div class="row-main">{{ r.due_date|default:"-" }}</div></td>
+                <td>
+                    <div class="row-main">
+                        {% if r.amount_remaining > 0 %}
+                        <button class="expand-btn" onclick="togglePanel('r{{ r.pk }}')">
+                            <i class="fas fa-plus-circle" id="icon-r{{ r.pk }}"></i> دفعة
+                        </button>
+                        {% else %}
+                        <span style="font-size:12px;color:var(--success);"><i class="fas fa-check-circle"></i> مكتمل</span>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            <tr id="panel-r{{ r.pk }}">
+                <td colspan="9" style="padding:0;border-bottom: 1px solid var(--border);">
+                    <div class="payment-panel" id="payment-panel-r{{ r.pk }}">
+                        <div class="panel-inner">
+                            <!-- نموذج إضافة دفعة -->
+                            <div class="add-pay-form">
+                                <div class="form-title"><i class="fas fa-plus-circle"></i> إضافة دفعة تحصيل</div>
+                                <form method="POST" action="{% url 'receivable_detail' r.pk %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="from_list" value="1">
+                                    <div class="form-row2">
+                                        <div>
+                                            <label>المبلغ (ج) *</label>
+                                            <input type="number" name="amount" min="0.01" step="0.01" max="{{ r.amount_remaining }}" required placeholder="0.00">
+                                        </div>
+                                        <div>
+                                            <label>طريقة الدفع</label>
+                                            <select name="payment_type">
+                                                <option value="cash">كاش</option>
+                                                <option value="visa">فيزا</option>
+                                                <option value="transfer">تحويل</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-row2">
+                                        <div>
+                                            <label>التاريخ</label>
+                                            <input type="date" name="date" value="{% now 'Y-m-d' %}">
+                                        </div>
+                                        <div>
+                                            <label>ملاحظات</label>
+                                            <input type="text" name="notes" placeholder="اختياري">
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="pay-btn"><i class="fas fa-check"></i> تسجيل الدفعة</button>
+                                </form>
+                            </div>
+
+                            <!-- سجل الدفعات -->
+                            <div class="pay-history">
+                                <div class="form-title"><i class="fas fa-history"></i> سجل الدفعات</div>
+                                {% with payments=r.payments.all %}
+                                {% if payments %}
+                                <table>
+                                    <thead><tr><th>التاريخ</th><th>المبلغ</th><th>الطريقة</th><th>ملاحظات</th></tr></thead>
+                                    <tbody>
+                                    {% for p in payments %}
+                                    <tr>
+                                        <td>{{ p.date }}</td>
+                                        <td style="color:var(--success);font-weight:700;">{{ p.amount|floatformat:0 }} ج</td>
+                                        <td>{{ p.get_payment_type_display }}</td>
+                                        <td style="color:var(--slate);">{{ p.notes|default:"-" }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                                {% else %}
+                                <p style="color:var(--slate);font-size:13px;text-align:center;padding:20px 0;">لا توجد دفعات بعد</p>
+                                {% endif %}
+                                {% endwith %}
+                            </div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div style="text-align:center;padding:60px;color:var(--slate);">
+        <i class="fas fa-inbox" style="font-size:40px;margin-bottom:15px;display:block;"></i>
+        لا توجد مديونيات مسجلة
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function togglePanel(id) {
+    const panel = document.getElementById('payment-panel-' + id);
+    const icon = document.getElementById('icon-' + id);
+    const isOpen = panel.classList.contains('open');
+    // Close all
+    document.querySelectorAll('.payment-panel.open').forEach(p => p.classList.remove('open'));
+    document.querySelectorAll('.expand-btn i').forEach(i => {
+        i.className = 'fas fa-plus-circle';
+    });
+    if (!isOpen) {
+        panel.classList.add('open');
+        icon.className = 'fas fa-minus-circle';
+    }
+}
+</script>
+{% endblock %}

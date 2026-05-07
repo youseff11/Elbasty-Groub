@@ -1,0 +1,317 @@
+from django.contrib import admin
+from django.utils.html import format_html
+from django.db import models # تم إضافة الاستيراد هنا للتحكم في شكل الحقول
+import nested_admin
+from .models import Product, Category, ContactMessage, ProductVariant, ProductSize, Order, OrderItem, ProductImage, ProductSpecification
+
+# --- 1. ProductSpecificationInline ---
+class ProductSpecificationInline(nested_admin.NestedTabularInline):
+    model = ProductSpecification
+    extra = 1
+    fields = ['spec_name', 'spec_value']
+    # هذا التعديل يجعل خانة القيمة تظهر كمربع نص كبير (Textarea) داخل الجدول
+    formfield_overrides = {
+        models.TextField: {'widget': admin.widgets.AdminTextareaWidget(attrs={'rows': 2, 'cols': 40})},
+    }
+
+# --- 2. ProductImageInline ---
+class ProductImageInline(nested_admin.NestedTabularInline):
+    model = ProductImage
+    extra = 1
+    fields = ['image', 'image_preview']
+    readonly_fields = ['image_preview']
+
+    def image_preview(self, obj):
+        if obj.image:
+            return format_html('<img src="{}" style="width: 70px; height: 70px; border-radius: 5px; object-fit: cover;" />', obj.image.url)
+        return "No Image"
+    image_preview.short_description = 'Preview'
+
+# --- 3. ProductSizeInline ---
+class ProductSizeInline(nested_admin.NestedTabularInline):
+    model = ProductSize
+    extra = 1
+    fields = ['size_name', 'stock']
+
+# --- 4. ProductVariantInline ---
+class ProductVariantInline(nested_admin.NestedStackedInline):
+    model = ProductVariant
+    extra = 1
+    fields = ['color_name', 'color_code', 'variant_image', 'image_preview']
+    readonly_fields = ['image_preview']
+    inlines = [ProductSizeInline, ProductImageInline]
+
+    def image_preview(self, obj):
+        if obj.variant_image:
+            return format_html('<img src="{}" style="width: 100px; height: 100px; border-radius: 8px; border: 1px solid #ddd; object-fit: cover;" />', obj.variant_image.url)
+        return "No Image"
+    image_preview.short_description = 'Main Image Preview'
+
+# --- 5. ProductAdmin ---
+@admin.register(Product)
+class ProductAdmin(nested_admin.NestedModelAdmin):
+    inlines = [ProductSpecificationInline, ProductVariantInline]
+    
+    list_display = ['display_image', 'sku', 'name', 'category', 'is_new_arrival', 'display_new_status', 'colored_stock', 'display_price', 'created_at']
+    list_display_links = ['display_image', 'name']
+    list_editable = ['sku', 'category', 'is_new_arrival']
+    list_filter = ['category', 'is_new_arrival', 'created_at']
+    search_fields = ['sku', 'name', 'description']
+
+    fieldsets = (
+        ('Basic Information', {
+            'fields': ('name', 'sku', 'category', 'is_new_arrival'),
+            'classes': ('wide',),
+        }),
+        ('Pricing & Inventory', {
+            'fields': (('price', 'discount_price'), 'stock'),
+        }),
+    )
+    readonly_fields = ['stock']
+
+    class Media:
+        css = {
+            'all': ('css/admin_custom.css',)
+        }
+
+    def display_image(self, obj):
+        variant = obj.variants.first() 
+        if variant and variant.variant_image:
+            return format_html('<img src="{}" style="width: 50px; height: 50px; border-radius: 5px; object-fit: cover; border: 1px solid #eee;" />', variant.variant_image.url)
+        return format_html('<span style="color: #999; font-size: 10px;">No Image</span>')
+    display_image.short_description = 'Product Image'
+
+    def display_new_status(self, obj):
+        if hasattr(obj, 'is_new') and obj.is_new: 
+            return format_html('<span style="color: #fff; background: #4fc3f7; padding: 2px 10px; border-radius: 12px; font-size: 11px; font-weight: bold;">LIVE NOW</span>')
+        if obj.is_new_arrival:
+            return format_html('<span style="color: #d32f2f; font-size: 11px; font-weight: bold;">MANUAL NEW</span>')
+        return format_html('<span style="color: #999; font-size: 11px;">Standard</span>')
+    display_new_status.short_description = 'Status Badge'
+
+    def display_price(self, obj):
+        original_price = int(obj.price) if obj.price else 0
+        discount_price = int(obj.discount_price) if obj.discount_price else 0
+
+        if discount_price > 0:
+            return format_html(
+                '<span style="text-decoration: line-through; color: #888; margin-right: 5px;">{}</span>'
+                '<b style="color: #e91e63;">{}</b> <small>EGP</small>',
+                original_price, discount_price
+            )
+        return format_html('<b>{}</b> <small>EGP</small>', original_price)
+    display_price.short_description = 'Price (Before/After)'
+
+    def save_related(self, request, form, formsets, change):
+        super().save_related(request, form, formsets, change)
+        form.instance.update_total_stock()
+
+    def colored_stock(self, obj):
+        color = 'green' if obj.stock > 10 else 'orange' if obj.stock > 0 else 'red'
+        return format_html('<b style="color: {};">{}</b>', color, obj.stock)
+    colored_stock.short_description = 'Stock'
+
+# --- 6. CategoryAdmin ---
+@admin.register(Category)
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = ['name', 'slug']
+    prepopulated_fields = {'slug': ('name',)}
+    
+    class Media:
+        css = {
+            'all': ('css/admin_custom.css',)
+        }
+
+# --- 7. ContactMessageAdmin ---
+@admin.register(ContactMessage)
+class ContactMessageAdmin(admin.ModelAdmin):
+    list_display = ['name', 'subject', 'email', 'created_at']
+    readonly_fields = ['name', 'email', 'phone', 'subject', 'message', 'created_at']
+
+# --- 8. OrderItemInline & OrderAdmin ---
+class OrderItemInline(admin.TabularInline):
+    model = OrderItem
+    extra = 0
+    readonly_fields = ['display_item_image', 'product', 'color', 'size', 'quantity', 'display_item_price']
+    fields = ['display_item_image', 'product', 'color', 'size', 'quantity', 'display_item_price']
+    can_delete = False
+
+    def display_item_image(self, obj):
+        if obj.product:
+            variant = obj.product.variants.filter(color_name=obj.color).first()
+            if variant and variant.variant_image:
+                return format_html('<img src="{}" style="width: 60px; height: 60px; border-radius: 5px; object-fit: cover; border: 1px solid #ddd;" />', variant.variant_image.url)
+            
+            first_variant = obj.product.variants.first()
+            if first_variant and first_variant.variant_image:
+                return format_html('<img src="{}" style="width: 60px; height: 60px; border-radius: 5px; object-fit: cover; opacity: 0.6;" />', first_variant.variant_image.url)
+                
+        return format_html('<div style="width: 60px; height: 60px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; border-radius: 5px; color: #ccc; font-size: 10px;">No Image</div>')
+    
+    display_item_image.short_description = 'Item Preview'
+
+    def display_item_price(self, obj):
+        return int(obj.price_at_purchase) if obj.price_at_purchase else 0
+    display_item_price.short_description = 'Price'
+
+@admin.register(Order)
+class OrderAdmin(admin.ModelAdmin):
+    list_display = ['id', 'name', 'phone', 'governorate', 'display_total', 'status', 'is_completed', 'created_at']
+    list_filter = ['status', 'is_completed', 'governorate', 'created_at']
+    search_fields = ['name', 'phone', 'email', 'id']
+    list_editable = ['status', 'is_completed'] 
+    inlines = [OrderItemInline]
+    
+    fieldsets = (
+        ('Customer Info', {'fields': (('name', 'email'), 'phone', 'governorate', 'address')}),
+        ('Status & Total', {'fields': (('status', 'is_completed'), 'total_price')}),
+    )
+    readonly_fields = ['total_price']
+
+    class Media:
+        css = {
+            'all': ('css/admin_custom.css',)
+        }
+
+    def display_total(self, obj):
+        return format_html('<b>{}</b> EGP', int(obj.total_price)) if obj.total_price else 0
+    display_total.short_description = 'Total'
+
+# ============================================================
+# إدارة المخزن والفواتير والموردين والديون
+# ============================================================
+from .models import (
+    Supplier, StockMovement, Invoice, InvoiceItem, InvoicePayment,
+    Receivable, ReceivablePayment, Payable, PayablePayment
+)
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.contrib.auth.models import User
+
+
+# --- إدارة المستخدمين (ترقية/تخفيض الأدمن) ---
+admin.site.unregister(User)
+
+@admin.register(User)
+class CustomUserAdmin(BaseUserAdmin):
+    list_display = ['username', 'email', 'first_name', 'last_name', 'is_staff', 'is_superuser', 'is_active', 'date_joined']
+    list_filter = ['is_staff', 'is_superuser', 'is_active']
+    list_editable = ['is_staff', 'is_superuser', 'is_active']
+    search_fields = ['username', 'email', 'first_name', 'last_name']
+    ordering = ['-date_joined']
+
+
+# --- Supplier Admin ---
+@admin.register(Supplier)
+class SupplierAdmin(admin.ModelAdmin):
+    list_display = ['name', 'phone', 'email', 'created_at']
+    search_fields = ['name', 'phone', 'email']
+    ordering = ['name']
+
+
+# --- StockMovement Admin ---
+@admin.register(StockMovement)
+class StockMovementAdmin(admin.ModelAdmin):
+    list_display = ['date', 'movement_type', 'product', 'variant', 'product_size', 'quantity', 'unit_price', 'payment_type', 'supplier', 'created_by']
+    list_filter = ['movement_type', 'payment_type', 'date']
+    search_fields = ['product__name', 'supplier__name']
+    ordering = ['-created_at']
+    readonly_fields = ['amount_remaining', 'created_by', 'created_at']
+
+    def save_model(self, request, obj, form, change):
+        if not obj.pk:
+            obj.created_by = request.user
+        super().save_model(request, obj, form, change)
+
+
+# --- InvoiceItem Inline ---
+class InvoiceItemInline(admin.TabularInline):
+    model = InvoiceItem
+    extra = 1
+    fields = ['product', 'variant', 'product_size', 'quantity', 'unit_price']
+    readonly_fields = []
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+
+# --- InvoicePayment Inline ---
+class InvoicePaymentInline(admin.TabularInline):
+    model = InvoicePayment
+    extra = 0
+    fields = ['amount', 'payment_type', 'date', 'notes']
+
+
+# --- Invoice Admin ---
+@admin.register(Invoice)
+class InvoiceAdmin(admin.ModelAdmin):
+    list_display = ['invoice_number', 'customer_name', 'customer_phone', 'date', 'payment_type',
+                    'subtotal_before_discount', 'discount_amount', 'total_amount', 'amount_paid', 'amount_remaining', 'created_by']
+    list_filter = ['payment_type', 'date']
+    search_fields = ['invoice_number', 'customer_name', 'customer_phone']
+    ordering = ['-created_at']
+    readonly_fields = ['invoice_number', 'amount_remaining', 'subtotal_before_discount', 'discount_amount', 'created_by', 'created_at']
+    fieldsets = (
+        ('بيانات الفاتورة', {
+            'fields': ('invoice_number', 'customer_name', 'customer_phone', 'date', 'payment_type', 'notes')
+        }),
+        ('الأسعار والخصم', {
+            'fields': ('subtotal_before_discount', 'discount_amount', 'total_amount', 'amount_paid', 'amount_remaining'),
+            'description': 'الإجمالي قبل الخصم، قيمة الخصم، والإجمالي النهائي بعد الخصم',
+        }),
+        ('معلومات النظام', {
+            'fields': ('created_by', 'created_at'),
+            'classes': ('collapse',),
+        }),
+    )
+    inlines = [InvoiceItemInline, InvoicePaymentInline]
+
+    def save_model(self, request, obj, form, change):
+        if not obj.pk:
+            obj.created_by = request.user
+        super().save_model(request, obj, form, change)
+
+
+# --- Receivable Admin ---
+class ReceivablePaymentInline(admin.TabularInline):
+    model = ReceivablePayment
+    extra = 0
+    fields = ['amount', 'payment_type', 'date', 'notes']
+
+@admin.register(Receivable)
+class ReceivableAdmin(admin.ModelAdmin):
+    list_display = ['customer_name', 'customer_phone', 'total_amount', 'amount_paid', 'amount_remaining', 'status', 'date', 'due_date']
+    list_filter = ['status', 'date']
+    search_fields = ['customer_name', 'customer_phone']
+    ordering = ['-created_at']
+    readonly_fields = ['amount_remaining', 'status', 'created_by', 'created_at']
+    inlines = [ReceivablePaymentInline]
+
+    def save_model(self, request, obj, form, change):
+        if not obj.pk:
+            obj.created_by = request.user
+        super().save_model(request, obj, form, change)
+
+
+# --- Payable Admin ---
+class PayablePaymentInline(admin.TabularInline):
+    model = PayablePayment
+    extra = 0
+    fields = ['amount', 'payment_type', 'date', 'notes']
+
+@admin.register(Payable)
+class PayableAdmin(admin.ModelAdmin):
+    list_display = ['creditor_name', 'total_amount', 'amount_paid', 'amount_remaining', 'status', 'date', 'due_date']
+    list_filter = ['status', 'date']
+    search_fields = ['supplier__name', 'supplier_name_manual']
+    ordering = ['-created_at']
+    readonly_fields = ['amount_remaining', 'status', 'created_by', 'created_at']
+    inlines = [PayablePaymentInline]
+
+    def creditor_name(self, obj):
+        return obj.creditor_name
+    creditor_name.short_description = 'المورد / الدائن'
+
+    def save_model(self, request, obj, form, change):
+        if not obj.pk:
+            obj.created_by = request.user
+        super().save_model(request, obj, form, change)

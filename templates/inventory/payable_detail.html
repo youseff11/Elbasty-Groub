@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% block content %}
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+    :root { --navy: #0a192f; --neon: #64ffda; --gold: #ffd700; --slate: #8892b0; --white: #e6f1ff; --card-bg: #112240; --border: rgba(100,255,218,0.15); --danger: #ff4d4d; --success: #00c853; }
+    body { background: var(--navy); color: var(--white); font-family: 'Cairo', sans-serif; }
+    .page-wrap { max-width: 780px; margin: 40px auto; padding: 0 20px 60px; }
+    .info-card, .payments-card, .add-payment-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; padding: 25px; margin-bottom: 20px; }
+    .info-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
+    .info-row:last-child { border-bottom: none; }
+    .info-label { color: var(--slate); }
+    table { width: 100%; border-collapse: collapse; }
+    th { color: var(--slate); font-size: 13px; padding: 8px 0; text-align: right; border-bottom: 1px solid var(--border); }
+    td { padding: 10px 0; font-size: 14px; border-bottom: 1px solid rgba(100,255,218,0.07); }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .form-group { margin-bottom: 14px; }
+    label { font-size: 13px; color: var(--slate); margin-bottom: 5px; display: block; }
+    input, select { width: 100%; padding: 10px 12px; border-radius: 8px; background: rgba(255,255,255,0.05); border: 1px solid rgba(100,255,218,0.2); color: var(--white); font-family: 'Cairo', sans-serif; font-size: 14px; }
+    select option { background: #112240; }
+    .submit-btn { background: linear-gradient(135deg, var(--danger), #cc0000); color: #fff; border: none; padding: 11px 25px; border-radius: 8px; font-family: 'Cairo', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; }
+    .badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+    .badge-pending { background: rgba(255,77,77,0.15); color: var(--danger); }
+    .badge-partial { background: rgba(255,193,7,0.15); color: #ffc107; }
+    .badge-paid { background: rgba(0,200,83,0.15); color: var(--success); }
+</style>
+<div class="page-wrap">
+    <a href="{% url 'payables_list' %}" style="color:var(--slate);text-decoration:none;font-size:14px;margin-bottom:15px;display:inline-block;"><i class="fas fa-arrow-right"></i> رجوع لقائمة المديونيات</a>
+    <div style="font-size:22px;font-weight:900;margin-bottom:20px;"><i class="fas fa-store" style="color:var(--danger);margin-left:10px;"></i> {{ payable.creditor_name }}</div>
+    
+    <div class="info-card">
+        <div class="info-row"><span class="info-label">البيان</span><span>{{ payable.description|default:"-" }}</span></div>
+        <div class="info-row"><span class="info-label">إجمالي المبلغ</span><span style="color:var(--gold);font-weight:700;">{{ payable.total_amount|floatformat:0 }} ج</span></div>
+        <div class="info-row"><span class="info-label">المبلغ المدفوع</span><span style="color:var(--success);font-weight:700;">{{ payable.amount_paid|floatformat:0 }} ج</span></div>
+        <div class="info-row"><span class="info-label">المتبقي</span><span style="color:var(--danger);font-weight:700;">{{ payable.amount_remaining|floatformat:0 }} ج</span></div>
+        <div class="info-row"><span class="info-label">الحالة</span><span><span class="badge badge-{{ payable.status }}">{{ payable.get_status_display }}</span></span></div>
+        <div class="info-row"><span class="info-label">التاريخ</span><span>{{ payable.date }}</span></div>
+        <div class="info-row"><span class="info-label">تاريخ الاستحقاق</span><span>{{ payable.due_date|default:"-" }}</span></div>
+        {% if payable.notes %}<div class="info-row"><span class="info-label">ملاحظات</span><span>{{ payable.notes }}</span></div>{% endif %}
+    </div>
+
+    {% if payable.amount_remaining > 0 %}
+    <div class="add-payment-card">
+        <div style="font-size:16px;font-weight:700;margin-bottom:18px;"><i class="fas fa-plus-circle" style="color:var(--neon);margin-left:8px;"></i> تسجيل دفعة سداد</div>
+        <form method="POST">
+            {% csrf_token %}
+            <div class="form-row">
+                <div class="form-group"><label>المبلغ (ج) *</label><input type="number" name="amount" min="0.01" step="0.01" required placeholder="0.00"></div>
+                <div class="form-group"><label>طريقة الدفع</label><select name="payment_type"><option value="cash">كاش</option><option value="visa">فيزا</option><option value="transfer">تحويل</option></select></div>
+            </div>
+            <div class="form-row">
+                <div class="form-group"><label>التاريخ</label><input type="date" name="date" value="{{ today }}"></div>
+                <div class="form-group"><label>ملاحظات</label><input type="text" name="notes" placeholder="اختياري"></div>
+            </div>
+            <button type="submit" class="submit-btn"><i class="fas fa-check"></i> تسجيل الدفعة</button>
+        </form>
+    </div>
+    {% endif %}
+
+    <div class="payments-card">
+        <div style="font-size:16px;font-weight:700;margin-bottom:15px;"><i class="fas fa-history" style="color:var(--neon);margin-left:8px;"></i> سجل الدفعات</div>
+        {% if payments %}
+        <table>
+            <thead><tr><th>التاريخ</th><th>المبلغ</th><th>طريقة الدفع</th><th>ملاحظات</th></tr></thead>
+            <tbody>
+            {% for p in payments %}
+            <tr>
+                <td>{{ p.date }}</td>
+                <td style="color:var(--success);font-weight:700;">{{ p.amount|floatformat:0 }} ج</td>
+                <td>{{ p.get_payment_type_display }}</td>
+                <td>{{ p.notes|default:"-" }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}<p style="color:var(--slate);">لا توجد دفعات مسجلة بعد</p>{% endif %}
+    </div>
+</div>
+{% endblock %}

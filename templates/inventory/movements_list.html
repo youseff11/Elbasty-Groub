@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --navy: #0a192f; --blue: #007bff; --neon: #64ffda; --gold: #ffd700; --slate: #8892b0; --white: #e6f1ff; --card-bg: #112240; --border: rgba(100,255,218,0.15); --danger: #ff4d4d; --success: #00c853; }
+    body { background: var(--navy); color: var(--white); font-family: 'Cairo', sans-serif; min-height: 100vh; }
+    {% include 'inventory/shared_css.html' %}
+    
+    .page-wrap { max-width: 1100px; margin: 40px auto; padding: 0 20px 60px; }
+    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+    .page-title { font-size: 22px; font-weight: 900; }
+    .page-title i { color: var(--neon); margin-left: 10px; }
+    .filter-tabs { display: flex; gap: 8px; margin-bottom: 20px; }
+    .filter-tab { padding: 7px 18px; border-radius: 20px; font-size: 13px; font-weight: 700; text-decoration: none; transition: all 0.2s; }
+    .filter-tab.all { background: rgba(100,255,218,0.1); color: var(--neon); border: 1px solid rgba(100,255,218,0.3); }
+    .filter-tab.in { background: rgba(0,200,83,0.1); color: var(--success); border: 1px solid rgba(0,200,83,0.3); }
+    .filter-tab.out { background: rgba(255,77,77,0.1); color: var(--danger); border: 1px solid rgba(255,77,77,0.3); }
+    .filter-tab:hover { opacity: 0.8; }
+    .table-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; }
+    th { padding: 12px 14px; text-align: right; font-size: 13px; color: var(--slate); border-bottom: 1px solid var(--border); background: rgba(100,255,218,0.03); }
+    td { padding: 12px 14px; font-size: 14px; border-bottom: 1px solid rgba(100,255,218,0.06); }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(100,255,218,0.03); }
+    .badge { padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+    .badge-in { background: rgba(0,200,83,0.15); color: var(--success); }
+    .badge-out { background: rgba(255,77,77,0.15); color: var(--danger); }
+    .badge-cash { background: rgba(100,255,218,0.15); color: var(--neon); }
+    .badge-visa { background: rgba(0,123,255,0.15); color: var(--blue); }
+    .badge-credit { background: rgba(255,215,0,0.15); color: var(--gold); }
+    .empty-state { text-align: center; padding: 60px; color: var(--slate); }
+</style>
+
+<div class="page-wrap">
+    <div class="page-header">
+        <div class="page-title"><i class="fas fa-exchange-alt"></i> حركات المخزن</div>
+        <div style="display:flex;gap:10px;">
+            <a href="{% url 'add_stock_movement' %}" class="btn btn-gold"><i class="fas fa-plus"></i> حركة جديدة</a>
+            <a href="{% url 'inventory_dashboard' %}" class="btn btn-secondary"><i class="fas fa-arrow-right"></i> رجوع</a>
+        </div>
+    </div>
+
+    <div class="filter-tabs">
+        <a href="{% url 'movements_list' %}" class="filter-tab all">الكل</a>
+        <a href="{% url 'movements_list' %}?type=in" class="filter-tab in"><i class="fas fa-arrow-down"></i> وارد فقط</a>
+        <a href="{% url 'movements_list' %}?type=out" class="filter-tab out"><i class="fas fa-arrow-up"></i> صادر فقط</a>
+    </div>
+
+    <div class="table-card">
+        {% if movements %}
+        <table>
+            <thead>
+                <tr>
+                    <th>التاريخ</th>
+                    <th>النوع</th>
+                    <th>المنتج</th>
+                    <th>المورد</th>
+                    <th>الكمية</th>
+                    <th>سعر الوحدة</th>
+                    <th>الإجمالي</th>
+                    <th>مدفوع</th>
+                    <th>متبقي</th>
+                    <th>الدفع</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for m in movements %}
+            <tr>
+                <td>{{ m.date }}</td>
+                <td><span class="badge badge-{{ m.movement_type }}">{{ m.get_movement_type_display }}</span></td>
+                <td>{{ m.product.name }}</td>
+                <td style="color:var(--slate);">{{ m.supplier.name|default:"-" }}</td>
+                <td style="font-weight:700;">{{ m.quantity }}</td>
+                <td>{{ m.unit_price|floatformat:2 }} ج</td>
+                <td>{{ m.total_value|floatformat:2 }} ج</td>
+                <td style="color:var(--success);">{{ m.amount_paid|floatformat:2 }} ج</td>
+                <td style="color:{% if m.amount_remaining > 0 %}var(--danger){% else %}var(--success){% endif %};font-weight:700;">{{ m.amount_remaining|floatformat:2 }} ج</td>
+                <td><span class="badge badge-{{ m.payment_type }}">{{ m.get_payment_type_display }}</span></td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-inbox" style="font-size:50px;opacity:0.3;display:block;margin-bottom:15px;"></i>
+            <div>لا توجد حركات مخزن</div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

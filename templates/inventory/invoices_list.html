@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { 
+        --navy: #0a192f; --blue: #007bff; --neon: #64ffda; --gold: #ffd700; 
+        --slate: #8892b0; --white: #e6f1ff; --card-bg: #112240; 
+        --border: rgba(100,255,218,0.15); --danger: #ff4d4d; --success: #00c853; 
+    }
+    body { background: var(--navy); color: var(--white); font-family: 'Cairo', sans-serif; min-height: 100vh; }
+    {% include 'inventory/shared_css.html' %}
+    
+    .page-wrap { max-width: 1000px; margin: 40px auto; padding: 0 20px 60px; }
+    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 12px; }
+    .page-title { font-size: 22px; font-weight: 900; }
+    .page-title i { color: var(--gold); margin-left: 10px; }
+    .table-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; }
+    th { padding: 13px 16px; text-align: right; font-size: 13px; color: var(--slate); border-bottom: 1px solid var(--border); background: rgba(100,255,218,0.03); }
+    td { padding: 13px 16px; font-size: 14px; border-bottom: 1px solid rgba(100,255,218,0.06); }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(100,255,218,0.03); }
+    .badge { padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+    .badge-cash { background: rgba(100,255,218,0.15); color: var(--neon); }
+    .badge-visa { background: rgba(0,123,255,0.15); color: var(--blue); }
+    .badge-credit { background: rgba(255,215,0,0.15); color: var(--gold); }
+    .empty-state { text-align: center; padding: 60px; color: var(--slate); }
+    .empty-state i { font-size: 50px; opacity: 0.3; display: block; margin-bottom: 15px; }
+    a.inv-link { color: var(--neon); text-decoration: none; font-weight: 700; }
+    a.inv-link:hover { text-decoration: underline; }
+</style>
+
+<div class="page-wrap">
+    <div class="page-header">
+        <div class="page-title"><i class="fas fa-file-invoice"></i> قائمة الفواتير</div>
+        <div style="display:flex;gap:10px;">
+            <a href="{% url 'create_invoice' %}" class="btn btn-primary"><i class="fas fa-plus"></i> فاتورة جديدة</a>
+            <a href="{% url 'inventory_dashboard' %}" class="btn btn-secondary"><i class="fas fa-arrow-right"></i> رجوع</a>
+        </div>
+    </div>
+    
+    <div class="table-card">
+        {% if invoices %}
+        <table>
+            <thead>
+                <tr>
+                    <th>رقم الفاتورة</th>
+                    <th>العميل</th>
+                    <th>التاريخ</th>
+                    <th>الإجمالي</th>
+                    <th>مدفوع</th>
+                    <th>متبقي</th>
+                    <th>طريقة الدفع</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for inv in invoices %}
+            <tr>
+                <td><a href="{% url 'invoice_detail' inv.pk %}" class="inv-link">#{{ inv.invoice_number }}</a></td>
+                <td>{{ inv.customer_name }}{% if inv.customer_phone %}<br><span style="color:var(--slate);font-size:12px;">{{ inv.customer_phone }}</span>{% endif %}</td>
+                <td>{{ inv.date }}</td>
+                <td>{{ inv.total_amount|floatformat:0 }} ج</td>
+                <td style="color:var(--success);">{{ inv.amount_paid|floatformat:0 }} ج</td>
+                <td style="color:{% if inv.amount_remaining > 0 %}var(--danger){% else %}var(--success){% endif %};font-weight:700;">
+                    {{ inv.amount_remaining|floatformat:0 }} ج
+                </td>
+                <td><span class="badge badge-{{ inv.payment_type }}">{{ inv.get_payment_type_display }}</span></td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-file-invoice"></i>
+            <div style="margin-top: 10px;">لا توجد فواتير بعد</div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

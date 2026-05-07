@@ -1,0 +1,391 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+    :root {
+        /* الهوية البصرية السيبرانية المحدثة */
+        --bg-dark: #020617;
+        --bg-panel: #0f172a;
+        --neon-blue: #00e5ff;
+        --cyber-neon: #64ffda;
+        --text-main: #ffffff;
+        --text-sec: #94a3b8;
+        --glass-border: rgba(0, 229, 255, 0.15);
+        --trans-smooth: 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+        --whatsapp-green: #25D366;
+        
+        --font-arabic: 'Cairo', sans-serif;
+        --font-english: 'Rajdhani', sans-serif;
+    }
+
+    body {
+        background: var(--bg-dark);
+        margin: 0;
+        color: var(--text-main);
+        font-family: var(--font-arabic);
+        overflow-x: hidden;
+    }
+
+    .contact-wrapper {
+        padding: 120px 5% 100px;
+        min-height: 100vh;
+        background-color: var(--bg-dark);
+        background-image: 
+            linear-gradient(rgba(0, 229, 255, 0.02) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0, 229, 255, 0.02) 1px, transparent 1px);
+        background-size: 30px 30px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        direction: rtl; 
+    }
+
+    .section-title {
+        text-align: center;
+        margin-bottom: 60px;
+        position: relative;
+        z-index: 10;
+    }
+
+    .section-title h1 {
+        font-size: clamp(35px, 5vw, 55px);
+        font-weight: 900;
+        margin: 0;
+        color: #ffffff;
+    }
+
+    .section-title h1 span {
+        background: linear-gradient(to right, #ffffff, var(--neon-blue));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-family: var(--font-english);
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
+
+    .section-title p {
+        color: var(--cyber-neon);
+        letter-spacing: 1px;
+        font-size: 16px;
+        margin-top: 15px;
+        font-weight: 700;
+    }
+
+    /* --- WhatsApp Style --- */
+    .wa-float-container {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 15px;
+    }
+    .wa-contact-list {
+        display: none;
+        flex-direction: column;
+        gap: 10px;
+        transform-origin: bottom right;
+    }
+    .wa-contact-item {
+        background: var(--bg-panel);
+        color: var(--text-main);
+        padding: 12px 20px;
+        border-radius: 50px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 14px;
+        font-weight: 600;
+        transition: 0.3s var(--trans-smooth);
+        border: 1px solid var(--glass-border);
+        backdrop-filter: blur(10px);
+    }
+    .wa-contact-item i { color: var(--whatsapp-green); font-size: 18px; }
+    .wa-contact-item:hover { 
+        transform: translateX(-10px); 
+        background: var(--whatsapp-green); 
+        border-color: var(--whatsapp-green);
+        color: var(--bg-dark); 
+        box-shadow: 0 0 15px rgba(37, 211, 102, 0.4);
+    }
+    .wa-contact-item:hover i { color: var(--bg-dark); }
+    .wa-main-btn {
+        width: 65px; height: 65px; background: var(--whatsapp-green);
+        border-radius: 50%; display: flex; align-items: center; justify-content: center;
+        color: white; font-size: 32px; cursor: pointer;
+        box-shadow: 0 10px 20px rgba(37, 211, 102, 0.3); transition: 0.4s;
+    }
+    .wa-main-btn:hover { transform: scale(1.1) rotate(15deg); }
+    .wa-float-container.active .wa-contact-list { display: flex; animation: slideIn 0.4s var(--trans-smooth) forwards; }
+    @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+    .contact-grid {
+        display: grid;
+        grid-template-columns: 1fr 1.5fr;
+        gap: 40px;
+        max-width: 1200px;
+        width: 100%;
+        position: relative;
+        z-index: 10;
+    }
+
+    .cyber-card {
+        background: var(--bg-panel);
+        border: 1px solid var(--glass-border);
+        position: relative;
+        overflow: hidden;
+        transition: var(--trans-smooth);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        border-radius: 12px;
+        backdrop-filter: blur(10px);
+    }
+
+    .cyber-card:hover {
+        border-color: var(--neon-blue);
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(0, 229, 255, 0.15);
+    }
+
+    .card-inner {
+        padding: 40px;
+        position: relative;
+        z-index: 5;
+    }
+
+    .info-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .info-icon {
+        width: 45px;
+        height: 45px;
+        background: rgba(2, 6, 23, 0.8);
+        border: 1px solid var(--glass-border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--neon-blue);
+        font-size: 18px;
+        flex-shrink: 0;
+        transition: 0.4s;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 229, 255, 0.1);
+    }
+
+    .info-item:hover .info-icon {
+        background: var(--neon-blue);
+        color: var(--bg-dark);
+        border-color: var(--neon-blue);
+        box-shadow: 0 0 15px rgba(0, 229, 255, 0.4);
+    }
+
+    .info-text h4 { 
+        margin: 0; 
+        font-size: 17px; 
+        color: var(--text-main); 
+        font-weight: 800;
+    }
+    
+    .info-text p { 
+        margin: 8px 0 0; 
+        color: var(--text-sec); 
+        font-size: 14px; 
+        line-height: 1.8;
+        font-weight: 600;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    .contact-form input, .contact-form textarea {
+        width: 100%;
+        padding: 15px;
+        background: rgba(2, 6, 23, 0.6);
+        border: 1px solid var(--glass-border);
+        color: var(--text-main);
+        margin-bottom: 20px;
+        outline: none;
+        transition: 0.4s;
+        font-size: 14px;
+        font-family: inherit;
+        font-weight: 600;
+        text-align: right;
+        border-radius: 6px;
+        box-sizing: border-box;
+    }
+
+    .contact-form input::placeholder, .contact-form textarea::placeholder {
+        color: rgba(148, 163, 184, 0.6);
+    }
+
+    .contact-form input:focus, .contact-form textarea:focus {
+        border-color: var(--neon-blue);
+        background: rgba(2, 6, 23, 0.9);
+        box-shadow: 0 0 15px rgba(0, 229, 255, 0.15);
+    }
+
+    .btn-submit {
+        width: 100%;
+        padding: 16px;
+        background: transparent;
+        color: var(--neon-blue);
+        border: 1px solid var(--neon-blue);
+        font-weight: 800;
+        cursor: pointer;
+        transition: var(--trans-smooth);
+        font-size: 16px;
+        margin-top: 10px;
+        border-radius: 6px;
+        font-family: var(--font-arabic);
+    }
+
+    .btn-submit:hover {
+        background: var(--neon-blue);
+        color: var(--bg-dark);
+        transform: translateY(-3px);
+        box-shadow: 0 0 20px rgba(0, 229, 255, 0.3);
+    }
+
+    .map-container {
+        margin-top: 25px;
+        border: 1px solid var(--glass-border);
+        height: 250px;
+        border-radius: 8px;
+        overflow: hidden;
+        background: var(--bg-dark);
+    }
+
+    /* فلتر لتحويل الخريطة للوضع المظلم المتوافق مع التصميم */
+    .map-container iframe {
+        filter: invert(90%) hue-rotate(180deg) brightness(85%) contrast(120%);
+        transition: 0.5s;
+    }
+    
+    .map-container:hover iframe {
+        filter: invert(90%) hue-rotate(180deg) brightness(100%) contrast(120%);
+    }
+
+    @media (max-width: 992px) {
+        .contact-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 600px) {
+        .form-row { grid-template-columns: 1fr; }
+        .section-title h1 { font-size: 30px; }
+    }
+</style>
+
+<div class="wa-float-container" id="waContainer">
+    <div class="wa-contact-list">
+        <a href="https://wa.me/201031011001" target="_blank" class="wa-contact-item">
+            <span>مبيعات / استفسارات واتس: 01031011001</span>
+            <i class="fa-brands fa-whatsapp"></i>
+        </a>
+        
+        <!-- تم تعديل هذا الجزء -->
+        <a href="tel:01225793952" class="wa-contact-item">
+            <span>مكالمات : 01225793952</span>
+            <i class="fa-solid fa-phone"></i>
+        </a>
+    </div>
+    <div class="wa-main-btn" onclick="document.getElementById('waContainer').classList.toggle('active')">
+        <i class="fa-brands fa-whatsapp"></i>
+    </div>
+</div>
+
+<div class="contact-wrapper">
+    <div class="section-title">
+        <h1>تواصل مع <span>Al-Basty Group</span></h1>
+        <p>نحن هنا لتأمين منشأتك بأحدث التقنيات الذكية</p>
+    </div>
+
+    <div class="contact-grid">
+        <div class="cyber-card">
+            <div class="card-inner">
+                <h3 style="font-size: 22px; color: var(--neon-blue); margin-top: 0; margin-bottom: 30px; font-weight: 800;">بيانات الدعم والاتصال</h3>
+                
+                <div class="info-item">
+                    <div class="info-icon"><i class="fas fa-map-marker-alt"></i></div>
+                    <div class="info-text">
+                        <h4>المقر الرئيسي للشركة</h4>
+                        <p>بنها , طوخ</p>
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-icon"><i class="fas fa-phone"></i></div>
+                    <div class="info-text">
+                        <h4>أرقام التواصل</h4>
+                        <p style="font-family: var(--font-english); font-size: 15px;">
+                            Sales: 01031011001<br>
+                            Support: 01225793952
+                        </p>
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-icon"><i class="fas fa-clock"></i></div>
+                    <div class="info-text">
+                        <h4>مواعيد العمل الرسمية</h4>
+                        <p>يومياً من الساعة 9 صباحا حتى 10 مساءً</p>
+                    </div>
+                </div>
+
+                <!-- <div class="map-container">
+                    <iframe 
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d13824.22591605371!2d31.144414!3d29.9778!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1458466e3a6c2f35%3A0xc665551f38e6e87b!2z2KfZhNmF2LHZitmI2LfZitip2Iwg2KfZhNmH2LHZhQ!5e0!3m2!1sar!2seg!4v1700000000000" 
+                        width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade">
+                    </iframe>
+                </div> -->
+            </div>
+        </div>
+
+        <div class="cyber-card">
+            <div class="card-inner">
+                <h3 style="font-size: 22px; color: var(--text-main); margin-top: 0; margin-bottom: 30px; font-weight: 800;">أرسل استفسارك الأمني</h3>
+                
+                <form class="contact-form" method="POST">
+                    {% csrf_token %}
+                    
+                    <div class="form-row">
+                        <input type="text" name="name" placeholder="الاسم الكامل / اسم الشركة" required>
+                        <input type="email" name="email" placeholder="البريد الإلكتروني" required>
+                    </div>
+
+                    <div class="form-row">
+                        <input type="tel" name="phone" placeholder="رقم الهاتف" required>
+                        <input type="text" name="subject" placeholder="بخصوص (كاميرات مراقبة، أبواب ذكية، شبكات...)">
+                    </div>
+
+                    <textarea name="message" rows="6" placeholder="اكتب تفاصيل طلبك أو استفسارك هنا..." required></textarea>
+                    
+                    <button type="submit" class="btn-submit">إرسال الطلب الآمن</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // إغلاق قائمة الواتساب عند النقر خارجها
+    document.addEventListener('click', (e) => {
+        const container = document.getElementById('waContainer');
+        if (!container.contains(e.target)) {
+            container.classList.remove('active');
+        }
+    });
+</script>
+{% endblock %}

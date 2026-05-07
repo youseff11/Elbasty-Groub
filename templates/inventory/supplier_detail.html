@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --navy: #0a192f; --blue: #007bff; --neon: #64ffda; --gold: #ffd700; --slate: #8892b0; --white: #e6f1ff; --card-bg: #112240; --border: rgba(100,255,218,0.15); --danger: #ff4d4d; --success: #00c853; }
+    body { background: var(--navy); color: var(--white); font-family: 'Cairo', sans-serif; min-height: 100vh; }
+    {% include 'inventory/shared_css.html' %}
+    .page-wrap { max-width: 900px; margin: 40px auto; padding: 0 20px 60px; }
+    .back-link { display: inline-flex; align-items: center; gap: 6px; color: var(--slate); text-decoration: none; font-size: 14px; margin-bottom: 20px; }
+    .back-link:hover { color: var(--neon); }
+    .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; padding: 28px; margin-bottom: 22px; }
+    .card-title { font-size: 16px; font-weight: 700; margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+    .card-title i { color: var(--neon); margin-left: 8px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 600px) { .form-row { grid-template-columns: 1fr; } }
+    .form-group { margin-bottom: 16px; }
+    label { display: block; font-size: 13px; font-weight: 600; color: var(--slate); margin-bottom: 6px; }
+    input, textarea { width: 100%; padding: 10px 12px; border-radius: 7px; background: rgba(255,255,255,0.05); border: 1px solid rgba(100,255,218,0.2); color: var(--white); font-family: 'Cairo', sans-serif; font-size: 14px; }
+    input:focus, textarea:focus { outline: none; border-color: var(--neon); }
+    table { width: 100%; border-collapse: collapse; }
+    th { padding: 11px 14px; text-align: right; font-size: 13px; color: var(--slate); border-bottom: 1px solid var(--border); }
+    td { padding: 12px 14px; font-size: 14px; border-bottom: 1px solid rgba(100,255,218,0.06); }
+    tr:last-child td { border-bottom: none; }
+    .badge { padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+    .badge-in { background: rgba(0,200,83,0.15); color: var(--success); }
+    .empty-state { text-align: center; padding: 40px; color: var(--slate); }
+    .submit-btn { padding: 11px 24px; background: var(--blue); color: #fff; border: none; border-radius: 8px; font-family: 'Cairo', sans-serif; font-weight: 700; cursor: pointer; font-size: 14px; }
+
+    {% if messages %}
+    .alert-success { background: rgba(0,200,83,0.15); border: 1px solid rgba(0,200,83,0.3); color: var(--success); padding: 12px; border-radius: 8px; margin-bottom: 16px; font-size: 14px; }
+    {% endif %}
+</style>
+
+<div class="page-wrap">
+    <a href="{% url 'suppliers_list' %}" class="back-link"><i class="fas fa-arrow-right"></i> رجوع للموردين</a>
+
+    {% if messages %}
+        {% for m in messages %}
+            <div class="alert-success">{{ m }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="card">
+        <div class="card-title"><i class="fas fa-building"></i> بيانات المورد: {{ supplier.name }}</div>
+        <form method="POST">
+            {% csrf_token %}
+            <div class="form-row">
+                <div class="form-group">
+                    <label>اسم المورد</label>
+                    <input type="text" name="name" value="{{ supplier.name }}" required>
+                </div>
+                <div class="form-group">
+                    <label>رقم الهاتف</label>
+                    <input type="text" name="phone" value="{{ supplier.phone|default:'' }}">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>البريد الإلكتروني</label>
+                    <input type="email" name="email" value="{{ supplier.email|default:'' }}">
+                </div>
+                <div class="form-group">
+                    <label>العنوان</label>
+                    <input type="text" name="address" value="{{ supplier.address|default:'' }}">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>ملاحظات</label>
+                <textarea name="notes" rows="2">{{ supplier.notes|default:'' }}</textarea>
+            </div>
+            <button type="submit" class="submit-btn"><i class="fas fa-save"></i> حفظ التعديلات</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <div class="card-title"><i class="fas fa-history"></i> سجل الحركات مع هذا المورد</div>
+        {% if movements %}
+        <table>
+            <thead><tr><th>التاريخ</th><th>المنتج</th><th>الكمية</th><th>سعر الوحدة</th><th>الإجمالي</th><th>مدفوع</th><th>متبقي</th></tr></thead>
+            <tbody>
+            {% for m in movements %}
+            <tr>
+                <td>{{ m.date }}</td>
+                <td>{{ m.product.name }}</td>
+                <td>{{ m.quantity }}</td>
+                <td>{{ m.unit_price|floatformat:2 }} ج</td>
+                <td>{{ m.total_value|floatformat:2 }} ج</td>
+                <td style="color:var(--success);">{{ m.amount_paid|floatformat:2 }} ج</td>
+                <td style="color:{% if m.amount_remaining > 0 %}var(--danger){% else %}var(--success){% endif %};font-weight:700;">{{ m.amount_remaining|floatformat:2 }} ج</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-inbox" style="font-size:36px;opacity:0.3;display:block;margin-bottom:10px;"></i>
+            لا توجد حركات مخزن مع هذا المورد بعد
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,394 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+        --navy: #0a192f; --blue: #007bff; --neon: #64ffda; --gold: #ffd700;
+        --slate: #8892b0; --white: #e6f1ff; --card-bg: #112240;
+        --border: rgba(100,255,218,0.15); --danger: #ff4d4d; --success: #00c853;
+    }
+    body { background: var(--navy); color: var(--white); font-family: 'Cairo', sans-serif; min-height: 100vh; }
+    {% include 'inventory/shared_css.html' %}
+
+    .page-wrap { max-width: 900px; margin: 40px auto; padding: 0 20px 60px; }
+    .page-title { font-size: 22px; font-weight: 900; margin-bottom: 25px; }
+    .page-title i { color: var(--gold); margin-left: 10px; }
+    .back-link { display: inline-flex; align-items: center; gap: 6px; color: var(--slate); text-decoration: none; font-size: 14px; margin-bottom: 20px; }
+    .back-link:hover { color: var(--neon); }
+    .form-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; padding: 30px; margin-bottom: 20px; }
+    .card-title { font-size: 16px; font-weight: 700; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+    .card-title i { margin-left: 8px; color: var(--neon); }
+
+    .form-group { margin-bottom: 18px; }
+    label { display: block; font-size: 14px; font-weight: 600; color: var(--slate); margin-bottom: 7px; }
+    label .req { color: var(--danger); margin-right: 3px; }
+    input, select, textarea {
+        width: 100%; padding: 10px 14px; border-radius: 8px;
+        background: rgba(255,255,255,0.05); border: 1px solid rgba(100,255,218,0.2);
+        color: var(--white); font-family: 'Cairo', sans-serif; font-size: 14px;
+    }
+    input:focus, select:focus { outline: none; border-color: var(--neon); }
+    select option { background: #112240; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    @media (max-width: 600px) { .form-row { grid-template-columns: 1fr; } }
+
+    /* جدول المنتجات */
+    .items-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
+    .items-table th { padding: 10px 12px; text-align: right; font-size: 13px; color: var(--slate); border-bottom: 1px solid var(--border); }
+    .items-table td { padding: 8px 6px; }
+    .items-table input, .items-table select { padding: 8px 10px; font-size: 13px; }
+    .remove-row { background: none; border: none; color: var(--danger); cursor: pointer; font-size: 16px; padding: 6px; }
+    .remove-row:hover { color: #ff0000; }
+    .add-item-btn {
+        width: 100%; padding: 10px; background: rgba(100,255,218,0.06);
+        border: 1px dashed rgba(100,255,218,0.3); border-radius: 8px;
+        color: var(--neon); font-family: 'Cairo', sans-serif; font-weight: 700;
+        font-size: 14px; cursor: pointer; transition: background 0.2s;
+    }
+    .add-item-btn:hover { background: rgba(100,255,218,0.12); }
+
+    .totals-box { background: rgba(255,215,0,0.06); border: 1px solid rgba(255,215,0,0.2); border-radius: 10px; padding: 18px 22px; }
+    .totals-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 14px; }
+    .totals-row:last-child { font-size: 17px; font-weight: 900; color: var(--gold); border-top: 1px solid rgba(255,215,0,0.2); padding-top: 10px; margin-top: 5px; margin-bottom: 0; }
+    .totals-row input { width: 160px; text-align: center; }
+
+    .submit-btn { width: 100%; padding: 15px; background: linear-gradient(135deg, var(--blue), #0056b3); color: #fff; border: none; border-radius: 10px; font-family: 'Cairo', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 20px; }
+    .submit-btn:hover { background: linear-gradient(135deg, #0056b3, #003d80); }
+</style>
+
+<div class="page-wrap">
+    <a href="{% url 'inventory_dashboard' %}" class="back-link"><i class="fas fa-arrow-right"></i> رجوع للمخزن</a>
+    <div class="page-title"><i class="fas fa-file-invoice"></i> إنشاء فاتورة بيع جديدة</div>
+
+    <form method="POST" id="invoice-form">
+        {% csrf_token %}
+
+        <div class="form-card">
+            <div class="card-title"><i class="fas fa-user"></i> بيانات العميل</div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>اسم العميل <span class="req">*</span></label>
+                    <input type="text" name="customer_name" required placeholder="اسم العميل الكريم">
+                </div>
+                <div class="form-group">
+                    <label>رقم الهاتف</label>
+                    <input type="text" name="customer_phone" placeholder="01xxxxxxxxx">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>التاريخ <span class="req">*</span></label>
+                    <input type="date" name="date" required value="{{ today }}">
+                </div>
+                <div class="form-group">
+                    <label>طريقة الدفع <span class="req">*</span></label>
+                    <select name="payment_type" id="payment_type" required onchange="onPaymentTypeChange(this.value)">
+                        <option value="cash">كاش</option>
+                        <option value="visa">فيزا</option>
+                        <option value="credit">آجل</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-card">
+            <div class="card-title"><i class="fas fa-boxes"></i> المنتجات</div>
+            <div style="overflow-x:auto;">
+            <table class="items-table">
+                <thead>
+                    <tr>
+                        <th style="min-width:180px">المنتج</th>
+                        <th style="min-width:130px">اللون</th>
+                        <th style="min-width:130px">المقاس</th>
+                        <th style="width:80px">الكمية</th>
+                        <th style="min-width:120px">سعر الوحدة</th>
+                        <th style="min-width:100px">الإجمالي</th>
+                        <th style="width:40px"></th>
+                    </tr>
+                </thead>
+                <tbody id="items-body">
+                    <tr class="item-row">
+                        <td>
+                            <select name="product_id[]" required onchange="onProductChange(this)">
+                                <option value="">-- اختر المنتج --</option>
+                                {% for p in products %}
+                                <option value="{{ p.pk }}" data-price="{{ p.get_effective_price }}">
+                                    {{ p.name }}{% if p.sku %} ({{ p.sku }}){% endif %}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                        <td><select name="variant[]" disabled><option value="">-- اختر اللون --</option></select></td>
+                        <td><select name="product_size[]" disabled><option value="">-- اختر المقاس --</option></select></td>
+                        <td><input type="number" name="quantity[]" min="1" value="1" oninput="calcRow(this)"></td>
+                        <td><input type="number" name="unit_price[]" min="0" step="0.01" oninput="calcRow(this)" placeholder="0.00"></td>
+                        <td class="row-total" style="font-weight:700;text-align:center;color:var(--gold);">0.00 ج</td>
+                        <td><button type="button" class="remove-row" onclick="removeRow(this)"><i class="fas fa-times"></i></button></td>
+                    </tr>
+                </tbody>
+            </table>
+            </div>
+            <button type="button" class="add-item-btn" onclick="addRow()">
+                <i class="fas fa-plus"></i> إضافة منتج آخر
+            </button>
+        </div>
+
+        <div class="form-card">
+            <div class="card-title"><i class="fas fa-coins"></i> الدفع</div>
+            <div class="totals-box">
+                <div class="totals-row">
+                    <span>إجمالي المنتجات:</span>
+                    <span id="subtotal-display">0.00 ج</span>
+                </div>
+                <div class="totals-row">
+                    <span style="display:flex;align-items:center;gap:8px;">
+                        خصم
+                        <select id="discount-type" onchange="calcRemaining()" style="width:80px;padding:4px 8px;font-size:13px;border-radius:6px;background:rgba(255,255,255,0.05);border:1px solid rgba(100,255,218,0.2);color:var(--white);">
+                            <option value="amount">ج</option>
+                            <option value="percent">%</option>
+                        </select>
+                    </span>
+                    <div style="display:flex;align-items:center;gap:6px;">
+                        <input type="number" name="discount_value" id="discount_value" min="0" step="0.01" value="0"
+                               oninput="calcRemaining()" placeholder="0"
+                               style="width:110px;text-align:center;">
+                        <span id="discount-amount-display" style="color:#ffc107;font-size:13px;min-width:70px;text-align:left;"></span>
+                    </div>
+                </div>
+                <div class="totals-row" style="font-size:17px;font-weight:900;color:var(--gold);border-top:1px solid rgba(255,215,0,0.2);padding-top:10px;margin-top:5px;">
+                    <span>إجمالي الفاتورة بعد الخصم:</span>
+                    <span id="grand-total">0.00 ج</span>
+                </div>
+                <input type="hidden" name="grand_total_after_discount" id="grand_total_hidden">
+                <div class="totals-row">
+                    <span>المبلغ المدفوع:</span>
+                    <input type="number" name="amount_paid" id="amount_paid" min="0" step="0.01" value="0" oninput="calcRemaining()" placeholder="0.00">
+                </div>
+                <div class="totals-row">
+                    <span>المتبقي:</span>
+                    <span id="remaining-display" style="color:var(--danger);">0.00 ج</span>
+                </div>
+            </div>
+            <div class="form-group" style="margin-top:18px;">
+                <label>ملاحظات</label>
+                <textarea name="notes" rows="2" placeholder="أي ملاحظات..."></textarea>
+            </div>
+
+            <!-- جدول مواعيد الدفع الآجل -->
+            <div id="schedule-section" style="display:none;margin-top:20px;">
+                <div style="background:rgba(100,255,218,0.04);border:1px solid rgba(100,255,218,0.25);border-radius:12px;padding:20px;">
+                    <h4 style="color:var(--neon);font-size:15px;font-weight:700;margin-bottom:15px;">
+                        <i class="fas fa-calendar-alt"></i> مواعيد تسديد الدفعات الآجلة
+                        <small style="color:var(--slate);font-size:12px;font-weight:400;margin-right:8px;">(سيُرسَل تذكير بالإيميل قبل 3 أيام من كل موعد)</small>
+                    </h4>
+                    <div id="schedule-rows"></div>
+                    <button type="button" onclick="addScheduleRow()" style="background:rgba(100,255,218,0.1);border:1px dashed rgba(100,255,218,0.4);color:var(--neon);border-radius:8px;padding:10px 16px;cursor:pointer;font-family:'Cairo',sans-serif;font-size:14px;font-weight:600;width:100%;margin-top:8px;">
+                        <i class="fas fa-plus"></i> إضافة موعد دفعة
+                    </button>
+                    <div style="margin-top:12px;padding:10px 14px;border-radius:8px;background:rgba(255,255,255,0.04);font-size:13px;">
+                        إجمالي المواعيد: <span id="schedule-total-display" style="color:var(--gold);font-weight:700;">0.00 ج</span>
+                        &nbsp;|&nbsp; المتبقي للتوزيع: <span id="schedule-remaining-display" style="color:var(--danger);font-weight:700;">0.00 ج</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- رسالة خطأ محلية -->
+            <div id="inv-local-error" style="display:none;background:rgba(255,77,77,0.12);border:1px solid rgba(255,77,77,0.4);border-radius:10px;padding:14px 18px;color:var(--danger);font-size:14px;font-weight:600;margin-top:16px;">
+                <i class="fas fa-exclamation-triangle"></i> <span id="inv-error-msg"></span>
+            </div>
+
+            <button type="submit" class="submit-btn" onclick="return validateInvoice()">
+                <i class="fas fa-file-invoice-dollar"></i> حفظ الفاتورة
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+    const PRODUCTS_DATA = {{ products_data_json|safe }};
+
+    const productOptionsHTML = `{% for p in products %}<option value="{{ p.pk }}" data-price="{{ p.get_effective_price }}">{{ p.name }}{% if p.sku %} ({{ p.sku }}){% endif %}</option>{% endfor %}`;
+
+    function onProductChange(sel) {
+        const productId = sel.value;
+        const row = sel.closest('tr');
+        const variantSel = row.querySelector('select[name="variant[]"]');
+        const sizeSel = row.querySelector('select[name="product_size[]"]');
+        const priceFld = row.querySelector('input[name="unit_price[]"]');
+
+        variantSel.innerHTML = '<option value="">-- اختر اللون --</option>';
+        sizeSel.innerHTML = '<option value="">-- اختر المقاس --</option>';
+        variantSel.disabled = true;
+        sizeSel.disabled = true;
+
+        if (!productId || !PRODUCTS_DATA[productId]) {
+            priceFld.value = '';
+            return;
+        }
+
+        // تعبئة السعر
+        const opt = sel.options[sel.selectedIndex];
+        priceFld.value = parseFloat(opt.getAttribute('data-price') || 0).toFixed(2);
+        calcRow(priceFld);
+
+        const variants = PRODUCTS_DATA[productId].variants;
+        if (Object.keys(variants).length === 0) return;
+
+        for (const [vId, vData] of Object.entries(variants)) {
+            const o = document.createElement('option');
+            o.value = vId;
+            o.textContent = vData.color;
+            variantSel.appendChild(o);
+        }
+        variantSel.disabled = false;
+
+        variantSel.onchange = function() {
+            const vId = this.value;
+            sizeSel.innerHTML = '<option value="">-- اختر المقاس --</option>';
+            sizeSel.disabled = true;
+            if (!vId) return;
+            const sizes = variants[vId]?.sizes || {};
+            for (const [sId, sData] of Object.entries(sizes)) {
+                const o = document.createElement('option');
+                o.value = sId;
+                o.textContent = sData.name + ' (مخزون: ' + sData.stock + ')';
+                sizeSel.appendChild(o);
+            }
+            sizeSel.disabled = false;
+        };
+    }
+
+    function calcRow(input) {
+        const row = input.closest('tr');
+        const qty = parseFloat(row.querySelector('input[name="quantity[]"]').value) || 0;
+        const price = parseFloat(row.querySelector('input[name="unit_price[]"]').value) || 0;
+        row.querySelector('.row-total').textContent = (qty * price).toFixed(2) + ' ج';
+        updateGrandTotal();
+    }
+
+    function updateGrandTotal() {
+        let subtotal = 0;
+        document.querySelectorAll('.row-total').forEach(el => {
+            subtotal += parseFloat(el.textContent) || 0;
+        });
+        document.getElementById('subtotal-display').textContent = subtotal.toFixed(2) + ' ج';
+        calcRemaining();
+    }
+
+    function calcRemaining() {
+        let subtotal = 0;
+        document.querySelectorAll('.row-total').forEach(el => {
+            subtotal += parseFloat(el.textContent) || 0;
+        });
+        const discountVal = parseFloat(document.getElementById('discount_value').value) || 0;
+        const discountType = document.getElementById('discount-type').value;
+        let discountAmount = 0;
+        if (discountType === 'percent') {
+            discountAmount = subtotal * (discountVal / 100);
+        } else {
+            discountAmount = Math.min(discountVal, subtotal);
+        }
+        const grandTotal = Math.max(0, subtotal - discountAmount);
+        document.getElementById('grand-total').textContent = grandTotal.toFixed(2) + ' ج';
+        document.getElementById('grand_total_hidden').value = grandTotal.toFixed(2);
+        if (discountAmount > 0) {
+            document.getElementById('discount-amount-display').textContent = '- ' + discountAmount.toFixed(0) + ' ج';
+        } else {
+            document.getElementById('discount-amount-display').textContent = '';
+        }
+        const paid = parseFloat(document.getElementById('amount_paid').value) || 0;
+        const rem = Math.max(0, grandTotal - paid);
+        const el = document.getElementById('remaining-display');
+        el.textContent = rem.toFixed(2) + ' ج';
+        el.style.color = rem > 0 ? 'var(--danger)' : 'var(--success)';
+    }
+
+    function addRow() {
+        const tbody = document.getElementById('items-body');
+        const newRow = document.createElement('tr');
+        newRow.className = 'item-row';
+        newRow.innerHTML = `
+            <td><select name="product_id[]" required onchange="onProductChange(this)">
+                <option value="">-- اختر المنتج --</option>${productOptionsHTML}
+            </select></td>
+            <td><select name="variant[]" disabled><option value="">-- اختر اللون --</option></select></td>
+            <td><select name="product_size[]" disabled><option value="">-- اختر المقاس --</option></select></td>
+            <td><input type="number" name="quantity[]" min="1" value="1" oninput="calcRow(this)"></td>
+            <td><input type="number" name="unit_price[]" min="0" step="0.01" oninput="calcRow(this)" placeholder="0.00"></td>
+            <td class="row-total" style="font-weight:700;text-align:center;color:var(--gold);">0.00 ج</td>
+            <td><button type="button" class="remove-row" onclick="removeRow(this)"><i class="fas fa-times"></i></button></td>
+        `;
+        tbody.appendChild(newRow);
+    }
+
+    function removeRow(btn) {
+        const rows = document.querySelectorAll('.item-row');
+        if (rows.length > 1) {
+            btn.closest('tr').remove();
+            updateGrandTotal();
+        }
+    }
+
+    // ===== مواعيد الدفع الآجل =====
+    let invScheduleCount = 0;
+
+    function onPaymentTypeChange(type) {
+        const sec = document.getElementById('schedule-section');
+        if (type === 'credit') {
+            sec.style.display = 'block';
+            if (invScheduleCount === 0) addScheduleRow();
+        } else {
+            sec.style.display = 'none';
+        }
+    }
+
+    function addScheduleRow() {
+        invScheduleCount++;
+        const container = document.getElementById('schedule-rows');
+        const row = document.createElement('div');
+        row.id = 'inv-srow-' + invScheduleCount;
+        row.style.cssText = 'display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end;margin-bottom:12px;';
+        const num = invScheduleCount;
+        row.innerHTML = '<div><label style="font-size:12px;display:block;color:var(--slate);margin-bottom:5px;">موعد الدفعة ' + num + '</label><input type="date" name="schedule_date[]" style="width:100%;padding:10px;border-radius:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(100,255,218,0.2);color:#e6f1ff;font-family:Cairo,sans-serif;" oninput="updateScheduleSummary()"></div>'
+            + '<div><label style="font-size:12px;display:block;color:var(--slate);margin-bottom:5px;">المبلغ (ج)</label><input type="number" name="schedule_amount[]" min="0.01" step="0.01" placeholder="0.00" style="width:100%;padding:10px;border-radius:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(100,255,218,0.2);color:#e6f1ff;font-family:Cairo,sans-serif;" oninput="updateScheduleSummary()"></div>'
+            + '<button type="button" onclick="document.getElementById(\'inv-srow-' + num + '\').remove();updateScheduleSummary();" style="background:rgba(255,77,77,0.15);border:1px solid #ff4d4d;color:#ff4d4d;border-radius:8px;padding:10px 14px;cursor:pointer;font-size:14px;"><i class="fas fa-trash"></i></button>';
+        container.appendChild(row);
+    }
+
+    function updateScheduleSummary() {
+        const amounts = document.querySelectorAll('input[name="schedule_amount[]"]');
+        let total = 0;
+        amounts.forEach(inp => { total += parseFloat(inp.value) || 0; });
+        const grandTotal = parseFloat(document.getElementById('grand_total_hidden').value) || 0;
+        const paid = parseFloat(document.getElementById('amount_paid').value) || 0;
+        const remaining = Math.max(0, grandTotal - paid);
+        document.getElementById('schedule-total-display').textContent = total.toFixed(2) + ' ج';
+        const diff = remaining - total;
+        const remEl = document.getElementById('schedule-remaining-display');
+        remEl.textContent = diff.toFixed(2) + ' ج';
+        remEl.style.color = Math.abs(diff) < 0.01 ? 'var(--success)' : 'var(--danger)';
+    }
+
+    function validateInvoice() {
+        const paymentType = document.getElementById('payment_type').value;
+        const grandTotal = parseFloat(document.getElementById('grand_total_hidden').value) || 0;
+        const paid = parseFloat(document.getElementById('amount_paid').value) || 0;
+        const remaining = grandTotal - paid;
+        const errEl = document.getElementById('inv-local-error');
+        const errMsg = document.getElementById('inv-error-msg');
+        if (paymentType !== 'credit' && remaining > 0.009) {
+            errMsg.textContent = 'لا يمكن أن يكون هناك مبلغ متبقٍ إلا إذا كانت طريقة الدفع "آجل". يرجى تعديل المبلغ المدفوع أو تغيير طريقة الدفع إلى آجل.';
+            errEl.style.display = 'block';
+            errEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return false;
+        }
+        errEl.style.display = 'none';
+        return true;
+    }
+</script>
+{% endblock %}

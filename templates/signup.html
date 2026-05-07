@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>إنشاء حساب | الباسطى جروب</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+<style>
+    :root {
+        /* ألوان الهوية السيبرانية */
+        --bg-dark: #020617;
+        --bg-panel: #0f172a;
+        --neon-blue: #00e5ff;
+        --cyber-neon: #64ffda;
+        --text-main: #ffffff;
+        --text-sec: #94a3b8;
+        --glass-border: rgba(0, 229, 255, 0.15);
+        --trans-smooth: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        
+        --font-arabic: 'Cairo', sans-serif;
+        --font-english: 'Rajdhani', sans-serif;
+    }
+
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        min-height: 100vh;
+        background-color: var(--bg-dark);
+        /* شبكة ليزر تقنية في الخلفية */
+        background-image: 
+            linear-gradient(rgba(0, 229, 255, 0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0, 229, 255, 0.03) 1px, transparent 1px);
+        background-size: 30px 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
+        color: var(--text-main);
+        font-family: var(--font-arabic);
+        overflow-x: hidden;
+    }
+
+    /* --- حاوية التسجيل (Cyber Box) --- */
+    .auth-box {
+        width: 100%;
+        max-width: 480px;
+        background: rgba(15, 23, 42, 0.8);
+        border: 1px solid var(--glass-border);
+        position: relative;
+        padding: 50px 40px;
+        backdrop-filter: blur(15px);
+        border-radius: 12px;
+        box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+    }
+
+    /* زخرفة علوية متوهجة */
+    .auth-box::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80px;
+        height: 3px;
+        background: var(--neon-blue);
+        box-shadow: 0 0 15px var(--neon-blue);
+        border-radius: 0 0 5px 5px;
+    }
+
+    .auth-content h1 {
+        font-family: var(--font-english);
+        text-align: center;
+        margin-bottom: 10px;
+        font-size: 2.5rem;
+        font-weight: 700;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: #fff;
+    }
+
+    .auth-content p {
+        text-align: center;
+        margin-bottom: 40px;
+        color: var(--cyber-neon);
+        font-size: 13px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .input-group {
+        margin-bottom: 22px;
+        position: relative;
+    }
+
+    .input-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--neon-blue);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        text-align: right;
+    }
+
+    .input-group input {
+        width: 100%;
+        padding: 14px 15px;
+        background: rgba(2, 6, 23, 0.6);
+        border: 1px solid var(--glass-border);
+        outline: none;
+        font-size: 14px;
+        color: var(--text-main);
+        transition: var(--trans-smooth);
+        border-radius: 6px;
+        text-align: right;
+        font-family: inherit;
+    }
+
+    .input-group input::placeholder {
+        color: rgba(148, 163, 184, 0.4);
+        font-size: 12px;
+    }
+
+    .input-group input:focus {
+        border-color: var(--neon-blue);
+        box-shadow: 0 0 15px rgba(0, 229, 255, 0.15);
+        background: rgba(15, 23, 42, 0.9);
+    }
+
+    .btn {
+        width: 100%;
+        padding: 18px;
+        background: transparent;
+        color: var(--neon-blue);
+        border: 1px solid var(--neon-blue);
+        font-size: 15px;
+        font-weight: 800;
+        cursor: pointer;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        transition: var(--trans-smooth);
+        margin-top: 15px;
+        border-radius: 6px;
+        font-family: var(--font-arabic);
+    }
+
+    .btn:hover {
+        background: var(--neon-blue);
+        color: var(--bg-dark);
+        box-shadow: 0 0 25px rgba(0, 229, 255, 0.5);
+        transform: translateY(-3px);
+    }
+
+    .auth-footer {
+        text-align: center;
+        margin-top: 35px;
+        font-size: 14px;
+        color: var(--text-sec);
+        font-weight: 600;
+    }
+
+    .auth-footer a {
+        color: var(--neon-blue);
+        text-decoration: none;
+        font-weight: 800;
+        margin-right: 5px;
+        transition: 0.3s;
+        border-bottom: 1px solid transparent;
+    }
+
+    .auth-footer a:hover {
+        color: #fff;
+        border-bottom-color: var(--neon-blue);
+        text-shadow: 0 0 10px var(--neon-blue);
+    }
+
+    /* أيقونة درع خفيفة في الزاوية */
+    .bg-icon {
+        position: absolute;
+        font-size: 12rem;
+        color: rgba(0, 229, 255, 0.02);
+        z-index: 0;
+        top: -30px;
+        left: -30px;
+        pointer-events: none;
+        transform: rotate(-15deg);
+    }
+</style>
+</head>
+
+<body dir="rtl">
+
+<div class="auth-box animate__animated animate__fadeInUp">
+    <i class="fas fa-user-plus bg-icon"></i>
+    
+    <div class="auth-content">
+        <h1>SIGN UP</h1>
+        <p>طلب تصريح وصول جديد للنظام</p>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="input-group">
+                <label><i class="fas fa-id-badge" style="margin-left: 8px;"></i> اسم المستخدم</label>
+                <input type="text" name="username" placeholder="اختر اسماً فريداً" required>
+            </div>
+
+            <div class="input-group">
+                <label><i class="fas fa-envelope" style="margin-left: 8px;"></i> البريد الإلكتروني</label>
+                <input type="email" name="email" placeholder="example@albasty.com" required>
+            </div>
+
+            <div class="input-group">
+                <label><i class="fas fa-lock" style="margin-left: 8px;"></i> كلمة المرور</label>
+                <input type="password" name="password" placeholder="8 رموز على الأقل" required>
+            </div>
+
+            <div class="input-group">
+                <label><i class="fas fa-shield-check" style="margin-left: 8px;"></i> تأكيد كلمة المرور</label>
+                <input type="password" name="confirm_password" placeholder="أعد كتابة كلمة المرور" required>
+            </div>
+
+            <button class="btn">إنشاء الحساب وتفعيل الوصول</button>
+        </form>
+
+        <div class="auth-footer">
+            لديك تصريح بالفعل؟
+            <a href="{% url 'login' %}">تسجيل الدخول</a>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

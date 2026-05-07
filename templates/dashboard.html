@@ -1,0 +1,455 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+
+<style>
+    :root { 
+        /* ألوان الهوية السيبرانية */
+        --bg-dark: #020617;
+        --bg-panel: #0f172a;
+        --neon-blue: #00e5ff;
+        --cyber-neon: #64ffda;
+        --text-main: #ffffff;
+        --text-sec: #94a3b8;
+        --glass-border: rgba(0, 229, 255, 0.15);
+        --danger: #ff3366;
+        --success: #00e676;
+        --trans-smooth: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        
+        --font-arabic: 'Cairo', sans-serif;
+        --font-english: 'Rajdhani', sans-serif;
+    }
+
+    body { 
+        background: var(--bg-dark); 
+        color: var(--text-main); 
+        font-family: var(--font-arabic);
+        overflow-x: hidden;
+    }
+
+    .dashboard-wrapper { 
+        padding: 140px 5% 80px; 
+        max-width: 1400px; 
+        margin: auto; 
+        background-image: 
+            linear-gradient(rgba(0, 229, 255, 0.02) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0, 229, 255, 0.02) 1px, transparent 1px);
+        background-size: 30px 30px;
+        min-height: 100vh;
+    }
+
+    /* --- ملخص الإحصائيات (Stats) --- */
+    .stats-grid { 
+        display: grid; 
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+        gap: 20px; 
+        margin-bottom: 50px; 
+    }
+    .stat-card { 
+        background: var(--bg-panel); 
+        border: 1px solid var(--glass-border); 
+        padding: 25px; 
+        text-align: center; 
+        transition: var(--trans-smooth);
+        border-radius: 12px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    .stat-card:hover { 
+        transform: translateY(-5px); 
+        border-color: var(--neon-blue); 
+        box-shadow: 0 10px 30px rgba(0, 229, 255, 0.15);
+    }
+    .stat-card i { font-size: 1.8rem; color: var(--neon-blue); margin-bottom: 15px; display: block; }
+    .stat-card h3 { 
+        font-family: var(--font-english); font-size: 2.2rem; font-weight: 700;
+        margin: 0; background: linear-gradient(to right, #fff, var(--neon-blue)); 
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent; 
+    }
+    .stat-card p { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-sec); margin-top: 5px; font-weight: 600; }
+
+    /* --- إدارة الأقسام --- */
+    .admin-section { 
+        background: var(--bg-panel); 
+        border: 1px solid var(--glass-border); 
+        margin-bottom: 40px; 
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+    .section-header { 
+        background: rgba(2, 6, 23, 0.8); padding: 25px 30px; 
+        display: flex; justify-content: space-between; align-items: center; 
+        border-bottom: 1px solid var(--glass-border);
+        flex-wrap: wrap; gap: 15px;
+        backdrop-filter: blur(5px);
+    }
+    .section-header h3 { font-size: 1.4rem; margin: 0; font-weight: 700; color: #fff; }
+
+    /* --- الجداول وتنسيق السكرول بار --- */
+    .table-container { 
+        width: 100%; 
+        overflow-x: auto; 
+        max-height: 500px; 
+        overflow-y: auto; 
+    }
+
+    .table-container::-webkit-scrollbar { width: 8px; height: 8px; }
+    .table-container::-webkit-scrollbar-track { background: var(--bg-dark); }
+    .table-container::-webkit-scrollbar-thumb { background: var(--glass-border); border-radius: 10px; }
+    .table-container::-webkit-scrollbar-thumb:hover { background: var(--neon-blue); }
+
+    table { width: 100%; border-collapse: collapse; min-width: 700px; }
+    
+    thead th { 
+        position: sticky; top: 0; z-index: 10;
+        text-align: right; padding: 15px 25px; background: rgba(2, 6, 23, 0.95); 
+        color: var(--neon-blue); font-size: 13px; font-weight: 700; 
+        border-bottom: 1px solid var(--glass-border); backdrop-filter: blur(10px);
+    }
+    
+    td { padding: 15px 25px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 14px; color: var(--text-main); }
+
+    .product-thumb { 
+        width: 50px; height: 60px; object-fit: cover; 
+        border: 1px solid rgba(255,255,255,0.1); border-radius: 6px;
+    }
+
+    /* --- الأزرار --- */
+    .btn-cyber { 
+        background: transparent; color: var(--neon-blue); 
+        border: 1px solid var(--neon-blue); padding: 8px 20px; 
+        text-decoration: none; font-size: 12px; font-weight: 700; 
+        transition: var(--trans-smooth); cursor: pointer; display: inline-block;
+        border-radius: 6px;
+    }
+    .btn-cyber:hover { background: var(--neon-blue); color: var(--bg-dark); box-shadow: 0 0 15px rgba(0, 229, 255, 0.4); }
+    .btn-cyber.solid { background: var(--neon-blue); color: var(--bg-dark); }
+    .btn-cyber.solid:hover { background: #fff; border-color: #fff; }
+    
+    .btn-danger { color: var(--danger); border-color: var(--danger); }
+    .btn-danger:hover { background: var(--danger); color: var(--text-main); box-shadow: 0 0 15px rgba(255, 51, 102, 0.4); border-color: var(--danger); }
+
+    /* --- الحقول (Inputs) للوضع المظلم --- */
+    input[type="number"], select, input[type="text"] {
+        background: rgba(2, 6, 23, 0.8) !important;
+        color: var(--text-main) !important;
+        border: 1px solid var(--glass-border) !important;
+        border-radius: 4px;
+        padding: 8px;
+    }
+    input:focus, select:focus {
+        outline: none;
+        border-color: var(--neon-blue) !important;
+        box-shadow: 0 0 8px rgba(0, 229, 255, 0.3);
+    }
+
+    /* --- تفاصيل الطلب والرسائل (Expandable) --- */
+    .details-expand-row { display: none; background: rgba(2, 6, 23, 0.6); }
+    .details-box { padding: 30px; border-top: 1px solid var(--neon-blue); background: var(--bg-panel); }
+
+    .order-grid { 
+        display: grid; 
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+        gap: 30px; 
+    }
+
+    .order-item-card { 
+        display: flex; align-items: center; gap: 20px; 
+        background: rgba(255,255,255,0.02); padding: 15px; 
+        border: 1px solid var(--glass-border); margin-bottom: 10px; border-radius: 8px;
+    }
+    .order-item-img { width: 60px; height: 75px; object-fit: cover; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); }
+
+    /* --- قسم الفاتورة --- */
+    .discount-section {
+        background: rgba(2, 6, 23, 0.5); 
+        padding: 25px; 
+        border: 1px dashed var(--neon-blue); 
+        margin-top: 20px;
+        border-radius: 8px;
+    }
+    .billing-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; font-size: 1.1rem; }
+    .billing-label { color: var(--text-sec); font-weight: 600; }
+    .billing-value { font-weight: 700; color: var(--text-main); font-family: var(--font-english); }
+    .billing-divider { border-top: 1px solid rgba(255,255,255,0.1); margin: 15px 0; }
+    .total-row { font-size: 1.5rem; }
+
+    /* --- شارات الحالة --- */
+    .badge { padding: 5px 12px; font-size: 11px; font-weight: 700; border-radius: 4px; border: 1px solid transparent; }
+    .status-pending { background: rgba(255, 179, 0, 0.1); color: #ffb300; border-color: rgba(255, 179, 0, 0.3); }
+    .status-delivered { background: rgba(39, 174, 96, 0.1); color: var(--success); border-color: rgba(39, 174, 96, 0.3); }
+    .status-shipped { background: rgba(0, 229, 255, 0.1); color: var(--neon-blue); border-color: rgba(0, 229, 255, 0.3); }
+    .status-canceled { background: rgba(255, 51, 102, 0.1); color: var(--danger); border-color: rgba(255, 51, 102, 0.3); }
+
+    /* --- تحسينات الشاشة الصغيرة --- */
+    @media (max-width: 768px) {
+        .dashboard-wrapper { padding: 100px 10px 50px; }
+        table { min-width: 100%; }
+        thead th { padding: 10px 8px; font-size: 11px; }
+        td { padding: 10px 8px; font-size: 12px; }
+        .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 15px; }
+        .stat-card { padding: 15px 10px; }
+        .stat-card h3 { font-size: 1.5rem; }
+        .section-header { padding: 15px 10px; text-align: center; flex-direction: column; }
+        .hide-mobile { display: none; }
+        .badge { padding: 4px 8px; font-size: 10px; }
+        .details-box { padding: 15px 10px; }
+        .btn-cyber { padding: 8px 12px; font-size: 11px; width: 100%; text-align: center; margin-top: 5px; }
+        form { flex-direction: column; gap: 8px; }
+        form input, form select { width: 100% !important; margin: 0 !important; }
+    }
+</style>
+
+<div class="dashboard-wrapper" dir="rtl">
+    
+    <div style="text-align: center; margin-bottom: 50px;" class="animate__animated animate__fadeInDown">
+        <h2 style="font-size: 2.5rem; margin: 0; font-weight: 900;">مركز <span style="color: var(--neon-blue)">التحكم السيبراني</span></h2>
+        <p style="color: var(--cyber-neon); letter-spacing: 2px; font-size: 14px; margin-top: 10px; font-weight: 600;">نظام الباسطى جروب - الإدارة الأمنية الاحترافية</p>
+    </div>
+
+    <div class="stats-grid animate__animated animate__fadeInUp">
+        <div class="stat-card">
+            <i class="fas fa-shield-alt"></i>
+            <h3>{{ orders_count }}</h3>
+            <p>إجمالي الطلبات</p>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-hourglass-half"></i>
+            <h3>{{ pending_orders }}</h3>
+            <p>طلبات معلقة</p>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-server"></i>
+            <h3>{{ products_count }}</h3>
+            <p>نظام في الكتالوج</p>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-wallet"></i>
+            <h3>{{ total_revenue|floatformat:0 }}</h3>
+            <p>المبيعات (ج.م)</p>
+        </div>
+    </div>
+
+    <div class="admin-section animate__animated animate__fadeInUp">
+        <div class="section-header">
+            <h3><i class="fas fa-boxes" style="margin-left: 10px; color: var(--neon-blue);"></i> إدارة المخزون والأنظمة</h3>
+            <a href="{% url 'admin:store_product_add' %}" class="btn-cyber solid">+ إضافة نظام جديد</a>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>المعاينة</th>
+                        <th>اسم النظام</th>
+                        <th>السعر الأساسي</th>
+                        <th class="hide-mobile">المخزون الكلي</th>
+                        <th>الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in products %}
+                    <tr>
+                        <td>
+                            <img src="{% if product.main_image %}{{ product.main_image }}{% endif %}" class="product-thumb" onerror="this.src='https://via.placeholder.com/50x60/0a192f/00e5ff?text=SYS'">
+                        </td>
+                        <td><strong style="color: #fff;">{{ product.name }}</strong><br><small style="color: var(--text-sec);">{{ product.sku }}</small></td>
+                        <td style="font-weight: 700; font-family: var(--font-english); color: var(--neon-blue);">{{ product.price|floatformat:0 }} ج.م</td>
+                        <td class="hide-mobile">
+                            {% if product.stock <= 2 %}
+                                <span style="color: var(--danger); font-weight: bold;">⚠️ {{ product.stock }}</span>
+                            {% else %}
+                                <span style="color: var(--cyber-neon);">{{ product.stock }} جهاز</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div style="display: flex; gap: 8px;">
+                                <a href="{% url 'admin:store_product_change' product.pk %}" class="btn-cyber">
+                                    <i class="fas fa-edit"></i> تعديل
+                                </a>
+                                <a href="{% url 'delete_product' product.pk %}" class="btn-cyber btn-danger" onclick="return confirm('هل أنت متأكد من حذف النظام نهائياً؟')">
+                                    <i class="fas fa-trash"></i> حذف
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="admin-section animate__animated animate__fadeInUp" style="animation-delay: 0.2s;">
+        <div class="section-header">
+            <h3><i class="fas fa-user-shield" style="margin-left: 10px; color: var(--neon-blue);"></i> طلبات العملاء</h3>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>رقم الطلب</th>
+                        <th>العميل</th>
+                        <th>الإجمالي</th>
+                        <th>الحالة</th>
+                        <th class="hide-mobile">التاريخ</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                    <tr style="cursor: pointer;" onclick="toggleExpand('order-{{ order.id }}')">
+                        <td style="font-weight: 700; color: var(--neon-blue); font-family: var(--font-english);">#{{ order.id }}</td>
+                        <td><strong style="color: #fff;">{{ order.name }}</strong><br><small style="color: var(--text-sec);">{{ order.phone }}</small></td>
+                        <td style="font-weight: 700; font-family: var(--font-english);">{{ order.total_price|floatformat:0 }} ج.م</td>
+                        <td><span class="badge status-{{ order.status|lower }}">{{ order.get_status_display }}</span></td>
+                        <td class="hide-mobile" style="color: var(--text-sec);">{{ order.created_at|date:"d M, Y" }}</td>
+                        <td><i class="fas fa-chevron-down" style="color: var(--neon-blue); opacity: 0.5;"></i></td>
+                    </tr>
+                    <tr id="order-{{ order.id }}" class="details-expand-row">
+                        <td colspan="6">
+                            <div class="details-box">
+                                <div class="order-grid">
+                                    <div>
+                                        <h4 style="margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; color: #fff;">فاتورة الأنظمة</h4>
+                                        {% for item in order.items.all %}
+                                        <div class="order-item-card">
+                                            <img src="{% if item.product.main_image %}{{ item.product.main_image }}{% endif %}" class="order-item-img" onerror="this.src='https://via.placeholder.com/60x75/0a192f/00e5ff?text=SYS'">
+                                            <div style="flex: 1;">
+                                                <div style="font-weight: 700; color: #fff;">{{ item.product.name }}</div>
+                                                <small style="color: var(--text-sec);">{{ item.color }} | الفئة: {{ item.size }}</small>
+                                                <form method="POST" action="{% url 'update_item_quantity' item.id %}" style="display: flex; gap: 5px; margin-top: 10px;">
+                                                    {% csrf_token %}
+                                                    <input type="number" name="quantity" value="{{ item.quantity }}" style="width: 50px; text-align: center;">
+                                                    <button type="submit" class="btn-cyber" style="padding: 6px 12px;"><i class="fas fa-sync"></i></button>
+                                                    <button type="submit" name="action" value="delete" class="btn-cyber btn-danger" style="padding: 6px 12px;"><i class="fas fa-trash"></i></button>
+                                                </form>
+                                            </div>
+                                            <div style="font-weight: 700; font-family: var(--font-english); color: var(--cyber-neon);">{{ item.subtotal|floatformat:0 }} ج.م</div>
+                                        </div>
+                                        {% endfor %}
+                                        
+                                        <div class="discount-section">
+                                            <div class="billing-row">
+                                                <span class="billing-label">إجمالي الأجهزة:</span>
+                                                <span class="billing-value">{{ order.get_items_total|floatformat:0 }} ج.م</span>
+                                            </div>
+                                            <div class="billing-row">
+                                                <span class="billing-label" style="color: var(--danger);">الخصومات المطبقة:</span>
+                                                <span class="billing-value" style="color: var(--danger);">- {{ order.get_discount_amount|floatformat:0 }} ج.م</span>
+                                            </div>
+                                            <div class="billing-divider"></div>
+                                            <div class="billing-row total-row">
+                                                <span class="billing-label" style="color: #fff;">الصافي:</span>
+                                                <span class="billing-value" style="color: var(--neon-blue);">{{ order.total_price|floatformat:0 }} ج.م</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <h4 style="margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; color: #fff;">بيانات العميل</h4>
+                                        <div style="line-height: 2.2; font-size: 14px; margin-bottom: 25px; color: var(--text-sec);">
+                                            <div><i class="fas fa-user" style="width: 25px; color: var(--neon-blue);"></i> <strong style="color: #fff;">{{ order.name }}</strong></div>
+                                            <div><i class="fas fa-phone" style="width: 25px; color: var(--neon-blue);"></i> <span style="font-family: var(--font-english);">{{ order.phone }}</span></div>
+                                            <div><i class="fas fa-map-marker-alt" style="width: 25px; color: var(--neon-blue);"></i> {{ order.governorate }} - {{ order.address }}</div>
+                                            <div><i class="fas fa-envelope" style="width: 25px; color: var(--neon-blue);"></i> <span style="font-family: var(--font-english);">{{ order.email }}</span></div>
+                                        </div>
+
+                                        <h4 style="margin-bottom: 15px; font-size: 0.95rem; color: #fff;">تحديث حالة النظام</h4>
+                                        <form method="POST" action="{% url 'update_order_status' order.id %}" style="display: flex; gap: 10px;">
+                                            {% csrf_token %}
+                                            <select name="status" style="flex: 1;">
+                                                {% for code, label in order.STATUS_CHOICES %}
+                                                <option value="{{ code }}" {% if order.status == code %}selected{% endif %}>{{ label }}</option>
+                                                {% endfor %}
+                                            </select>
+                                            <button type="submit" class="btn-cyber solid">تحديث</button>
+                                        </form>
+
+                                        <h4 style="margin-top: 25px; margin-bottom: 15px; font-size: 0.95rem; color: #fff;">تطبيق خصم أمني</h4>
+                                        <form method="POST" action="{% url 'apply_order_discount' order.id %}" style="display: flex; gap: 10px;">
+                                            {% csrf_token %}
+                                            <input type="number" name="discount_amount" placeholder="المبلغ (ج.م)" style="flex: 1;">
+                                            <button type="submit" class="btn-cyber">تفعيل</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="admin-section animate__animated animate__fadeInUp" style="animation-delay: 0.3s;">
+        <div class="section-header">
+            <h3><i class="fas fa-envelope-open-text" style="margin-left: 10px; color: var(--neon-blue);"></i> رسائل الدعم الفني</h3>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 25%;">المرسل</th>
+                        <th>الموضوع</th>
+                        <th class="hide-mobile">التاريخ</th>
+                        <th style="width: 50px;"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for msg in messages %}
+                    <tr style="cursor: pointer;" onclick="toggleExpand('msg-{{ msg.id }}')">
+                        <td><strong style="color: #fff;">{{ msg.name }}</strong></td>
+                        <td style="color: var(--cyber-neon); font-weight: 600;">{{ msg.subject }}</td>
+                        <td class="hide-mobile" style="color: var(--text-sec);">{{ msg.created_at|date:"d M, Y" }}</td>
+                        <td><i class="fas fa-chevron-down" style="color: var(--neon-blue); opacity: 0.5;"></i></td>
+                    </tr>
+                    <tr id="msg-{{ msg.id }}" class="details-expand-row">
+                        <td colspan="4">
+                            <div class="details-box">
+                                <div class="inquiry-content">
+                                    <p style="line-height: 1.8; font-size: 15px; margin-bottom: 25px; color: var(--text-sec);">{{ msg.message|linebreaks }}</p>
+                                    <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; flex-wrap: wrap; gap: 15px;">
+                                        <div style="font-size: 14px; color: var(--text-sec); font-family: var(--font-english);">
+                                            <span style="margin-left: 20px;"><i class="fas fa-envelope" style="color: var(--neon-blue);"></i> {{ msg.email }}</span>
+                                            <span><i class="fas fa-phone" style="color: var(--neon-blue);"></i> {{ msg.phone }}</span>
+                                        </div>
+                                        <a href="mailto:{{ msg.email }}" class="btn-cyber solid">الرد الفني</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="4" style="text-align: center; padding: 40px; color: var(--text-sec);">لا توجد بلاغات أو رسائل حالياً.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleExpand(id) {
+        const row = document.getElementById(id);
+        const isVisible = row.style.display === 'table-row';
+        if (!isVisible) {
+            row.style.display = 'table-row';
+            row.classList.add('animate__animated', 'animate__fadeIn');
+        } else {
+            row.style.display = 'none';
+        }
+    }
+
+    setTimeout(() => {
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(a => {
+            a.style.transition = "0.8s";
+            a.style.opacity = "0";
+            setTimeout(() => a.remove(), 800);
+        });
+    }, 4000);
+</script>
+{% endblock %}

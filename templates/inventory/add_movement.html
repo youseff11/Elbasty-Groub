@@ -1,0 +1,326 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+        --navy: #0a192f; --blue: #007bff; --neon: #64ffda; --gold: #ffd700;
+        --slate: #8892b0; --white: #e6f1ff; --card-bg: #112240;
+        --border: rgba(100,255,218,0.15); --danger: #ff4d4d; --success: #00c853;
+    }
+    body { background: var(--navy); color: var(--white); font-family: 'Cairo', sans-serif; min-height: 100vh; }
+    {% include 'inventory/shared_css.html' %}
+    .page-wrap { max-width: 780px; margin: 40px auto; padding: 0 20px 60px; }
+    .page-title { font-size: 22px; font-weight: 900; margin-bottom: 25px; }
+    .page-title i { color: var(--gold); margin-left: 10px; }
+    .back-link { display: inline-flex; align-items: center; gap: 6px; color: var(--slate); text-decoration: none; font-size: 14px; margin-bottom: 20px; }
+    .back-link:hover { color: var(--neon); }
+    .form-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; padding: 30px; }
+    .tabs { display: flex; gap: 10px; margin-bottom: 25px; }
+    .tab-btn { flex: 1; padding: 12px; border-radius: 8px; font-family: 'Cairo', sans-serif; font-weight: 700; font-size: 15px; cursor: pointer; border: 2px solid transparent; transition: all 0.2s; background: rgba(255,255,255,0.04); color: var(--slate); }
+    .tab-btn.active-in { border-color: var(--success); color: var(--success); background: rgba(0,200,83,0.1); }
+    .tab-btn.active-out { border-color: var(--danger); color: var(--danger); background: rgba(255,77,77,0.1); }
+    .form-group { margin-bottom: 20px; }
+    label { display: block; font-size: 14px; font-weight: 600; color: var(--slate); margin-bottom: 7px; }
+    label span.req { color: var(--danger); margin-right: 3px; }
+    input, select, textarea { width: 100%; padding: 11px 14px; border-radius: 8px; background: rgba(255,255,255,0.05); border: 1px solid rgba(100,255,218,0.2); color: var(--white); font-family: 'Cairo', sans-serif; font-size: 14px; transition: border-color 0.2s; }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--neon); }
+    select option { background: #112240; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    @media (max-width: 600px) { .form-row { grid-template-columns: 1fr; } }
+    .supplier-toggle { font-size: 13px; color: var(--neon); cursor: pointer; text-decoration: underline; margin-top: 6px; display: inline-block; }
+    .new-supplier-form { background: rgba(100,255,218,0.04); border: 1px dashed rgba(100,255,218,0.2); border-radius: 10px; padding: 15px; margin-top: 12px; display: none; }
+    .total-box { background: rgba(255,215,0,0.07); border: 1px solid rgba(255,215,0,0.25); border-radius: 10px; padding: 16px 20px; margin-bottom: 20px; }
+    .total-box .total-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 14px; }
+    .total-box .total-row:last-child { margin-bottom: 0; font-size: 16px; font-weight: 900; color: var(--gold); border-top: 1px solid rgba(255,215,0,0.2); padding-top: 10px; margin-top: 6px; }
+    .submit-btn { width: 100%; padding: 14px; background: var(--blue); color: #fff; border: none; border-radius: 10px; font-family: 'Cairo', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; transition: background 0.2s; }
+    .submit-btn.btn-in { background: linear-gradient(135deg, #00c853, #00a040); }
+    .submit-btn.btn-out { background: linear-gradient(135deg, #ff4d4d, #cc0000); }
+    .variant-info { font-size: 12px; color: var(--neon); margin-top: 5px; }
+    select:disabled { opacity: 0.4; cursor: not-allowed; }
+    /* جدول مواعيد الدفع */
+    #schedule-section { display: none; margin-bottom: 20px; }
+    .schedule-box { background: rgba(100,255,218,0.04); border: 1px solid rgba(100,255,218,0.25); border-radius: 12px; padding: 20px; }
+    .schedule-box h4 { color: var(--neon); font-size: 15px; font-weight: 700; margin-bottom: 15px; }
+    .schedule-row { display: grid; grid-template-columns: 1fr 1fr auto; gap: 12px; align-items: end; margin-bottom: 12px; }
+    .remove-schedule { background: rgba(255,77,77,0.15); border: 1px solid var(--danger); color: var(--danger); border-radius: 8px; padding: 10px 14px; cursor: pointer; font-size: 14px; }
+    .add-schedule-btn { background: rgba(100,255,218,0.1); border: 1px dashed rgba(100,255,218,0.4); color: var(--neon); border-radius: 8px; padding: 10px 16px; cursor: pointer; font-family: 'Cairo', sans-serif; font-size: 14px; font-weight: 600; width: 100%; margin-top: 8px; }
+    .schedule-summary { margin-top: 12px; padding: 10px 14px; border-radius: 8px; background: rgba(255,255,255,0.04); font-size: 13px; }
+    .schedule-summary span { color: var(--gold); font-weight: 700; }
+    .local-error { background: rgba(255,77,77,0.12); border: 1px solid rgba(255,77,77,0.4); border-radius: 10px; padding: 14px 18px; color: var(--danger); font-size: 14px; font-weight: 600; margin-bottom: 18px; display: none; }
+</style>
+
+<div class="page-wrap">
+    <a href="{% url 'inventory_dashboard' %}" class="back-link"><i class="fas fa-arrow-right"></i> رجوع للمخزن</a>
+    <div class="page-title"><i class="fas fa-exchange-alt"></i> إضافة حركة مخزن</div>
+
+    {% if messages %}
+    {% for msg in messages %}
+    <div style="background:rgba(255,77,77,0.12);border:1px solid rgba(255,77,77,0.4);border-radius:10px;padding:14px 18px;color:var(--danger);font-size:14px;font-weight:600;margin-bottom:18px;">
+        <i class="fas fa-exclamation-triangle"></i> {{ msg }}
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <div class="form-card">
+        <div class="tabs">
+            <button class="tab-btn active-in" onclick="setType('in')" id="tab-in" type="button"><i class="fas fa-arrow-down"></i> وارد (شراء)</button>
+            <button class="tab-btn" onclick="setType('out')" id="tab-out" type="button"><i class="fas fa-arrow-up"></i> صادر (بيع)</button>
+        </div>
+
+        <div class="local-error" id="local-error">
+            <i class="fas fa-exclamation-triangle"></i> <span id="local-error-msg"></span>
+        </div>
+
+        <form method="POST" onsubmit="return validateBeforeSubmit()">
+            {% csrf_token %}
+            <input type="hidden" name="movement_type" id="movement_type" value="in">
+
+            <div class="form-group">
+                <label>المنتج <span class="req">*</span></label>
+                <select name="product" id="product-select" required onchange="onProductChange(this.value)">
+                    <option value="">-- اختر المنتج --</option>
+                    {% for p in products %}
+                    <option value="{{ p.pk }}">{{ p.name }} {% if p.sku %}({{ p.sku }}){% endif %} | مخزون: {{ p.stock }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>اللون / الـ Variant</label>
+                    <select name="variant" id="variant-select" onchange="onVariantChange(this.value)" disabled>
+                        <option value="">-- اختر المنتج أولاً --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>المقاس</label>
+                    <select name="product_size" id="size-select" disabled>
+                        <option value="">-- اختر اللون أولاً --</option>
+                    </select>
+                    <div class="variant-info" id="size-stock-info"></div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>الكمية <span class="req">*</span></label>
+                    <input type="number" name="quantity" id="quantity" min="1" required placeholder="0" oninput="calcTotal()">
+                </div>
+                <div class="form-group">
+                    <label>سعر الوحدة (ج) <span class="req">*</span></label>
+                    <input type="number" name="unit_price" id="unit_price" min="0" step="0.01" required placeholder="0.00" oninput="calcTotal()">
+                </div>
+            </div>
+
+            <div class="form-group" id="supplier-section">
+                <label>المورد</label>
+                <select name="supplier" id="supplier-select">
+                    <option value="">-- اختر مورد موجود --</option>
+                    {% for s in suppliers %}
+                    <option value="{{ s.pk }}">{{ s.name }}{% if s.phone %} - {{ s.phone }}{% endif %}</option>
+                    {% endfor %}
+                </select>
+                <span class="supplier-toggle" onclick="toggleNewSupplier()"><i class="fas fa-plus-circle"></i> أو أضف مورد جديد</span>
+                <div class="new-supplier-form" id="new-supplier-form">
+                    <div class="form-row">
+                        <div class="form-group" style="margin-bottom:0"><label>اسم المورد الجديد</label><input type="text" name="new_supplier_name" placeholder="اسم المورد"></div>
+                        <div class="form-group" style="margin-bottom:0"><label>رقم الهاتف</label><input type="text" name="new_supplier_phone" placeholder="01xxxxxxxxx"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>التاريخ <span class="req">*</span></label>
+                    <input type="date" name="date" required value="{{ today }}">
+                </div>
+                <div class="form-group">
+                    <label>طريقة الدفع <span class="req">*</span></label>
+                    <select name="payment_type" id="payment_type" required onchange="onPaymentTypeChange(this.value)">
+                        <option value="cash">كاش</option>
+                        <option value="visa">فيزا</option>
+                        <option value="credit">آجل</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="total-box">
+                <div class="total-row"><span>الإجمالي:</span><span id="total-display">0.00 ج</span></div>
+                <div class="total-row">
+                    <span>المبلغ المدفوع:</span>
+                    <input type="number" name="amount_paid" id="amount_paid" min="0" step="0.01" placeholder="0.00" style="width:150px;text-align:center;" oninput="calcRemaining()">
+                </div>
+                <div class="total-row"><span>المتبقي:</span><span id="remaining-display" style="color:var(--danger);">0.00 ج</span></div>
+            </div>
+
+            <!-- جدول مواعيد الدفع الآجل -->
+            <div id="schedule-section">
+                <div class="schedule-box">
+                    <h4><i class="fas fa-calendar-alt"></i> مواعيد تسديد الدفعات الآجلة
+                        <small style="color:var(--slate);font-size:12px;font-weight:400;margin-right:8px;">(سيُرسَل تذكير بالإيميل قبل 3 أيام من كل موعد)</small>
+                    </h4>
+                    <div id="schedule-rows"></div>
+                    <button type="button" class="add-schedule-btn" onclick="addScheduleRow()">
+                        <i class="fas fa-plus"></i> إضافة موعد دفعة
+                    </button>
+                    <div class="schedule-summary">
+                        إجمالي المواعيد: <span id="schedule-total-display">0.00 ج</span>
+                        &nbsp;|&nbsp; المتبقي للتوزيع: <span id="schedule-remaining-display">0.00 ج</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-top:20px;">
+                <label>ملاحظات</label>
+                <textarea name="notes" rows="2" placeholder="أي ملاحظات إضافية..."></textarea>
+            </div>
+
+            <button type="submit" class="submit-btn btn-in" id="submit-btn"><i class="fas fa-save"></i> حفظ الحركة</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    const PRODUCTS_DATA = {{ products_data_json|safe }};
+    let currentType = 'in';
+    let scheduleCount = 0;
+
+    function setType(type) {
+        currentType = type;
+        document.getElementById('movement_type').value = type;
+        document.getElementById('tab-in').className = type === 'in' ? 'tab-btn active-in' : 'tab-btn';
+        document.getElementById('tab-out').className = type === 'out' ? 'tab-btn active-out' : 'tab-btn';
+        document.getElementById('supplier-section').style.display = type === 'in' ? 'block' : 'none';
+        document.getElementById('submit-btn').className = type === 'in' ? 'submit-btn btn-in' : 'submit-btn btn-out';
+        document.getElementById('submit-btn').innerHTML = type === 'in'
+            ? '<i class="fas fa-save"></i> حفظ الحركة الواردة'
+            : '<i class="fas fa-save"></i> حفظ الحركة الصادرة';
+        calcRemaining();
+    }
+
+    function onProductChange(productId) {
+        const variantSelect = document.getElementById('variant-select');
+        const sizeSelect = document.getElementById('size-select');
+        variantSelect.innerHTML = '<option value="">-- اختر اللون --</option>';
+        sizeSelect.innerHTML = '<option value="">-- اختر المقاس --</option>';
+        document.getElementById('size-stock-info').textContent = '';
+        variantSelect.disabled = true;
+        sizeSelect.disabled = true;
+        if (!productId || !PRODUCTS_DATA[productId]) return;
+        const variants = PRODUCTS_DATA[productId].variants;
+        if (Object.keys(variants).length === 0) { variantSelect.innerHTML = '<option value="">لا يوجد ألوان مسجلة</option>'; return; }
+        for (const [vId, vData] of Object.entries(variants)) {
+            const opt = document.createElement('option');
+            opt.value = vId; opt.textContent = vData.color;
+            variantSelect.appendChild(opt);
+        }
+        variantSelect.disabled = false;
+    }
+
+    function onVariantChange(variantId) {
+        const productId = document.getElementById('product-select').value;
+        const sizeSelect = document.getElementById('size-select');
+        sizeSelect.innerHTML = '<option value="">-- اختر المقاس --</option>';
+        document.getElementById('size-stock-info').textContent = '';
+        sizeSelect.disabled = true;
+        if (!variantId || !productId) return;
+        const sizes = PRODUCTS_DATA[productId]?.variants[variantId]?.sizes;
+        if (!sizes || Object.keys(sizes).length === 0) { sizeSelect.innerHTML = '<option value="">لا يوجد مقاسات</option>'; return; }
+        for (const [sId, sData] of Object.entries(sizes)) {
+            const opt = document.createElement('option');
+            opt.value = sId; opt.textContent = sData.name + ' (مخزون: ' + sData.stock + ')';
+            sizeSelect.appendChild(opt);
+        }
+        sizeSelect.disabled = false;
+        sizeSelect.onchange = function() {
+            const s = sizes[this.value];
+            document.getElementById('size-stock-info').textContent = s ? 'المخزون الحالي: ' + s.stock + ' قطعة' : '';
+        };
+    }
+
+    function calcTotal() {
+        const qty = parseFloat(document.getElementById('quantity').value) || 0;
+        const price = parseFloat(document.getElementById('unit_price').value) || 0;
+        document.getElementById('total-display').textContent = (qty * price).toFixed(2) + ' ج';
+        calcRemaining();
+    }
+
+    function calcRemaining() {
+        const qty = parseFloat(document.getElementById('quantity').value) || 0;
+        const price = parseFloat(document.getElementById('unit_price').value) || 0;
+        const total = qty * price;
+        const paid = parseFloat(document.getElementById('amount_paid').value) || 0;
+        const remaining = Math.max(0, total - paid);
+        const el = document.getElementById('remaining-display');
+        el.textContent = remaining.toFixed(2) + ' ج';
+        el.style.color = remaining > 0 ? 'var(--danger)' : 'var(--success)';
+        updateScheduleSummary();
+    }
+
+    function onPaymentTypeChange(type) {
+        const sec = document.getElementById('schedule-section');
+        if (type === 'credit') {
+            sec.style.display = 'block';
+            if (scheduleCount === 0) addScheduleRow();
+        } else {
+            sec.style.display = 'none';
+        }
+    }
+
+    function addScheduleRow() {
+        scheduleCount++;
+        const container = document.getElementById('schedule-rows');
+        const row = document.createElement('div');
+        row.className = 'schedule-row';
+        row.id = 'srow-' + scheduleCount;
+        const num = scheduleCount;
+        row.innerHTML = '<div><label style="font-size:12px;">موعد الدفعة ' + num + '</label><input type="date" name="schedule_date[]" oninput="updateScheduleSummary()"></div>'
+            + '<div><label style="font-size:12px;">المبلغ (ج)</label><input type="number" name="schedule_amount[]" min="0.01" step="0.01" placeholder="0.00" oninput="updateScheduleSummary()"></div>'
+            + '<button type="button" class="remove-schedule" onclick="document.getElementById(\'srow-' + num + '\').remove();updateScheduleSummary();"><i class="fas fa-trash"></i></button>';
+        container.appendChild(row);
+    }
+
+    function updateScheduleSummary() {
+        const amounts = document.querySelectorAll('input[name="schedule_amount[]"]');
+        let total = 0;
+        amounts.forEach(inp => { total += parseFloat(inp.value) || 0; });
+        const qty = parseFloat(document.getElementById('quantity').value) || 0;
+        const price = parseFloat(document.getElementById('unit_price').value) || 0;
+        const paid = parseFloat(document.getElementById('amount_paid').value) || 0;
+        const remaining = Math.max(0, qty * price - paid);
+        document.getElementById('schedule-total-display').textContent = total.toFixed(2) + ' ج';
+        const diff = remaining - total;
+        const remEl = document.getElementById('schedule-remaining-display');
+        remEl.textContent = diff.toFixed(2) + ' ج';
+        remEl.style.color = Math.abs(diff) < 0.01 ? 'var(--success)' : 'var(--danger)';
+    }
+
+    function validateBeforeSubmit() {
+        const paymentType = document.getElementById('payment_type').value;
+        const qty = parseFloat(document.getElementById('quantity').value) || 0;
+        const price = parseFloat(document.getElementById('unit_price').value) || 0;
+        const paid = parseFloat(document.getElementById('amount_paid').value) || 0;
+        const remaining = (qty * price) - paid;
+        const errorEl = document.getElementById('local-error');
+        const errorMsg = document.getElementById('local-error-msg');
+        if (paymentType !== 'credit' && remaining > 0.009) {
+            errorMsg.textContent = 'لا يمكن أن يكون هناك مبلغ متبقٍ إلا إذا كانت طريقة الدفع "آجل". يرجى تعديل المبلغ المدفوع أو تغيير طريقة الدفع إلى آجل.';
+            errorEl.style.display = 'block';
+            errorEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return false;
+        }
+        errorEl.style.display = 'none';
+        return true;
+    }
+
+    function toggleNewSupplier() {
+        const f = document.getElementById('new-supplier-form');
+        f.style.display = f.style.display === 'none' ? 'block' : 'none';
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,265 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+        --navy: #0a192f; --blue: #007bff; --neon: #64ffda; --gold: #ffd700;
+        --slate: #8892b0; --white: #e6f1ff; --card-bg: #112240;
+        --border: rgba(100,255,218,0.15); --danger: #ff4d4d; --success: #00c853;
+    }
+    body { background: var(--navy); color: var(--white); font-family: 'Cairo', sans-serif; min-height: 100vh; }
+    {% include 'inventory/shared_css.html' %}
+
+    .page-wrap { max-width: 850px; margin: 40px auto; padding: 0 20px 60px; }
+    .back-link { display: inline-flex; align-items: center; gap: 6px; color: var(--slate); text-decoration: none; font-size: 14px; margin-bottom: 20px; }
+    .back-link:hover { color: var(--neon); }
+
+    .inv-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; padding: 30px; margin-bottom: 22px; }
+    .inv-header-top { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 15px; margin-bottom: 22px; padding-bottom: 18px; border-bottom: 1px solid var(--border); }
+    .inv-number { font-size: 20px; font-weight: 900; color: var(--neon); }
+    .inv-date { font-size: 14px; color: var(--slate); margin-top: 4px; }
+
+    .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 18px; margin-bottom: 22px; }
+    .info-item label { font-size: 12px; color: var(--slate); font-weight: 600; margin-bottom: 4px; display: block; }
+    .info-item .val { font-size: 15px; font-weight: 700; }
+
+    .badge { padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+    .badge-cash { background: rgba(100,255,218,0.15); color: var(--neon); }
+    .badge-visa { background: rgba(0,123,255,0.15); color: var(--blue); }
+    .badge-credit { background: rgba(255,215,0,0.15); color: var(--gold); }
+
+    table { width: 100%; border-collapse: collapse; }
+    th { padding: 11px 14px; text-align: right; font-size: 13px; color: var(--slate); border-bottom: 1px solid var(--border); }
+    td { padding: 12px 14px; font-size: 14px; border-bottom: 1px solid rgba(100,255,218,0.06); }
+    tr:last-child td { border-bottom: none; }
+
+    .totals-summary { background: rgba(255,215,0,0.05); border: 1px solid rgba(255,215,0,0.2); border-radius: 10px; padding: 18px 22px; }
+    .summary-row { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 8px; }
+    .summary-row:last-child { font-size: 17px; font-weight: 900; border-top: 1px solid rgba(255,215,0,0.2); padding-top: 10px; margin-top: 5px; margin-bottom: 0; }
+    .summary-row .val-red { color: var(--danger); font-weight: 900; }
+    .summary-row .val-green { color: var(--success); font-weight: 900; }
+
+    .section-title { font-size: 15px; font-weight: 700; margin-bottom: 15px; }
+    .section-title i { color: var(--neon); margin-left: 8px; }
+
+    /* نموذج الدفعة */
+    .payment-form { background: rgba(100,255,218,0.04); border: 1px dashed rgba(100,255,218,0.25); border-radius: 10px; padding: 20px; }
+    .pay-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+    @media (max-width: 600px) { .pay-grid { grid-template-columns: 1fr; } }
+    label { display: block; font-size: 13px; font-weight: 600; color: var(--slate); margin-bottom: 6px; }
+    input, select { width: 100%; padding: 9px 12px; border-radius: 7px; background: rgba(255,255,255,0.05); border: 1px solid rgba(100,255,218,0.2); color: var(--white); font-family: 'Cairo', sans-serif; font-size: 14px; }
+    input:focus, select:focus { outline: none; border-color: var(--neon); }
+    select option { background: #112240; }
+
+    .print-btn { background: none; border: 1px solid var(--slate); color: var(--slate); padding: 8px 16px; border-radius: 7px; cursor: pointer; font-family: 'Cairo', sans-serif; font-size: 13px; }
+    .print-btn:hover { border-color: var(--neon); color: var(--neon); }
+</style>
+
+<div class="page-wrap">
+    <a href="{% url 'invoices_list' %}" class="back-link"><i class="fas fa-arrow-right"></i> رجوع للفواتير</a>
+
+    <!-- معلومات الفاتورة -->
+    <div class="inv-card">
+        <div class="inv-header-top">
+            <div>
+                <div class="inv-number"><i class="fas fa-file-invoice"></i> فاتورة #{{ invoice.invoice_number }}</div>
+                <div class="inv-date">{{ invoice.date }} | صادر بواسطة: {{ invoice.created_by.get_full_name|default:invoice.created_by.username }}</div>
+            </div>
+            <button class="print-btn" onclick="window.print()"><i class="fas fa-print"></i> طباعة</button>
+        </div>
+
+        <div class="info-grid">
+            <div class="info-item">
+                <label>اسم العميل</label>
+                <div class="val">{{ invoice.customer_name }}</div>
+            </div>
+            <div class="info-item">
+                <label>رقم الهاتف</label>
+                <div class="val">{{ invoice.customer_phone|default:"-" }}</div>
+            </div>
+            <div class="info-item">
+                <label>طريقة الدفع</label>
+                <div class="val"><span class="badge badge-{{ invoice.payment_type }}">{{ invoice.get_payment_type_display }}</span></div>
+            </div>
+        </div>
+
+        <!-- بنود الفاتورة -->
+        <div class="section-title"><i class="fas fa-boxes"></i> المنتجات</div>
+        <table>
+            <thead><tr><th>#</th><th>صورة</th><th>المنتج</th><th>الكود</th><th>اللون</th><th>المقاس</th><th>الكمية</th><th>سعر الوحدة</th><th>الإجمالي</th></tr></thead>
+            <tbody>
+            {% for item in items %}
+            <tr>
+                <td style="color:var(--slate);">{{ forloop.counter }}</td>
+                <td>
+                    {% if item.variant and item.variant.variant_image %}
+                    <img src="{{ item.variant.variant_image.url }}" style="width:50px;height:50px;object-fit:cover;border-radius:6px;border:1px solid var(--border);">
+                    {% elif item.product.main_image %}
+                    <img src="{{ item.product.main_image.url }}" style="width:50px;height:50px;object-fit:cover;border-radius:6px;border:1px solid var(--border);">
+                    {% else %}
+                    <div style="width:50px;height:50px;background:rgba(255,255,255,0.05);border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--slate);font-size:10px;">لا صورة</div>
+                    {% endif %}
+                </td>
+                <td><b>{{ item.product.name }}</b></td>
+                <td style="color:var(--slate);font-size:12px;">{{ item.product.sku|default:"-" }}</td>
+                <td>{{ item.variant.color_name|default:"-" }}</td>
+                <td>{{ item.product_size.size_name|default:"-" }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ item.unit_price|floatformat:2 }} ج</td>
+                <td style="font-weight:700;color:var(--gold);">{{ item.subtotal|floatformat:2 }} ج</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- الإجمالي -->
+        <div class="totals-summary" style="margin-top:20px;">
+            {% if invoice.discount_amount and invoice.discount_amount > 0 %}
+            <div class="summary-row">
+                <span>إجمالي المنتجات:</span>
+                <!-- نعتمد على total_amount كإجمالي قبل الخصم بناء على المشكلة -->
+                <span>{{ invoice.total_amount|floatformat:2 }} ج</span>
+            </div>
+            <div class="summary-row" style="color:#ffc107;">
+                <span><i class="fas fa-tag"></i> الخصم المطبّق:</span>
+                <span style="color:#ffc107;font-weight:700;">- {{ invoice.discount_amount|floatformat:2 }} ج</span>
+            </div>
+            <div class="summary-row" style="border-top:1px solid rgba(100,255,218,0.15);padding-top:8px;margin-top:4px;">
+                <span style="font-weight:800;">إجمالي الفاتورة بعد الخصم:</span>
+                <span style="color:var(--neon);font-weight:900;font-size:16px;" id="disp-total-after"></span>
+            </div>
+            {% else %}
+            <div class="summary-row"><span>إجمالي الفاتورة:</span><span>{{ invoice.total_amount|floatformat:2 }} ج</span></div>
+            {% endif %}
+            
+            <div class="summary-row"><span>إجمالي المدفوع:</span><span class="val-green">{{ invoice.amount_paid|floatformat:2 }} ج</span></div>
+            <div class="summary-row">
+                <span>المتبقي:</span>
+                <span id="disp-remaining" style="font-weight:900;"></span>
+            </div>
+        </div>
+
+        {% if invoice.notes %}
+        <div style="margin-top:16px;padding:12px;background:rgba(255,255,255,0.04);border-radius:8px;font-size:14px;color:var(--slate);">
+            <i class="fas fa-sticky-note"></i> {{ invoice.notes }}
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- سجل الدفعات -->
+    {% if invoice.amount_remaining > 0 or payments %}
+    <div class="inv-card">
+        <div class="section-title"><i class="fas fa-money-bill-wave"></i> سجل الدفعات</div>
+
+        {% if payments %}
+        <table style="margin-bottom:20px;">
+            <thead><tr><th>التاريخ</th><th>المبلغ</th><th>طريقة الدفع</th><th>ملاحظات</th></tr></thead>
+            <tbody>
+            {% for pay in payments %}
+            <tr>
+                <td>{{ pay.date }}</td>
+                <td style="color:var(--success);font-weight:700;">{{ pay.amount|floatformat:2 }} ج</td>
+                <td><span class="badge badge-{{ pay.payment_type }}">{{ pay.get_payment_type_display }}</span></td>
+                <td style="color:var(--slate);">{{ pay.notes|default:"-" }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+
+        {% if invoice.amount_remaining > 0 %}
+        <div class="payment-form" id="payment-form-container">
+            <div class="section-title" style="font-size:14px;margin-bottom:12px;"><i class="fas fa-plus-circle"></i> تسجيل دفعة جديدة</div>
+            <form method="POST" action="{% url 'add_invoice_payment' invoice.pk %}">
+                {% csrf_token %}
+                <div class="pay-grid">
+                    <div>
+                        <label>المبلغ *</label>
+                        <!-- تمت إزالة الـ max من هنا وسيتم تعيينه عبر السكربت للمبلغ المتبقي الفعلي -->
+                        <input type="number" id="pay-amount-input" name="amount" min="0.01" step="0.01" placeholder="0.00" required>
+                    </div>
+                    <div>
+                        <label>طريقة الدفع</label>
+                        <select name="payment_type">
+                            <option value="cash">كاش</option>
+                            <option value="visa">فيزا</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>التاريخ</label>
+                        <input type="date" name="date" value="{{ invoice.date|date:'Y-m-d' }}" required>
+                    </div>
+                </div>
+                <div style="margin-bottom:12px;">
+                    <label>ملاحظات</label>
+                    <input type="text" name="notes" placeholder="اختياري">
+                </div>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-check"></i> تسجيل الدفعة</button>
+            </form>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<!-- السكربت لمعالجة الحسابات وعرض المتبقي بدقة -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // جلب القيم من الـ Backend وتأمينها كأرقام صحيحة للعمليات الحسابية
+        var rawTotal = "{{ invoice.total_amount|default:'0' }}".replace(',', '.');
+        var rawDiscount = "{{ invoice.discount_amount|default:'0' }}".replace(',', '.');
+        var rawPaid = "{{ invoice.amount_paid|default:'0' }}".replace(',', '.');
+
+        var totalAmount = parseFloat(rawTotal) || 0;
+        var discountAmount = parseFloat(rawDiscount) || 0;
+        var amountPaid = parseFloat(rawPaid) || 0;
+
+        // حساب الإجمالي بعد الخصم
+        var totalAfterDiscount = totalAmount;
+        if (discountAmount > 0) {
+            totalAfterDiscount = totalAmount - discountAmount;
+        }
+
+        // حساب المتبقي الفعلي
+        var remainingAmount = totalAfterDiscount - amountPaid;
+        if (remainingAmount < 0) remainingAmount = 0;
+
+        // عرض الإجمالي بعد الخصم
+        var dispTotalAfter = document.getElementById('disp-total-after');
+        if (dispTotalAfter) {
+            dispTotalAfter.innerText = totalAfterDiscount.toFixed(2) + ' ج';
+        }
+
+        // عرض المتبقي وتغيير لونه
+        var dispRemaining = document.getElementById('disp-remaining');
+        if (dispRemaining) {
+            dispRemaining.innerText = remainingAmount.toFixed(2) + ' ج';
+            if (remainingAmount > 0) {
+                dispRemaining.className = 'val-red';
+            } else {
+                dispRemaining.className = 'val-green';
+            }
+        }
+
+        // تحديد الحد الأقصى للمبلغ في فورم الدفع
+        var payInput = document.getElementById('pay-amount-input');
+        if (payInput) {
+            payInput.max = remainingAmount.toFixed(2);
+        }
+
+        // لو كان المتبقي صفر أو أقل بعد تطبيق الخصم، نخفي فورم الدفع
+        if (remainingAmount <= 0) {
+            var formContainer = document.getElementById('payment-form-container');
+            if (formContainer) {
+                formContainer.style.display = 'none';
+            }
+        }
+    });
+</script>
+
+{% endblock %}

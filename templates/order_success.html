@@ -1,0 +1,263 @@
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZH9JG248D6"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-ZH9JG248D6');
+</script>
+
+{% extends 'base.html' %}
+{% block content %}
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+<style>
+    :root {
+        --bg-dark: #020617;
+        --bg-panel: #0f172a;
+        --neon-blue: #00e5ff;
+        --cyber-neon: #64ffda;
+        --text-main: #ffffff;
+        --text-sec: #94a3b8;
+        --glass-border: rgba(0, 229, 255, 0.15);
+        --success-neon: #00e676;
+        --trans-smooth: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        
+        --font-arabic: 'Cairo', sans-serif;
+        --font-english: 'Rajdhani', sans-serif;
+    }
+
+    body { 
+        background-color: var(--bg-dark); 
+        color: var(--text-main);
+        font-family: var(--font-english);
+    }
+
+    .success-wrapper {
+        padding: 160px 5% 100px;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-image: 
+            linear-gradient(rgba(0, 229, 255, 0.02) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0, 229, 255, 0.02) 1px, transparent 1px);
+        background-size: 30px 30px;
+    }
+
+    .success-container-outer {
+        position: relative;
+        max-width: 650px;
+        width: 100%;
+        background: var(--bg-panel);
+        border: 1px solid var(--glass-border);
+        box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+        border-radius: 12px;
+        backdrop-filter: blur(10px);
+        z-index: 10;
+    }
+
+    .success-container {
+        position: relative;
+        z-index: 5;
+        width: 100%;
+        padding: 70px 40px;
+        text-align: center;
+    }
+
+    .success-icon {
+        width: 90px;
+        height: 90px;
+        background: rgba(0, 230, 118, 0.1);
+        border: 2px solid var(--success-neon);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 35px;
+        font-size: 2.2rem;
+        color: var(--success-neon);
+        box-shadow: 0 0 20px rgba(0, 230, 118, 0.2);
+        animation: scaleIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+    }
+
+    /* تأثير ظهور علامة الصح بداخل الدائرة */
+    .success-icon i {
+        animation: checkmark-pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.3s both;
+    }
+
+    @keyframes scaleIn {
+        from { transform: scale(0.8); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
+    }
+
+    @keyframes checkmark-pop {
+        0% { transform: scale(0); opacity: 0; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+
+    .success-title {
+        font-size: clamp(2rem, 5vw, 3rem);
+        font-weight: 700;
+        margin-bottom: 20px;
+        color: #fff;
+        text-transform: uppercase;
+    }
+
+    .order-id {
+        display: inline-block;
+        background: rgba(2, 6, 23, 0.6);
+        padding: 10px 25px;
+        border: 1px solid var(--glass-border);
+        color: var(--neon-blue);
+        font-weight: 700;
+        margin-bottom: 35px;
+        font-size: 0.9rem;
+        letter-spacing: 2px;
+        border-radius: 4px;
+    }
+
+    .success-message {
+        color: var(--text-sec);
+        line-height: 1.8;
+        margin-bottom: 45px;
+        font-size: 1rem;
+        font-family: var(--font-arabic);
+        font-weight: 600;
+    }
+
+    .info-card {
+        background: rgba(2, 6, 23, 0.4);
+        padding: 30px;
+        border: 1px solid var(--glass-border);
+        margin-bottom: 45px;
+        text-align: left;
+        border-radius: 8px;
+    }
+
+    .info-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 15px;
+        font-size: 0.9rem;
+        gap: 15px;
+    }
+
+    .info-label { 
+        text-transform: uppercase; 
+        letter-spacing: 1px; 
+        color: var(--neon-blue); 
+        font-weight: 700;
+        font-size: 11px;
+    }
+    
+    .info-value { font-weight: 600; color: var(--text-main); text-align: right; }
+
+    .action-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .btn-continue {
+        background: transparent;
+        color: var(--neon-blue);
+        padding: 20px;
+        font-size: 14px;
+        font-weight: 700;
+        text-decoration: none;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        transition: var(--trans-smooth);
+        border: 1px solid var(--neon-blue);
+        border-radius: 6px;
+    }
+
+    .btn-continue:hover {
+        background: var(--neon-blue);
+        color: var(--bg-dark);
+        transform: translateY(-5px);
+        box-shadow: 0 0 20px rgba(0, 229, 255, 0.4);
+    }
+
+    .footer-note {
+        margin-top: 25px;
+        color: var(--text-sec);
+        font-size: 13px;
+        font-family: var(--font-arabic);
+        font-weight: 600;
+    }
+
+    @media (max-width: 600px) {
+        .success-wrapper { padding-top: 130px; }
+        .success-container { padding: 50px 25px; }
+        .info-item { flex-direction: column; gap: 5px; }
+        .info-value { text-align: left; font-size: 0.9rem; }
+    }
+</style>
+
+<div class="success-wrapper" dir="ltr">
+    <div class="success-container-outer animate__animated animate__fadeInUp">
+        <div class="success-container">
+            
+            <div class="success-icon">
+                <i class="fas fa-check"></i>
+            </div>
+            
+            <h1 class="success-title">SECURE <span style="color: var(--neon-blue);">GRANTED.</span></h1>
+            
+            <div class="order-id">REFERENCE: #ALB-{{ order.id }}</div>
+
+            <p class="success-message" dir="rtl">
+                عزيزي <strong>{{ order.name }}</strong>، <br>
+                لقد تم تسجيل طلبك بنجاح. مهندسو الأنظمة لدينا يعملون الآن على مراجعة طلبك وتجهيز المعدات للتركيب.
+            </p>
+
+            <div class="info-card">
+                <div class="info-item">
+                    <span class="info-label">Deployment Site</span>
+                    <span class="info-value">{{ order.governorate }}, {{ order.address }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Encrypted Contact</span>
+                    <span class="info-value">{{ order.phone }}</span>
+                </div>
+                <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);" class="info-item">
+                    <span class="info-label">Total Secured Amount</span>
+                    <span class="info-value" style="color: var(--cyber-neon); font-size: 1.5rem; font-weight: 700;">{{ order.total_price|floatformat:0 }} LE</span>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <a href="{% url 'shop' %}" class="btn-continue">Return to Systems Catalog</a>
+                <p class="footer-note" dir="rtl">
+                    تم إرسال ملف تأكيد العملية إلى البريد: {{ order.email }}
+                </p>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+  const orderId = '{{ order.id }}';
+  const totalPrice = {{ order.total_price|floatformat:2 }};
+  const hasTracked = sessionStorage.getItem('tracked_purchase_' + orderId);
+
+  if (!hasTracked) {
+      if (typeof gtag !== 'undefined') {
+          gtag('event', 'purchase', {
+              transaction_id: orderId,
+              value: totalPrice,
+              currency: 'EGP',
+              items: [{
+                item_id: orderId,
+                item_name: "Al-Basty Security System"
+              }]
+          });
+      }
+      sessionStorage.setItem('tracked_purchase_' + orderId, 'true');
+  }
+</script>
+{% endblock %}

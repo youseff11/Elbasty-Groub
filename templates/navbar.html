@@ -1,0 +1,441 @@
+{% load static %}
+<link rel="icon" type="image/png" href="/media/images/logo.png">
+
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    :root {
+        /* ألوان الأمان السيبراني (The Security Pro) */
+        --cyber-navy: #0a192f;       /* لون الخلفية الرئيسي */
+        --cyber-blue: #007bff;       /* الأزرق الصريح للأزرار والتفاصيل */
+        --cyber-neon: #64ffda;       /* الأزرق المائل للأخضر (للبصمة والـ Hover) */
+        --slate-gray: #8892b0;       /* لون الروابط الأساسي */
+        --pure-white: #e6f1ff;       /* لون النصوص الرئيسية */
+        
+        --font-main: 'Cairo', sans-serif;
+    }
+
+    body {
+        margin: 0;
+        padding: 0;
+        background: #f4f7f6;
+        font-family: var(--font-main);
+    }
+
+    .navbar {
+        width: 100%;
+        background: rgba(10, 25, 47, 0.98); /* الكحلي التقني مع شفافية بسيطة */
+        backdrop-filter: blur(15px);
+        padding: 12px 50px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        box-shadow: 0 4px 25px rgba(0, 0, 0, 0.3);
+        border-bottom: 1px solid rgba(0, 123, 255, 0.2);
+    }
+
+    /* تنسيق الشعار مع البصمة */
+    .nav-logo {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        text-decoration: none;
+        line-height: 1.2;
+        transition: transform 0.3s ease;
+    }
+
+    .nav-logo:hover {
+        transform: translateY(-2px);
+    }
+
+    .nav-logo-text {
+        font-family: var(--font-main);
+        font-size: 28px; 
+        color: var(--pure-white);
+        font-weight: 900;
+        letter-spacing: 0.5px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .logo-icon {
+        color: var(--cyber-neon); /* لون البصمة */
+        font-size: 26px;
+        filter: drop-shadow(0 0 5px rgba(100, 255, 218, 0.4)); /* إضاءة خفيفة للبصمة */
+    }
+
+    .nav-logo-subtext {
+        font-family: var(--font-main);
+        font-size: 13px;
+        color: var(--cyber-blue);
+        font-weight: 700;
+        letter-spacing: 1px;
+        margin-top: -2px;
+        padding-right: 36px; /* لضبط المحاذاة مع النص مش الأيقونة */
+    }
+
+    .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 25px;
+    }
+
+    .nav-links a {
+        color: var(--slate-gray);
+        text-decoration: none;
+        font-size: 16px;
+        font-weight: 600;
+        font-family: var(--font-main);
+        transition: all 0.3s ease;
+        position: relative;
+        padding: 5px 0;
+    }
+
+    .nav-links a::after {
+        content: "";
+        position: absolute;
+        width: 0%;
+        height: 2px;
+        background: var(--cyber-neon);
+        right: 0;
+        bottom: -2px;
+        transition: all 0.3s ease;
+        border-radius: 2px;
+    }
+
+    .nav-links a:hover { 
+        color: var(--pure-white); 
+    }
+    
+    .nav-links a:hover::after { 
+        width: 100%; 
+    }
+
+    /* أزرار الإدارة داخل قائمة الموبايل فقط */
+    .nav-links a.admin-link {
+        color: var(--cyber-neon);
+        border: 1px solid rgba(100, 255, 218, 0.5);
+        padding: 4px 15px;
+        border-radius: 4px;
+        font-weight: 700;
+        background: rgba(100, 255, 218, 0.05);
+    }
+
+    .nav-links a.admin-link::after {
+        display: none; 
+    }
+
+    .nav-links a.admin-link:hover {
+        background: rgba(100, 255, 218, 0.15);
+        border-color: var(--cyber-neon);
+        color: var(--pure-white);
+    }
+
+    .nav-actions {
+        display: flex;
+        align-items: center;
+        gap: 25px;
+    }
+
+    /* =========================================
+       ✨ القائمة المنسدلة لمدير النظام (Desktop) ✨ 
+       ========================================= */
+    .admin-dropdown {
+        position: relative;
+        display: inline-block;
+    }
+
+    .admin-badge {
+        font-family: var(--font-main);
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--cyber-blue);
+        border-right: 1px solid rgba(136, 146, 176, 0.3);
+        padding-right: 15px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: color 0.3s ease;
+    }
+
+    .admin-badge:hover {
+        color: var(--cyber-neon);
+    }
+
+    .admin-dropdown-content {
+        display: none;
+        position: absolute;
+        top: 100%;
+        right: 0;
+        margin-top: 18px;
+        background: rgba(10, 25, 47, 0.98);
+        min-width: 220px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        border: 1px solid rgba(0, 123, 255, 0.2);
+        border-radius: 8px;
+        z-index: 9999;
+        flex-direction: column;
+        overflow: hidden;
+        backdrop-filter: blur(15px);
+    }
+
+    /* السهم الصغير أعلى القائمة المنسدلة */
+    .admin-dropdown-content::before {
+        content: '';
+        position: absolute;
+        top: -6px;
+        right: 20px;
+        border-width: 0 6px 6px 6px;
+        border-style: solid;
+        border-color: transparent transparent rgba(0, 123, 255, 0.4) transparent;
+    }
+
+    .admin-dropdown-content.show {
+        display: flex;
+        animation: fadeInDown 0.3s ease forwards;
+    }
+
+    @keyframes fadeInDown {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .admin-dropdown-content a {
+        color: var(--pure-white);
+        padding: 14px 20px;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        transition: all 0.3s ease;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .admin-dropdown-content a:last-child {
+        border-bottom: none;
+    }
+
+    .admin-dropdown-content a:hover {
+        background: rgba(100, 255, 218, 0.1);
+        color: var(--cyber-neon);
+        padding-right: 25px; /* حركة بسيطة لليسار عند الـ Hover */
+    }
+
+    .admin-dropdown-content a.gold-link:hover {
+        color: #ffd700;
+        background: rgba(255, 215, 0, 0.1);
+    }
+
+    .cart-icon-wrapper {
+        position: relative;
+        color: var(--pure-white);
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+    .cart-icon-wrapper:hover {
+        color: var(--cyber-neon);
+    }
+
+    .cart-badge-main {
+        background: var(--cyber-blue);
+        color: #ffffff;
+        border-radius: 50%;
+        width: 18px;
+        height: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        font-weight: 700;
+        position: absolute;
+        top: -8px;
+        right: -12px;
+        box-shadow: 0 0 8px rgba(0, 123, 255, 0.6);
+    }
+
+    .mobile-controls {
+        display: none;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .menu-toggle {
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .menu-toggle span {
+        width: 28px;
+        height: 2px;
+        background: var(--pure-white);
+        transition: 0.3s;
+        border-radius: 2px;
+    }
+
+    /* إخفاء الروابط في الديسكتوب لإظهارها في الموبايل فقط */
+    @media (min-width: 769px) {
+        .mobile-only {
+            display: none !important;
+        }
+    }
+
+    /* التجاوب مع الشاشات المختلفة */
+    @media (max-width: 992px) {
+        .navbar { padding: 12px 25px; }
+        .nav-links { gap: 15px; }
+        .nav-links a { font-size: 15px; }
+        .nav-logo-text { font-size: 24px; } 
+        .logo-icon { font-size: 22px; }
+    }
+
+    @media (max-width: 768px) {
+        .mobile-controls { display: flex; }
+        .nav-actions { display: none; } /* القائمة المنسدلة للديسكتوب ستختفي هنا */
+        
+        .nav-links {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            background: var(--cyber-navy);
+            flex-direction: column;
+            padding: 30px 0;
+            display: none;
+            border-top: 1px solid rgba(0, 123, 255, 0.2);
+            text-align: center;
+            gap: 20px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+        }
+
+        .nav-links.active { display: flex; }
+    }
+</style>
+
+<nav class="navbar">
+    <a href="{% url 'home' %}" class="nav-logo">
+        <div class="nav-logo-text">
+            <i class="fas fa-fingerprint logo-icon"></i> الباسطى جروب
+        </div>
+        <div class="nav-logo-subtext">أبواب ذكية وكاميرات مراقبة</div>
+    </a>
+
+    <div class="nav-links" id="navLinks">
+        <a href="{% url 'home' %}">الرئيسية</a>
+        <a href="{% url 'shop' %}">منتجاتنا الذكية</a>
+        <a href="{% url 'offers' %}">باقات وعروض</a>
+        
+        {% if user.is_authenticated and user.is_staff %}
+            <a href="{% url 'dashboard' %}" class="admin-link mobile-only"><i class="fas fa-cogs"></i> لوحة التحكم</a>
+            <a href="{% url 'inventory_dashboard' %}" class="admin-link mobile-only" style="background:rgba(255,180,0,0.08); border-color:rgba(255,180,0,0.5); color:#ffd700;"><i class="fas fa-boxes"></i> إدارة المخزن</a>
+        {% endif %}
+        
+        <a href="{% url 'policies' %}">الضمان والشروط</a>
+        <a href="{% url 'about' %}">عن الشركة</a>
+        <a href="{% url 'contact' %}">تواصل معنا</a>
+    </div>
+
+    <div class="nav-actions">
+        {% if user.is_authenticated and user.is_staff %}
+            <div class="admin-dropdown">
+                <div class="admin-badge" id="adminBadgeBtn">
+                    <i class="fas fa-user-shield"></i> مدير النظام 
+                    <i class="fas fa-chevron-down" style="font-size: 10px;"></i>
+                </div>
+                
+                <div class="admin-dropdown-content" id="adminDropdownMenu">
+                    <a href="{% url 'dashboard' %}">
+                        <i class="fas fa-cogs" style="width: 20px;"></i> لوحة التحكم
+                    </a>
+                    <a href="{% url 'inventory_dashboard' %}" class="gold-link" style="color: #ffd700;">
+                        <i class="fas fa-boxes" style="width: 20px;"></i> إدارة المخزن
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+
+        <a href="{% url 'cart_view' %}" class="cart-icon-wrapper">
+            <i class="fas fa-shopping-cart" style="font-size: 20px;"></i>
+            {% if cart_count > 0 %}
+                <span class="cart-badge-main">{{ cart_count }}</span>
+            {% endif %}
+        </a>
+    </div>
+
+    <div class="mobile-controls">
+        <a href="{% url 'cart_view' %}" class="cart-icon-wrapper">
+            <i class="fas fa-shopping-cart" style="font-size: 20px;"></i>
+            {% if cart_count > 0 %}
+                <span class="cart-badge-main">{{ cart_count }}</span>
+            {% endif %}
+        </a>
+
+        <div class="menu-toggle" id="menuToggle">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </div>
+</nav>
+
+<script>
+    const menuToggle = document.getElementById("menuToggle");
+    const navLinks = document.getElementById("navLinks");
+
+    // منطق قائمة الموبايل
+    menuToggle.addEventListener("click", () => {
+        navLinks.classList.toggle("active");
+        
+        const spans = menuToggle.querySelectorAll('span');
+        spans.forEach((span, index) => {
+            span.style.background = navLinks.classList.contains('active') ? '#64ffda' : '#e6f1ff';
+        });
+    });
+
+    // إغلاق القائمة عند الضغط على أي رابط في الجوال
+    document.querySelectorAll('.nav-links a').forEach(link => {
+        link.addEventListener('click', () => {
+            navLinks.classList.remove('active');
+            const spans = menuToggle.querySelectorAll('span');
+            spans.forEach(span => span.style.background = '#e6f1ff');
+        });
+    });
+
+    // منطق القائمة المنسدلة لمدير النظام
+    (function() {
+        const adminBtn = document.getElementById('adminBadgeBtn');
+        const dropdownMenu = document.getElementById('adminDropdownMenu');
+
+        if (!adminBtn || !dropdownMenu) return;
+
+        adminBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            dropdownMenu.classList.toggle('show');
+        });
+
+        document.addEventListener('click', function(e) {
+            if (!adminBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                dropdownMenu.classList.remove('show');
+            }
+        });
+
+        // منع إغلاق القائمة لما تضغط بداخلها
+        dropdownMenu.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+    })();
+</script>

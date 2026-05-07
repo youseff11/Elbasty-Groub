@@ -1,0 +1,446 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    /* نفس متغيرات الألوان الخاصة بالهوم مع إضافة ألوان الحالات (السايبربانك) */
+    :root {
+        --bg-dark: #020617; 
+        --bg-panel: #0f172a;
+        --neon-blue: #00e5ff; 
+        --neon-gold: #ffd700;
+        --neon-green: #00e676;
+        --neon-red: #ff1744;
+        --text-main: #ffffff;
+        --text-sec: #94a3b8;
+        --glass-bg: rgba(15, 23, 42, 0.6);
+        --glass-border: rgba(0, 229, 255, 0.15);
+        --trans: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    body { 
+        background-color: var(--bg-dark); 
+        color: var(--text-main); 
+        font-family: 'Cairo', sans-serif; 
+        min-height: 100vh;
+        position: relative;
+    }
+
+    /* شبكة السايبربانك في الخلفية */
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background-image: 
+            linear-gradient(rgba(0, 229, 255, 0.02) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0, 229, 255, 0.02) 1px, transparent 1px);
+        background-size: 40px 40px;
+        z-index: -1;
+        pointer-events: none;
+    }
+
+    {% include 'inventory/shared_css.html' %}
+
+    /* ================= Header ================= */
+    .inv-header {
+        background: linear-gradient(to left, var(--bg-dark) 0%, rgba(15, 23, 42, 0.9) 100%);
+        padding: 30px 5%;
+        border-bottom: 1px solid var(--glass-border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 15px;
+        position: relative;
+        backdrop-filter: blur(10px);
+    }
+
+    .inv-header h1 { 
+        font-size: clamp(24px, 4vw, 32px); 
+        font-weight: 900; 
+        text-transform: uppercase;
+    }
+    
+    .inv-header h1 i { 
+        color: var(--neon-blue); 
+        margin-left: 10px; 
+        text-shadow: 0 0 15px rgba(0, 229, 255, 0.5);
+    }
+
+    .btn-group { display: flex; gap: 15px; flex-wrap: wrap; }
+
+    /* ================= Buttons ================= */
+    .cyber-btn {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 20px;
+        font-size: 15px;
+        font-weight: 800;
+        text-decoration: none;
+        border-radius: 6px;
+        overflow: hidden;
+        transition: var(--trans);
+        cursor: pointer;
+        border: 1px solid transparent;
+    }
+
+    .cyber-btn-blue {
+        background: var(--neon-blue);
+        color: var(--bg-dark);
+        box-shadow: 0 0 15px rgba(0, 229, 255, 0.3);
+    }
+    .cyber-btn-blue:hover { transform: translateY(-3px); box-shadow: 0 0 25px rgba(0, 229, 255, 0.6); }
+
+    .cyber-btn-gold {
+        background: var(--neon-gold);
+        color: var(--bg-dark);
+        box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+    }
+    .cyber-btn-gold:hover { transform: translateY(-3px); box-shadow: 0 0 25px rgba(255, 215, 0, 0.6); }
+
+    .cyber-btn-glass {
+        background: var(--glass-bg);
+        color: var(--neon-blue);
+        border: 1px solid var(--glass-border);
+        backdrop-filter: blur(5px);
+    }
+    .cyber-btn-glass:hover { background: var(--neon-blue); color: var(--bg-dark); transform: translateY(-3px); }
+
+    /* ================= Stats Grid ================= */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 25px;
+        padding: 40px 5% 0;
+        max-width: 1600px;
+        margin: 0 auto;
+    }
+
+    .stat-card {
+        background: var(--bg-panel);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 16px;
+        padding: 25px;
+        text-align: center;
+        transition: var(--trans);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stat-card::after {
+        content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 3px;
+        background: var(--theme-color); opacity: 0.5; transition: var(--trans);
+    }
+
+    .stat-card:hover { 
+        transform: translateY(-8px); 
+        border-color: var(--theme-color);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.5), 0 0 20px var(--theme-glow); 
+    }
+    .stat-card:hover::after { opacity: 1; box-shadow: 0 0 15px var(--theme-color); }
+
+    .stat-icon { font-size: 35px; margin-bottom: 15px; color: var(--theme-color); }
+    .stat-value { font-size: 28px; font-weight: 900; color: #fff; font-family: 'Rajdhani', sans-serif; }
+    .stat-label { font-size: 14px; color: var(--text-sec); margin-top: 8px; font-weight: 600; }
+
+    /* الألوان الخاصة بالكروت */
+    .stat-card.green { --theme-color: var(--neon-green); --theme-glow: rgba(0, 230, 118, 0.2); }
+    .stat-card.red { --theme-color: var(--neon-red); --theme-glow: rgba(255, 23, 68, 0.2); }
+    .stat-card.gold { --theme-color: var(--neon-gold); --theme-glow: rgba(255, 215, 0, 0.2); }
+    .stat-card.blue { --theme-color: #2979ff; --theme-glow: rgba(41, 121, 255, 0.2); }
+    .stat-card.neon { --theme-color: var(--neon-blue); --theme-glow: rgba(0, 229, 255, 0.2); }
+
+    /* ================= Content Grid & Tables ================= */
+    .content-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+        padding: 40px 5%;
+        max-width: 1600px;
+        margin: 0 auto;
+    }
+
+    @media (max-width: 1024px) { .content-grid { grid-template-columns: 1fr; } }
+
+    .section-card {
+        background: var(--bg-panel);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 16px;
+        overflow: hidden;
+        transition: var(--trans);
+    }
+    .section-card:hover { border-color: var(--glass-border); box-shadow: 0 10px 30px rgba(0, 229, 255, 0.05); }
+
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 25px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        background: linear-gradient(to left, rgba(0, 229, 255, 0.02), transparent);
+    }
+    .section-header h2 { font-size: 18px; font-weight: 800; color: #fff; }
+    .section-header h2 i { margin-left: 10px; }
+
+    .btn-sm { padding: 6px 15px; font-size: 13px; }
+
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 16px 20px; text-align: right; font-size: 14px; }
+    th { color: var(--neon-blue); font-weight: 700; border-bottom: 1px solid rgba(255,255,255,0.05); font-family: 'Rajdhani', sans-serif; letter-spacing: 1px; }
+    td { border-bottom: 1px solid rgba(255,255,255,0.02); color: var(--text-sec); font-weight: 600; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(0, 229, 255, 0.03); color: #fff; }
+
+    /* ================= Badges ================= */
+    .badge { 
+        padding: 5px 12px; 
+        border-radius: 50px; 
+        font-size: 12px; 
+        font-weight: 800; 
+        display: inline-block;
+        backdrop-filter: blur(5px);
+    }
+    .badge-in { background: rgba(0, 230, 118, 0.1); border: 1px solid var(--neon-green); color: var(--neon-green); }
+    .badge-out { background: rgba(255, 23, 68, 0.1); border: 1px solid var(--neon-red); color: var(--neon-red); }
+    .badge-cash { background: rgba(0, 229, 255, 0.1); border: 1px solid var(--neon-blue); color: var(--neon-blue); }
+    .badge-visa { background: rgba(41, 121, 255, 0.1); border: 1px solid #2979ff; color: #2979ff; }
+    .badge-credit { background: rgba(255, 215, 0, 0.1); border: 1px solid var(--neon-gold); color: var(--neon-gold); }
+
+    /* ================= Empty States & Alerts ================= */
+    .empty-state { text-align: center; padding: 60px 20px; color: var(--text-sec); }
+    .empty-state i { font-size: 50px; margin-bottom: 15px; display: block; color: rgba(255,255,255,0.05); }
+
+    .messages-box { padding: 0 5%; max-width: 1600px; margin: 0 auto; }
+    .alert { padding: 15px 20px; border-radius: 8px; margin-bottom: 15px; font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+    .alert-success { background: rgba(0, 230, 118, 0.1); border: 1px solid var(--neon-green); color: var(--neon-green); box-shadow: 0 0 15px rgba(0, 230, 118, 0.2); }
+    .alert-error { background: rgba(255, 23, 68, 0.1); border: 1px solid var(--neon-red); color: var(--neon-red); box-shadow: 0 0 15px rgba(255, 23, 68, 0.2); }
+</style>
+
+<div class="inv-header">
+    <h1><i class="fas fa-boxes"></i> إدارة المخزن</h1>
+    <div class="btn-group">
+        <a href="{% url 'add_stock_movement' %}" class="cyber-btn cyber-btn-gold">
+            <i class="fas fa-plus"></i> إضافة حركة
+        </a>
+        <a href="{% url 'create_invoice' %}" class="cyber-btn cyber-btn-blue">
+            <i class="fas fa-file-invoice"></i> فاتورة بيع
+        </a>
+        <a href="{% url 'suppliers_list' %}" class="cyber-btn cyber-btn-glass">
+            <i class="fas fa-truck"></i> الموردون
+        </a>
+        <a href="{% url 'receivables_list' %}" class="cyber-btn cyber-btn-glass" style="border-color:#00c853;color:#00c853;">
+            <i class="fas fa-hand-holding-usd"></i> فلوس ليا
+        </a>
+        <a href="{% url 'payables_list' %}" class="cyber-btn cyber-btn-glass" style="border-color:#ff4d4d;color:#ff4d4d;">
+            <i class="fas fa-money-bill-wave"></i> فلوس عليا
+        </a>
+    </div>
+</div>
+
+{% if messages %}
+<div class="messages-box" style="padding-top:30px;">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}">
+        <i class="fas {% if message.tags == 'success' %}fa-check-circle{% else %}fa-exclamation-triangle{% endif %}"></i>
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="stats-grid">
+    <div class="stat-card green">
+        <div class="stat-icon"><i class="fas fa-arrow-down"></i></div>
+        <div class="stat-value">{{ total_in }}</div>
+        <div class="stat-label">إجمالي الوارد (وحدات)</div>
+    </div>
+    <div class="stat-card red">
+        <div class="stat-icon"><i class="fas fa-arrow-up"></i></div>
+        <div class="stat-value">{{ total_out }}</div>
+        <div class="stat-label">إجمالي الصادر (وحدات)</div>
+    </div>
+    <div class="stat-card gold">
+        <div class="stat-icon"><i class="fas fa-coins"></i></div>
+        <div class="stat-value">{{ total_stock_value|floatformat:0 }} ج</div>
+        <div class="stat-label">قيمة المخزون (بسعر البيع بعد الخصم)</div>
+    </div>
+    <div class="stat-card blue">
+        <div class="stat-icon"><i class="fas fa-shopping-cart"></i></div>
+        <div class="stat-value">{{ total_purchases_cost|floatformat:0 }} ج</div>
+        <div class="stat-label">إجمالي تكلفة المشتريات</div>
+    </div>
+    <div class="stat-card neon">
+        <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
+        <div class="stat-value">{{ total_sales_revenue|floatformat:0 }} ج</div>
+        <div class="stat-label">إجمالي إيرادات المبيعات</div>
+    </div>
+    <div class="stat-card {% if net_profit >= 0 %}green{% else %}red{% endif %}">
+        <div class="stat-icon"><i class="fas fa-money-bill-trend-up"></i></div>
+        <div class="stat-value" style="color:{% if net_profit >= 0 %}var(--neon-green){% else %}var(--neon-red){% endif %};">{{ net_profit|floatformat:0 }} ج</div>
+        <div class="stat-label">صافي الربح (مبيعات - مشتريات)</div>
+    </div>
+    <div class="stat-card green" style="cursor:pointer;" onclick="location.href='{% url 'receivables_list' %}'">
+        <div class="stat-icon"><i class="fas fa-hand-holding-usd"></i></div>
+        <div class="stat-value" style="color:var(--neon-green);">{{ total_receivables|floatformat:0 }} ج</div>
+        <div class="stat-label">فلوس ليا (متأخرات العملاء)</div>
+    </div>
+    <div class="stat-card red" style="cursor:pointer;" onclick="location.href='{% url 'payables_list' %}'">
+        <div class="stat-icon"><i class="fas fa-money-bill-wave"></i></div>
+        <div class="stat-value" style="color:var(--neon-red);">{{ total_payables|floatformat:0 }} ج</div>
+        <div class="stat-label">فلوس عليا (متأخرات الموردين)</div>
+    </div>
+</div>
+
+<div class="content-grid">
+    <div class="section-card">
+        <div class="section-header">
+            <h2><i class="fas fa-exchange-alt" style="color:var(--neon-blue);"></i> آخر حركات المخزن</h2>
+            <a href="{% url 'movements_list' %}" class="cyber-btn cyber-btn-glass btn-sm">الكل</a>
+        </div>
+        {% if recent_movements %}
+        <table>
+            <thead><tr><th>المنتج</th><th>اللون</th><th>المقاس</th><th>النوع</th><th>الكمية</th><th>التاريخ</th></tr></thead>
+            <tbody>
+            {% for m in recent_movements %}
+            <tr>
+                <td style="color:#fff;">{{ m.product.name }}</td>
+                <td style="font-size:13px;color:var(--slate);">{{ m.variant.color_name|default:"-" }}</td>
+                <td style="font-size:13px;color:var(--slate);">{{ m.product_size.size_name|default:"-" }}</td>
+                <td><span class="badge badge-{{ m.movement_type }}">{{ m.get_movement_type_display }}</span></td>
+                <td style="font-family: 'Rajdhani', sans-serif; font-size: 16px;">{{ m.quantity }}</td>
+                <td>{{ m.date }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-box-open"></i>
+            <p>لا توجد حركات مخزن بعد</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- قسم آخر فواتير البيع -->
+    <div class="section-card">
+        <div class="section-header">
+            <h2><i class="fas fa-file-invoice" style="color:var(--neon-gold);"></i> آخر فواتير البيع</h2>
+            <a href="{% url 'invoices_list' %}" class="cyber-btn cyber-btn-glass btn-sm">الكل</a>
+        </div>
+        {% if recent_invoices %}
+        <table>
+            <thead><tr><th>رقم الفاتورة</th><th>العميل</th><th>الإجمالي (بعد الخصم)</th><th>المتبقي</th></tr></thead>
+            <tbody>
+            {% for inv in recent_invoices %}
+            <!-- تم إضافة داتا (data-*) للاستخدام في الجافاسكريبت لحساب القيمة الفعلية -->
+            <tr class="invoice-calc-row" 
+                data-total="{{ inv.total_amount|default:'0' }}" 
+                data-discount="{{ inv.discount_amount|default:'0' }}" 
+                data-paid="{{ inv.amount_paid|default:'0' }}">
+                
+                <td><a href="{% url 'invoice_detail' inv.pk %}" style="color:var(--neon-blue); text-decoration:none; font-family: 'Rajdhani', sans-serif; font-weight:bold;">#{{ inv.invoice_number }}</a></td>
+                <td style="color:#fff;">{{ inv.customer_name }}</td>
+                <td class="display-total" style="font-family: 'Rajdhani', sans-serif; font-size: 16px;">
+                    <!-- سيتم تعبئتها بواسطة السكريبت -->
+                </td>
+                <td class="display-remaining" style="font-family: 'Rajdhani', sans-serif; font-size: 16px; font-weight:bold;">
+                    <!-- سيتم تعبئتها وتلوينها بواسطة السكريبت -->
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-receipt"></i>
+            <p>لا توجد فواتير بعد</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="section-card" style="grid-column: 1 / -1;">
+        <div class="section-header">
+            <h2><i class="fas fa-warehouse" style="color:#2979ff;"></i> المخزون الحالي</h2>
+        </div>
+        <table>
+            <thead><tr><th>المنتج</th><th>السعر</th><th>الكمية في المخزن</th><th>الحالة</th></tr></thead>
+            <tbody>
+            {% for p in products %}
+            <tr>
+                <td style="color:#fff;">
+                    {{ p.name }}
+                    {% if p.sku %}<div style="font-size:11px;color:var(--slate);margin-top:3px;font-family:'Rajdhani',sans-serif;">{{ p.sku }}</div>{% endif %}
+                </td>
+                <td style="font-family: 'Rajdhani', sans-serif; font-size: 16px;">{{ p.price|floatformat:0 }} ج</td>
+                <td style="font-family: 'Rajdhani', sans-serif; font-size: 18px; font-weight: 700; color:#fff;">{{ p.stock }}</td>
+                <td>
+                    {% if p.stock == 0 %}
+                        <span class="badge" style="background:rgba(255,23,68,0.1); border:1px solid var(--neon-red); color:var(--neon-red);">نفذ المخزون</span>
+                    {% elif p.stock <= 5 %}
+                        <span class="badge" style="background:rgba(255,215,0,0.1); border:1px solid var(--neon-gold); color:var(--neon-gold);">مخزون منخفض</span>
+                    {% else %}
+                        <span class="badge" style="background:rgba(0,230,118,0.1); border:1px solid var(--neon-green); color:var(--neon-green);">متاح</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5" style="text-align:center; padding:40px;"><div class="empty-state"><i class="fas fa-box"></i><p>لا توجد منتجات</p></div></td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- سكريبت حساب القيم الصحيحة لآخر فواتير البيع -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var invoiceRows = document.querySelectorAll('.invoice-calc-row');
+        
+        invoiceRows.forEach(function(row) {
+            // سحب القيم من HTML attributes وتجهيزها للعمليات الحسابية
+            var rawTotal = row.getAttribute('data-total').replace(',', '.');
+            var rawDiscount = row.getAttribute('data-discount').replace(',', '.');
+            var rawPaid = row.getAttribute('data-paid').replace(',', '.');
+
+            var totalAmount = parseFloat(rawTotal) || 0;
+            var discountAmount = parseFloat(rawDiscount) || 0;
+            var amountPaid = parseFloat(rawPaid) || 0;
+
+            // تطبيق الخصم
+            var totalAfterDiscount = totalAmount;
+            if (discountAmount > 0) {
+                totalAfterDiscount = totalAmount - discountAmount;
+            }
+
+            // حساب المتبقي
+            var remainingAmount = totalAfterDiscount - amountPaid;
+            if (remainingAmount < 0) remainingAmount = 0; // حماية من القيم السالبة
+
+            // تحديث الإجمالي في الجدول
+            var displayTotal = row.querySelector('.display-total');
+            if (displayTotal) {
+                displayTotal.innerText = totalAfterDiscount.toFixed(0) + ' ج';
+            }
+
+            // تحديث المتبقي وتلوينه في الجدول
+            var displayRemaining = row.querySelector('.display-remaining');
+            if (displayRemaining) {
+                displayRemaining.innerText = remainingAmount.toFixed(0) + ' ج';
+                if (remainingAmount > 0) {
+                    displayRemaining.style.color = 'var(--neon-red)';
+                } else {
+                    displayRemaining.style.color = 'var(--neon-green)';
+                }
+            }
+        });
+    });
+</script>
+
+{% endblock %}

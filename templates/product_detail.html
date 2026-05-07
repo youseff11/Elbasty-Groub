@@ -1,0 +1,449 @@
+{% extends 'base.html' %} 
+{% load static %}
+
+{% block content %}
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZH9JG248D6"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-ZH9JG248D6');
+</script>
+
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+    :root {
+        /* الهوية البصرية السيبرانية */
+        --bg-dark: #020617;
+        --bg-panel: #0f172a;
+        --neon-blue: #00e5ff;
+        --cyber-neon: #64ffda;
+        --text-main: #ffffff;
+        --text-sec: #94a3b8;
+        --glass-border: rgba(0, 229, 255, 0.15);
+        --danger: #ff3366;
+        --success: #00e676;
+        --warning: #ffb300;
+        --trans-smooth: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        
+        --font-arabic: 'Cairo', sans-serif;
+        --font-english: 'Rajdhani', sans-serif;
+    }
+
+    body { 
+        background: var(--bg-dark); 
+        color: var(--text-main);
+        font-family: var(--font-arabic);
+    }
+
+    /* شبكة الليزر للخلفية */
+    .detail-wrapper { 
+        padding: 40px 15px 40px; 
+        max-width: 1400px; 
+        margin: auto; 
+        background-image: 
+            linear-gradient(rgba(0, 229, 255, 0.02) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0, 229, 255, 0.02) 1px, transparent 1px);
+        background-size: 30px 30px;
+        min-height: 100vh;
+    }
+
+    /* Breadcrumbs */
+    .breadcrumb { font-size: 13px; margin-bottom: 20px; color: var(--text-sec); letter-spacing: 1px; font-weight: 600; }
+    .breadcrumb a { color: var(--text-sec); text-decoration: none; transition: var(--trans-smooth); }
+    .breadcrumb a:hover { color: var(--neon-blue); text-shadow: 0 0 8px rgba(0, 229, 255, 0.4); }
+
+    .detail-container-outer {
+        background: var(--bg-panel);
+        border: 1px solid var(--glass-border);
+        box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+        border-radius: 12px;
+        overflow: hidden;
+        backdrop-filter: blur(10px);
+    }
+
+    .detail-container { display: grid; grid-template-columns: 1.1fr 0.9fr; }
+
+    @media (max-width: 991px) {
+        .detail-container { grid-template-columns: 1fr; }
+        .info-section { position: static !important; padding: 25px 15px !important; }
+        .main-display { height: 350px !important; border-radius: 8px; }
+        .image-section { padding: 10px !important; border-right: none !important; border-bottom: 1px solid var(--glass-border); }
+    }
+
+    /* Image Display Section */
+    .image-section { padding: 20px; border-right: 1px solid rgba(255,255,255,0.05); position: relative; }
+    
+    .main-display {
+        width: 100%; height: 550px; 
+        display: flex; align-items: center; justify-content: center;
+        background: #0a192f; overflow: hidden; position: relative;
+        border-radius: 8px; border: 1px solid var(--glass-border);
+    }
+
+    .product-main-img { 
+        width: 100%; height: 100%; 
+        object-fit: cover; transition: transform 0.6s var(--trans-smooth); opacity: 0.9;
+    }
+
+    .main-display:hover .product-main-img { transform: scale(1.05); opacity: 1; }
+
+    /* زرار العين لعرض الصورة كاملة */
+    .view-full-btn {
+        position: absolute; bottom: 20px; right: 20px;
+        background: rgba(2, 6, 23, 0.8); border: 1px solid var(--glass-border);
+        border-radius: 50%; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;
+        cursor: pointer; z-index: 20; color: var(--neon-blue); font-size: 18px;
+        box-shadow: 0 0 15px rgba(0, 229, 255, 0.1); transition: var(--trans-smooth);
+        backdrop-filter: blur(5px);
+    }
+    .view-full-btn:hover { background: var(--neon-blue); color: var(--bg-dark); box-shadow: 0 0 20px rgba(0, 229, 255, 0.4); transform: scale(1.1); }
+
+    /* Modal الصورة كاملة */
+    .image-modal {
+        display: none; position: fixed; z-index: 100000; left: 0; top: 0; width: 100%; height: 100%;
+        background-color: rgba(2, 6, 23, 0.95); backdrop-filter: blur(10px); opacity: 0; transition: opacity 0.4s var(--trans-smooth);
+    }
+    .image-modal.show { display: flex; align-items: center; justify-content: center; opacity: 1; }
+    .image-modal-content {
+        max-width: 95%; max-height: 90vh; object-fit: contain; border-radius: 8px;
+        box-shadow: 0 0 50px rgba(0, 229, 255, 0.1); border: 1px solid var(--glass-border);
+        transform: scale(0.9); transition: transform 0.4s var(--trans-smooth);
+    }
+    .image-modal.show .image-modal-content { transform: scale(1); }
+    .close-modal {
+        position: absolute; top: 25px; right: 40px; color: var(--text-sec); font-size: 45px;
+        cursor: pointer; transition: 0.3s; z-index: 100001;
+    }
+    .close-modal:hover { color: var(--danger); transform: scale(1.1); }
+
+    .thumbnail-gallery { display: flex; gap: 10px; margin-top: 15px; justify-content: center; }
+    .thumb { 
+        width: 70px; height: 80px; border: 1px solid var(--glass-border); border-radius: 6px;
+        cursor: pointer; transition: 0.3s; padding: 2px; background: rgba(255,255,255,0.02);
+    }
+    .thumb.active { border-color: var(--neon-blue); box-shadow: 0 0 10px rgba(0, 229, 255, 0.3); background: rgba(0, 229, 255, 0.05); }
+    .thumb img { width: 100%; height: 100%; object-fit: cover; border-radius: 4px; }
+
+    /* Info Section */
+    .info-section { padding: 40px; position: sticky; top: 80px; align-self: start; }
+    
+    .category-label { color: var(--cyber-neon); font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 5px; display: block; }
+    .product-title { font-weight: 900; font-size: 2rem; margin-bottom: 12px; color: #fff; line-height: 1.2; }
+
+    .price-group { display: flex; align-items: center; gap: 15px; margin-bottom: 25px; flex-wrap: wrap; }
+    .current-price { font-size: 1.8rem; color: var(--neon-blue); font-weight: 700; font-family: var(--font-english); }
+    .old-price { font-size: 1.1rem; text-decoration: line-through; color: var(--text-sec); font-family: var(--font-english); }
+    
+    .stock-badge { font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 4px; border: 1px solid transparent; }
+    .stock-in { color: var(--success); background: rgba(0, 230, 118, 0.1); border-color: rgba(0, 230, 118, 0.3); }
+    .stock-low { color: var(--warning); background: rgba(255, 179, 0, 0.1); border-color: rgba(255, 179, 0, 0.3); }
+    .stock-out { color: var(--danger); background: rgba(255, 51, 102, 0.1); border-color: rgba(255, 51, 102, 0.3); }
+
+    .selection-label { font-size: 14px; font-weight: 700; margin-bottom: 12px; display: block; color: var(--text-main); }
+    
+    .color-dots { display: flex; gap: 10px; margin-bottom: 25px; flex-wrap: wrap; }
+    .color-dot { 
+        width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--bg-panel); 
+        box-shadow: 0 0 0 1px rgba(255,255,255,0.2); cursor: pointer; transition: 0.2s;
+    }
+    .color-dot.active { box-shadow: 0 0 0 2px var(--neon-blue); transform: scale(1.15); }
+
+    .size-options { display: flex; gap: 10px; margin-bottom: 30px; flex-wrap: wrap; }
+    .size-chip { 
+        padding: 10px 20px; border: 1px solid var(--glass-border); font-size: 14px; font-weight: 600;
+        cursor: pointer; transition: 0.3s; background: rgba(2, 6, 23, 0.6); color: var(--text-sec); border-radius: 6px;
+    }
+    .size-chip:hover { border-color: var(--neon-blue); color: var(--neon-blue); }
+    .size-chip.active { background: var(--neon-blue); color: var(--bg-dark); border-color: var(--neon-blue); box-shadow: 0 0 15px rgba(0, 229, 255, 0.3); }
+    .size-chip.out-of-stock { opacity: 0.3; pointer-events: none; background: rgba(255,255,255,0.02); text-decoration: line-through; }
+
+    /* Action Buttons */
+    .btn-primary { 
+        width: 100%; background: transparent; color: var(--neon-blue); padding: 18px; 
+        border: 1px solid var(--neon-blue); font-weight: 800; font-size: 16px; cursor: pointer;
+        transition: var(--trans-smooth); border-radius: 6px;
+    }
+    .btn-primary:hover { background: var(--neon-blue); color: var(--bg-dark); transform: translateY(-3px); box-shadow: 0 0 20px rgba(0, 229, 255, 0.4); }
+    .btn-disabled { background: rgba(255,255,255,0.05) !important; color: var(--text-sec) !important; border-color: var(--glass-border) !important; cursor: not-allowed !important; transform: none !important; box-shadow: none !important; }
+
+    .description { border-top: 1px solid rgba(255,255,255,0.1); margin-top: 30px; padding-top: 25px; color: var(--text-sec); font-size: 14px; line-height: 1.8; font-weight: 600; }
+    
+    .specs-table td { vertical-align: top; line-height: 1.6; }
+
+    /* Toast Notification */
+    .lusso-toast {
+        position: fixed; top: 40px; right: -400px; 
+        background: var(--bg-panel); border-right: 5px solid var(--neon-blue); border-radius: 6px;
+        padding: 20px 30px; box-shadow: 0 15px 40px rgba(0,0,0,0.5); border-left: 1px solid var(--glass-border); border-top: 1px solid var(--glass-border); border-bottom: 1px solid var(--glass-border);
+        transition: 0.5s var(--trans-smooth); z-index: 9999; backdrop-filter: blur(10px);
+    }
+    .lusso-toast.active { right: 20px; }
+</style>
+
+<div class="detail-wrapper" dir="rtl">
+    <nav class="breadcrumb">
+        <a href="{% url 'home' %}">الرئيسية</a> / 
+        <a href="{% url 'shop' %}">الأنظمة الأمنية</a> / 
+        <span style="color: #fff;">{{ product.name }}</span>
+    </nav>
+
+    <div class="detail-container-outer">
+        <div class="detail-container">
+            <div class="image-section">
+                {% if product.discount_price %}
+                    <div style="position: absolute; top: 20px; right: 20px; z-index: 5; background: var(--danger); color: #fff; padding: 5px 12px; font-weight: 700; font-size: 11px; border-radius: 4px; box-shadow: 0 0 10px rgba(255, 51, 102, 0.4);">
+                        خصم {{ product.discount_percentage }}%
+                    </div>
+                {% endif %}
+                
+                <div class="main-display" id="zoomContainer">
+                    <img src="" alt="{{ product.name }}" id="mainDetailImg" class="product-main-img">
+                    <button class="view-full-btn" onclick="openFullImage(event)" title="عرض الصورة كاملة">
+                        <i class="fa-solid fa-expand"></i>
+                    </button>
+                </div>
+
+                <div class="thumbnail-gallery" id="thumbGallery"></div>
+            </div>
+
+            <div class="info-section">
+                <span class="category-label">{{ product.category.name|default:"أنظمة الباسطى جروب" }}</span>
+                <h1 class="product-title">{{ product.name }}</h1>
+
+                <div class="price-group">
+                    <span class="current-price">{{ product.get_effective_price|floatformat:0 }} ج.م</span>
+                    {% if product.discount_price %}
+                        <span class="old-price">{{ product.price|floatformat:0 }} ج.م</span>
+                    {% endif %}
+                    
+                    <span id="stockStatus" class="stock-badge stock-in">متوفر</span>
+                </div>
+
+                <div class="selection-group">
+                    <label class="selection-label">اللون / الإصدار: <span id="colorNameDisplay" style="color: var(--neon-blue); margin-right: 10px; font-family: var(--font-english);"></span></label>
+                    <div class="color-dots">
+                        {% for variant in product.variants.all %}
+                        <div class="color-dot" 
+                             style="background-color: {{ variant.color_code }};" 
+                             data-color="{{ variant.color_name }}"
+                             data-total-stock="{{ variant.total_stock }}"
+                             onclick="selectVariant(this)">
+                             
+                             <script type="application/json" class="v-images">
+                                ["{{ variant.variant_image.url }}"{% for extra in variant.additional_images.all %},"{{ extra.image.url }}"{% endfor %}]
+                             </script>
+                             <script type="application/json" class="v-sizes">
+                                [{% for s in variant.sizes.all %}{"n":"{{s.size_name}}","s":{{s.stock}}}{% if not forloop.last %},{% endif %}{% endfor %}]
+                             </script>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <label class="selection-label">السعة / الفئة:</label>
+                    <div class="size-options" id="sizeOptionsContainer"></div>
+                </div>
+
+                <div class="description">
+                    <h4 style="color:var(--neon-blue); margin-bottom: 12px; font-size: 1.1rem; font-weight: 800;">المواصفات الفنية:</h4>
+                    
+                    {% if product.description %}
+                        {{ product.description|linebreaks }}
+                    {% endif %}
+
+                    {% if product.specifications.all %}
+                        <table class="specs-table" style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+                            <tbody>
+                                {% for spec in product.specifications.all %}
+                                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                    <td style="padding: 12px 5px; font-weight: 700; color: #fff; width: 40%; font-size: 0.9rem;">{{ spec.spec_name }}</td>
+                                    <td style="padding: 12px 5px; color: var(--text-sec); font-size: 0.9rem; font-family: var(--font-english);">{{ spec.spec_value|linebreaksbr }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% endif %}
+                </div>
+
+                <div style="margin-top: 35px;">
+                    <button id="add-to-cart-btn" class="btn-primary btn-disabled">اختر الإصدار والسعة</button>
+                    <p style="text-align: center; margin-top: 15px; font-size: 13px; color: var(--text-sec); font-weight: 600;">
+                        <i class="fas fa-shield-alt" style="margin-left: 5px; color: var(--cyber-neon);"></i> توريد وتركيب لجميع محافظات الجمهورية
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="lussoToast" class="lusso-toast">
+    <div style="display: flex; align-items: center; gap: 15px;">
+        <div style="background: rgba(0, 230, 118, 0.2); color: var(--success); width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; border: 1px solid var(--success);">
+            <i class="fas fa-check"></i>
+        </div>
+        <div>
+            <strong style="display: block; font-size: 15px; color: #fff; margin-bottom: 3px;">تم تفعيل الطلب!</strong>
+            <small style="color: var(--text-sec); font-size: 12px; font-weight: 600;">تمت إضافة النظام إلى سلة الطلبات</small>
+        </div>
+    </div>
+</div>
+
+<div id="fullImageModal" class="image-modal">
+    <span class="close-modal" onclick="closeModal()">&times;</span>
+    <img class="image-modal-content" id="modalImage">
+</div>
+
+<script>
+    let currentSelColor = "", currentSelSize = "";
+    const pId = "{{ product.id }}";
+
+    function selectVariant(el) {
+        document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
+        el.classList.add('active');
+        currentSelColor = el.dataset.color;
+        const variantTotalStock = parseInt(el.dataset.totalStock);
+        document.getElementById('colorNameDisplay').innerText = currentSelColor;
+
+        const images = JSON.parse(el.querySelector('.v-images').textContent);
+        const mainImg = document.getElementById('mainDetailImg');
+        const thumbGallery = document.getElementById('thumbGallery');
+        
+        mainImg.style.opacity = '0';
+        setTimeout(() => {
+            mainImg.src = images[0];
+            mainImg.style.opacity = '0.9';
+        }, 200);
+
+        thumbGallery.innerHTML = "";
+        images.forEach((url, i) => {
+            const t = document.createElement('div');
+            t.className = `thumb ${i === 0 ? 'active' : ''}`;
+            t.innerHTML = `<img src="${url}">`;
+            t.onclick = () => {
+                mainImg.src = url;
+                document.querySelectorAll('.thumb').forEach(th => th.classList.remove('active'));
+                t.classList.add('active');
+            };
+            thumbGallery.appendChild(t);
+        });
+
+        const sizes = JSON.parse(el.querySelector('.v-sizes').textContent);
+        const sizeContainer = document.getElementById('sizeOptionsContainer');
+        const stockStatus = document.getElementById('stockStatus');
+        
+        sizeContainer.innerHTML = "";
+        currentSelSize = "";
+
+        if (variantTotalStock <= 0) {
+            stockStatus.innerText = "هذا الإصدار غير متوفر حالياً";
+            stockStatus.className = "stock-badge stock-out";
+        } else {
+            stockStatus.innerText = "متوفر";
+            stockStatus.className = "stock-badge stock-in";
+        }
+
+        let availableChips = [];
+
+        sizes.forEach(sz => {
+            const chip = document.createElement('div');
+            chip.className = `size-chip ${sz.s <= 0 ? 'out-of-stock' : ''}`;
+            chip.innerText = sz.n;
+            
+            if(sz.s > 0) {
+                chip.onclick = () => {
+                    document.querySelectorAll('.size-chip').forEach(c => c.classList.remove('active'));
+                    chip.classList.add('active');
+                    currentSelSize = sz.n;
+                    updateMainButton();
+                    
+                    if(sz.s < 5) {
+                        stockStatus.innerText = `متبقي ${sz.s} أجهزة فقط من هذه الفئة!`;
+                        stockStatus.className = "stock-badge stock-low";
+                    } else {
+                        stockStatus.innerText = "هذه الفئة متوفرة";
+                        stockStatus.className = "stock-badge stock-in";
+                    }
+                };
+                availableChips.push(chip);
+            }
+            sizeContainer.appendChild(chip);
+        });
+
+        // التحديد التلقائي لو فئة واحدة مسموحة
+        if (availableChips.length === 1) {
+            availableChips[0].click();
+        }
+
+        updateMainButton();
+    }
+
+    function updateMainButton() {
+        const btn = document.getElementById('add-to-cart-btn');
+        const activeColorDot = document.querySelector('.color-dot.active');
+        const variantTotalStock = activeColorDot ? parseInt(activeColorDot.dataset.totalStock) : 0;
+
+        if (variantTotalStock <= 0) {
+            btn.classList.add('btn-disabled');
+            btn.innerText = "غير متاح في الوقت الحالي";
+        } else if(currentSelColor && currentSelSize) {
+            btn.classList.remove('btn-disabled');
+            btn.innerText = "إضافة النظام لسلة الطلبات";
+        } else {
+            btn.classList.add('btn-disabled');
+            btn.innerText = !currentSelColor ? "يرجى تحديد الإصدار أولاً" : "يرجى تحديد السعة/الفئة";
+        }
+    }
+
+    function openFullImage(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        const imgElement = document.getElementById('mainDetailImg');
+        const modal = document.getElementById('fullImageModal');
+        const modalImg = document.getElementById('modalImage');
+        
+        modalImg.src = imgElement.src;
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden'; 
+        
+        setTimeout(() => {
+            modal.classList.add('show');
+        }, 10);
+    }
+
+    function closeModal() {
+        const modal = document.getElementById('fullImageModal');
+        modal.classList.remove('show');
+        document.body.style.overflow = ''; 
+        
+        setTimeout(() => {
+            modal.style.display = 'none';
+        }, 400); 
+    }
+
+    window.addEventListener('click', function(event) {
+        const modal = document.getElementById('fullImageModal');
+        if (event.target === modal) {
+            closeModal();
+        }
+    });
+
+    document.getElementById('add-to-cart-btn').addEventListener('click', function() {
+        if(!this.classList.contains('btn-disabled')) {
+            const toast = document.getElementById('lussoToast');
+            toast.classList.add('active');
+            
+            setTimeout(() => {
+                window.location.href = `/add-to-cart/${pId}/?color=${encodeURIComponent(currentSelColor)}&size=${encodeURIComponent(currentSelSize)}`;
+            }, 1000);
+        }
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+        const first = document.querySelector('.color-dot');
+        if(first) first.click();
+    });
+</script>
+
+{% endblock %}

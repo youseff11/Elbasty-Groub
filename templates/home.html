@@ -1,0 +1,434 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+<style>
+    :root {
+        --bg-dark: #020617; /* أسود ليلي فخم جداً */
+        --bg-panel: #0f172a;
+        --neon-blue: #00e5ff; /* أزرق نيون ساطع وقوي */
+        --text-main: #ffffff;
+        --text-sec: #94a3b8;
+        --glass-bg: rgba(15, 23, 42, 0.6);
+        --glass-border: rgba(0, 229, 255, 0.15);
+        --trans: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        --whatsapp-green: #25D366;
+    }
+
+    body {
+        background-color: var(--bg-dark);
+        color: var(--text-main);
+        font-family: 'Cairo', sans-serif;
+        margin: 0;
+        overflow-x: hidden;
+    }
+
+    /* --- WhatsApp Style --- */
+    .wa-float-container {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 15px;
+    }
+    .wa-contact-list {
+        display: none;
+        flex-direction: column;
+        gap: 10px;
+        transform-origin: bottom right;
+    }
+    .wa-contact-item {
+        background: var(--bg-panel);
+        color: var(--text-main);
+        padding: 12px 20px;
+        border-radius: 50px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 14px;
+        font-weight: 600;
+        transition: var(--trans);
+        border: 1px solid var(--glass-border);
+        backdrop-filter: blur(10px);
+    }
+    .wa-contact-item i { color: var(--whatsapp-green); font-size: 18px; }
+    .wa-contact-item:hover { transform: translateX(-10px); background: var(--whatsapp-green); border-color: var(--whatsapp-green); color: var(--bg-dark); }
+    .wa-contact-item:hover i { color: var(--bg-dark); }
+    .wa-main-btn {
+        width: 65px; height: 65px; background: var(--whatsapp-green); border-radius: 50%;
+        display: flex; align-items: center; justify-content: center; color: white; font-size: 32px;
+        cursor: pointer; box-shadow: 0 10px 20px rgba(37, 211, 102, 0.3); transition: 0.4s;
+    }
+    .wa-float-container.active .wa-contact-list { display: flex; animation: slideIn 0.4s var(--trans) forwards; }
+    @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* =========================================
+       ✨ البطل الحقيقي (Hero Section) ✨ 
+       ========================================= */
+    .hero-ultra {
+        position: relative;
+        height: 100vh;
+        min-height: 700px;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end; /* دفع المحتوى لليمين */
+        padding-right: 8%;
+        padding-left: 5%;
+        overflow: hidden;
+    }
+
+    .hero-image-wrapper {
+        position: absolute;
+        top: 0; left: 0; 
+        width: 100%; height: 100%;
+        z-index: 1;
+        overflow: hidden;
+    }
+
+    .hero-bg-img {
+        width: 100%; height: 100%;
+        object-fit: cover;
+        filter: brightness(1.2) contrast(1.1);
+        transform: scale(1.05);
+    }
+
+    .cyber-grid {
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        z-index: 2;
+        background-image: 
+            linear-gradient(rgba(0, 229, 255, 0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0, 229, 255, 0.03) 1px, transparent 1px);
+        background-size: 30px 30px;
+    }
+
+    .hero-overlay {
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: linear-gradient(to left, var(--bg-dark) 0%, rgba(2, 6, 23, 0.85) 45%, rgba(2, 6, 23, 0.1) 100%);
+        z-index: 3;
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 10;
+        max-width: 650px;
+        direction: rtl;
+        text-align: right;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        background: rgba(0, 229, 255, 0.05);
+        border: 1px solid var(--glass-border);
+        padding: 8px 20px;
+        border-radius: 50px;
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--neon-blue);
+        margin-bottom: 30px;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 0 15px rgba(0, 229, 255, 0.1);
+    }
+
+    .status-dot {
+        width: 10px; height: 10px;
+        background: var(--neon-blue);
+        border-radius: 50%;
+        box-shadow: 0 0 10px var(--neon-blue);
+        animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 229, 255, 0.7); }
+        70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(0, 229, 255, 0); }
+        100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 229, 255, 0); }
+    }
+
+    .hero-title {
+        font-size: clamp(45px, 6vw, 85px);
+        font-weight: 900;
+        line-height: 1.1;
+        margin: 0 0 20px 0;
+        text-transform: uppercase;
+        color: #fff;
+    }
+
+    .text-gradient {
+        background: linear-gradient(to left, #ffffff, var(--neon-blue));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        display: block;
+        padding-bottom: 10px;
+    }
+
+    .hero-desc {
+        font-size: 18px;
+        color: var(--text-sec);
+        line-height: 1.8;
+        margin-bottom: 40px;
+        font-weight: 600;
+        border-right: 3px solid var(--neon-blue);
+        padding-right: 20px;
+    }
+
+    .cyber-btn {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        padding: 16px 35px;
+        font-size: 18px;
+        font-weight: 800;
+        color: var(--bg-dark);
+        background: var(--neon-blue);
+        text-decoration: none;
+        border-radius: 6px;
+        overflow: hidden;
+        transition: var(--trans);
+        box-shadow: 0 0 20px rgba(0, 229, 255, 0.3);
+    }
+
+    /* =========================================
+       ✨ قسم المنتجات (Immersive Showcase) ✨ 
+       ========================================= */
+    .showcase-sec {
+        padding: 120px 5%;
+        background-color: var(--bg-dark);
+        position: relative;
+    }
+
+    .sec-header {
+        text-align: center;
+        margin-bottom: 80px;
+    }
+
+    .sec-header span {
+        font-family: 'Rajdhani', sans-serif;
+        color: var(--neon-blue);
+        font-size: 16px;
+        font-weight: 700;
+        letter-spacing: 4px;
+        text-transform: uppercase;
+    }
+
+    .sec-header h2 {
+        font-size: clamp(35px, 5vw, 55px);
+        font-weight: 900;
+        margin: 10px 0 0;
+    }
+
+    .smart-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 30px;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .smart-card {
+        position: relative;
+        height: 420px;
+        border-radius: 12px;
+        overflow: hidden;
+        cursor: pointer;
+        background: var(--bg-panel);
+        border: 1px solid rgba(255,255,255,0.05);
+        transition: var(--trans);
+    }
+
+    .smart-card img {
+        width: 100%; height: 100%;
+        object-fit: cover;
+        transition: transform 1.5s cubic-bezier(0.16, 1, 0.3, 1);
+        opacity: 0.5;
+    }
+
+    .smart-card:hover img { transform: scale(1.1); opacity: 0.8; }
+    .smart-card:hover { border-color: var(--neon-blue); box-shadow: 0 15px 40px rgba(0, 229, 255, 0.15); transform: translateY(-10px); }
+
+    .card-content {
+        position: absolute;
+        bottom: 0; left: 0; width: 100%;
+        padding: 40px 30px;
+        background: linear-gradient(to top, var(--bg-dark) 0%, rgba(2,6,23,0.8) 50%, transparent 100%);
+        direction: rtl;
+        z-index: 2;
+    }
+
+    .card-icon {
+        width: 50px; height: 50px;
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        backdrop-filter: blur(10px);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        color: var(--neon-blue);
+        margin-bottom: 20px;
+        transition: var(--trans);
+    }
+
+    .smart-card:hover .card-icon { background: var(--neon-blue); color: var(--bg-dark); transform: scale(1.1); }
+    .card-title { font-size: 24px; font-weight: 800; margin: 0 0 10px 0; color: #fff; }
+    .card-text { font-size: 14px; color: var(--text-sec); margin-bottom: 0; opacity: 0; transform: translateY(20px); transition: var(--trans); }
+    .smart-card:hover .card-text { opacity: 1; transform: translateY(0); }
+
+    @media (max-width: 768px) {
+        .hero-ultra { justify-content: center; text-align: center; padding: 0 5%; }
+        .hero-overlay { background: linear-gradient(to top, var(--bg-dark) 10%, rgba(2, 6, 23, 0.6) 100%); }
+        .hero-content { text-align: center; direction: rtl; }
+        .hero-desc { border-right: none; padding-right: 0; }
+        .status-badge { margin: 0 auto 25px; }
+        .card-text { opacity: 1; transform: translateY(0); } 
+        .hero-bg-img { object-position: left center; }
+    }
+</style>
+
+<div class="wa-float-container" id="waContainer">
+    <div class="wa-contact-list">
+        <a href="https://wa.me/201031011001" target="_blank" class="wa-contact-item">
+            <span>مبيعات / استفسارات واتس: 01031011001</span>
+            <i class="fa-brands fa-whatsapp"></i>
+        </a>
+        
+        <!-- تم تعديل هذا الجزء -->
+        <a href="tel:01225793952" class="wa-contact-item">
+            <span>مكالمات : 01225793952</span>
+            <i class="fa-solid fa-phone"></i>
+        </a>
+    </div>
+    <div class="wa-main-btn" onclick="document.getElementById('waContainer').classList.toggle('active')">
+        <i class="fa-brands fa-whatsapp"></i>
+    </div>
+</div>
+
+<section class="hero-ultra">
+    <div class="hero-image-wrapper">
+        <img src="../media/images/1.png" alt="Cyber Security Background" class="hero-bg-img" id="heroBg">
+    </div>
+    
+    <div class="cyber-grid"></div>
+    <div class="hero-overlay"></div>
+    
+    <div class="hero-content">
+        <div class="status-badge">
+            <div class="status-dot"></div>
+            أنظمة حماية نشطة 24/7
+        </div>
+        
+        <h1 class="hero-title">
+            حماية بلا حدود <br>
+            <span class="text-gradient">بتكنولوجيا المستقبل</span>
+        </h1>
+        
+        <p class="hero-desc">
+            في "الباسطى جروب"، نحن لا نقدم مجرد أجهزة، بل نبني منظومة أمان ذكية تمنحك السيطرة الكاملة. كاميرات مراقبة HD، أبواب بالبصمة، وأنظمة تحكم ذكية لمنزلك وشركتك.
+        </p>
+
+
+    </div>
+</section>
+
+<section class="new-showcase showcase-sec">
+    <div class="sec-header" dir="rtl">
+        <span>PREMIUM SECURITY</span>
+        <h2>حلولنا الأمنية المبتكرة</h2>
+    </div>
+
+    <div class="smart-grid">
+        <div class="smart-card" onclick="location.href='/shop/smart-locks/';">
+            <img src="../media/images/5.png" alt="Smart Locks">
+            <div class="card-content">
+                <div class="card-icon"><i class="fas fa-fingerprint"></i></div>
+                <h3 class="card-title">الأبواب الذكية</h3>
+                <p class="card-text">تحكم كامل عبر بصمة الإصبع، التعرف على الوجه (Face ID)، والتطبيق الذكي.</p>
+            </div>
+        </div>
+
+        <div class="smart-card" onclick="location.href='/shop/cctv/';">
+            <img src="../media/images/3 (1).png" alt="CCTV Cameras">
+            <div class="card-content">
+                <div class="card-icon"><i class="fas fa-video"></i></div>
+                <h3 class="card-title">أنظمة المراقبة CCTV</h3>
+                <p class="card-text">كاميرات فائقة الدقة HD برؤية ليلية متطورة، لمراقبة منشأتك من أي مكان.</p>
+            </div>
+        </div>
+
+        <div class="smart-card" onclick="location.href='/shop/access-control/';">
+            <img src="../media/images/3 (3).png" alt="Access Control">
+            <div class="card-content">
+                <div class="card-icon"><i class="fas fa-server"></i></div>
+                <h3 class="card-title">التحكم بالدخول</h3>
+                <p class="card-text">بوابات إلكترونية وأنظمة Access Control متطورة لإدارة دخول وخروج الموظفين.</p>
+            </div>
+        </div>
+
+        <div class="smart-card" onclick="location.href='/shop/smart-home/';">
+            <img src="../media/images/3 (2).png" alt="Smart Home">
+            <div class="card-content">
+                <div class="card-icon"><i class="fas fa-home"></i></div>
+                <h3 class="card-title">المنازل الذكية</h3>
+                <p class="card-text">حول منزلك إلى مساحة ذكية. تحكم في الإضاءة والأمان عبر هاتفك.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    gsap.registerPlugin(ScrollTrigger);
+
+    // إغلاق قائمة الواتساب عند النقر خارجها
+    document.addEventListener('click', (e) => {
+        const container = document.getElementById('waContainer');
+        if (container && !container.contains(e.target)) {
+            container.classList.remove('active');
+        }
+    });
+
+    // حركة عين الكاميرا والخلفية مع الماوس
+    document.addEventListener('mousemove', (e) => {
+        if (window.innerWidth > 768) {
+            const { clientX, clientY } = e;
+            const xPos = (clientX / window.innerWidth - 0.5) * 20;
+            const yPos = (clientY / window.innerHeight - 0.5) * 20;
+            gsap.to('#heroBg', { duration: 1.5, x: xPos, y: yPos, ease: "power2.out" });
+        }
+    });
+
+    // دخول عناصر الهيرو
+    gsap.from(".status-badge", { y: 30, opacity: 0, duration: 1, delay: 0.2, ease: "power3.out" });
+    gsap.from(".hero-title", { y: 40, opacity: 0, duration: 1, delay: 0.4, ease: "power3.out" });
+    gsap.from(".hero-desc", { y: 30, opacity: 0, duration: 1, delay: 0.6, ease: "power3.out" });
+    gsap.from(".cyber-btn", { y: 30, opacity: 0, duration: 1, delay: 0.8, ease: "power3.out" });
+
+    // ظهور الكروت عند السكرول
+    gsap.utils.toArray(".smart-card").forEach((card, i) => {
+        gsap.from(card, {
+            scrollTrigger: { 
+                trigger: card, 
+                start: "top 85%" 
+            },
+            y: 50, 
+            opacity: 0, 
+            duration: 0.8, 
+            delay: i * 0.1, 
+            ease: "back.out(1.5)"
+        });
+    });
+</script>
+{% endblock %}

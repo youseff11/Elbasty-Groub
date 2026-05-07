@@ -1,0 +1,485 @@
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZH9JG248D6"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-ZH9JG248D6');
+</script>
+
+{% extends 'base.html' %}
+{% block content %}
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<style>
+    :root {
+        /* ألوان الهوية السيبرانية */
+        --bg-dark: #020617;
+        --bg-panel: #0f172a;
+        --neon-blue: #00e5ff;
+        --cyber-neon: #64ffda;
+        --text-main: #ffffff;
+        --text-sec: #94a3b8;
+        --glass-border: rgba(0, 229, 255, 0.15);
+        --trans-smooth: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        --whatsapp-green: #25D366;
+        --red-luxury: #ff3366; /* لون أحمر نيون للخصومات */
+        
+        --font-arabic: 'Cairo', sans-serif;
+        --font-english: 'Rajdhani', sans-serif;
+    }
+
+    body { 
+        margin: 0; 
+        background: var(--bg-dark); 
+        color: var(--text-main); 
+        font-family: var(--font-arabic);
+        overflow-x: hidden; 
+    }
+
+    /* إضافة شبكة الليزر التقنية للخلفية */
+    .offers-wrapper { 
+        padding: 160px 5% 100px; 
+        background-color: var(--bg-dark);
+        background-image: 
+            linear-gradient(rgba(0, 229, 255, 0.02) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0, 229, 255, 0.02) 1px, transparent 1px);
+        background-size: 30px 30px;
+        min-height: 100vh; 
+        box-sizing: border-box; 
+        position: relative;
+    }
+
+    .offers-header { text-align: center; margin-bottom: 70px; position: relative; z-index: 10; }
+    .offers-header h1 { 
+        font-family: var(--font-english);
+        font-size: clamp(40px, 8vw, 75px); 
+        font-weight: 700; 
+        margin: 0;
+        color: #fff;
+        line-height: 1.2;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
+    .offers-header h1 span {
+        background: linear-gradient(to right, #ffffff, var(--neon-blue));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    
+    .promo-banner {
+        margin-top: 15px; 
+        color: var(--cyber-neon); 
+        font-weight: 600;
+        letter-spacing: 2px;
+        font-size: 16px;
+        font-family: var(--font-arabic);
+    }
+
+    /* --- Pagination Styles --- */
+    .pagination-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        margin-top: 80px;
+        flex-wrap: wrap;
+        position: relative; z-index: 10;
+    }
+    .pag-btn {
+        padding: 10px 22px;
+        border: 1px solid var(--glass-border);
+        background: var(--bg-panel);
+        color: var(--text-main);
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 600;
+        transition: var(--trans-smooth);
+        border-radius: 6px;
+    }
+    .pag-btn:hover, .pag-btn.active {
+        background: var(--neon-blue);
+        color: var(--bg-dark);
+        border-color: var(--neon-blue);
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0, 229, 255, 0.3);
+    }
+    .pag-btn.disabled {
+        opacity: 0.3;
+        pointer-events: none;
+    }
+
+    .product-grid { 
+        display: grid; 
+        grid-template-columns: repeat(4, 1fr); 
+        gap: 40px; 
+        max-width: 1600px; 
+        margin: 0 auto; 
+        position: relative; z-index: 10;
+    }
+    
+    .offer-card { 
+        background: var(--bg-panel); 
+        position: relative; 
+        transition: var(--trans-smooth); 
+        display: flex; 
+        flex-direction: column; 
+        padding-bottom: 20px;
+        border: 1px solid rgba(255,255,255,0.05);
+        border-radius: 12px;
+        overflow: hidden;
+    }
+    
+    .offer-card:hover { 
+        transform: translateY(-12px); 
+        box-shadow: 0 15px 40px rgba(0, 229, 255, 0.15);
+        border-color: var(--neon-blue);
+    }
+
+    .badge-common { 
+        position: absolute; padding: 6px 12px; font-weight: 700; 
+        font-size: 11px; z-index: 5; letter-spacing: 0.5px;
+        border-radius: 4px;
+    }
+    .sale-badge { top: 15px; left: 15px; background: var(--red-luxury); color: white; box-shadow: 0 0 10px rgba(255, 51, 102, 0.4); }
+    .new-arrival-badge { top: 15px; right: 15px; background: var(--cyber-neon); color: var(--bg-dark); box-shadow: 0 0 10px rgba(100, 255, 218, 0.4); }
+    
+    .sold-out-badge { 
+        position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); 
+        background: rgba(2, 6, 23, 0.9); color: var(--red-luxury); padding: 12px 25px; 
+        border: 1px solid var(--red-luxury); font-size: 14px;
+        font-weight: 700; z-index: 15; display: none; pointer-events: none;
+        border-radius: 6px; backdrop-filter: blur(5px);
+    }
+
+    .img-container { 
+        width: 100%; aspect-ratio: 4/5; overflow: hidden; 
+        margin-bottom: 25px; background: #0a192f; position: relative; 
+    }
+    .img-container img { 
+        width: 100%; height: 100%; object-fit: cover; 
+        transition: transform 1.5s var(--trans-smooth), opacity 0.5s; opacity: 0.8;
+    }
+    .offer-card:hover .img-container img { transform: scale(1.06); opacity: 1; }
+
+    .img-container.is-sold-out img { 
+        opacity: 0.4 !important; filter: grayscale(100%); 
+    }
+
+    .view-full-btn {
+        position: absolute; bottom: 20px; right: 20px;
+        background: rgba(15, 23, 42, 0.8); border: 1px solid var(--glass-border);
+        border-radius: 50%; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;
+        cursor: pointer; z-index: 20; color: var(--neon-blue); font-size: 18px;
+        transition: var(--trans-smooth); opacity: 0; transform: translateY(10px); backdrop-filter: blur(5px);
+    }
+    .img-container:hover .view-full-btn { opacity: 1; transform: translateY(0); }
+    .view-full-btn:hover { background: var(--neon-blue); color: var(--bg-dark); box-shadow: 0 0 15px rgba(0, 229, 255, 0.4); }
+
+    .image-modal {
+        display: none; position: fixed; z-index: 100000; left: 0; top: 0; width: 100%; height: 100%;
+        background-color: rgba(2, 6, 23, 0.95); backdrop-filter: blur(10px); opacity: 0; transition: opacity 0.4s;
+    }
+    .image-modal.show { display: flex; align-items: center; justify-content: center; opacity: 1; }
+    .image-modal-content {
+        max-width: 90%; max-height: 90vh; object-fit: contain; border-radius: 8px;
+        border: 1px solid var(--glass-border); box-shadow: 0 0 50px rgba(0, 229, 255, 0.1);
+        transform: scale(0.9); transition: transform 0.4s var(--trans-smooth);
+    }
+    .image-modal.show .image-modal-content { transform: scale(1); }
+    .close-modal { position: absolute; top: 25px; right: 40px; color: var(--text-sec); font-size: 45px; cursor: pointer; transition: 0.3s; z-index: 100001; }
+    .close-modal:hover { color: #ff3366; transform: scale(1.1); }
+
+    .image-nav-arrows { 
+        position: absolute; top: 50%; width: 100%; transform: translateY(-50%); 
+        display: none; justify-content: space-between; padding: 0 15px; 
+        pointer-events: none; z-index: 6; 
+    }
+    .nav-arrow { 
+        background: rgba(15, 23, 42, 0.8); color: var(--neon-blue); border: 1px solid var(--glass-border); 
+        width: 35px; height: 35px; cursor: pointer; pointer-events: auto; 
+        display: flex; align-items: center; justify-content: center; 
+        transition: 0.3s; backdrop-filter: blur(4px); border-radius: 50%;
+        font-size: 14px;
+    }
+    .nav-arrow:hover { background: var(--neon-blue); color: var(--bg-dark); }
+
+    .color-swatches { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; }
+    .swatch { 
+        width: 20px; height: 20px; border-radius: 50%; 
+        border: 2px solid var(--bg-panel); box-shadow: 0 0 0 1px rgba(255,255,255,0.2); cursor: pointer; 
+        transition: 0.4s; 
+    }
+    .swatch.active { transform: scale(1.3); box-shadow: 0 0 0 2px var(--neon-blue); }
+    .swatch.is-sold-out-swatch { opacity: 0.3; }
+
+    .price-box { display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 20px; direction: ltr; }
+    .new-price { font-size: 1.3rem; font-weight: 700; color: var(--neon-blue); font-family: var(--font-english); letter-spacing: 1px; }
+    .old-price { text-decoration: line-through; color: var(--text-sec); font-size: 0.9rem; font-family: var(--font-english); }
+
+    .buy-btn { 
+        margin: auto 15px 0; padding: 12px; border: 1px solid var(--neon-blue); border-radius: 6px;
+        background: transparent; color: var(--neon-blue); text-decoration: none; 
+        font-size: 14px; font-weight: 700; text-align: center; 
+        transition: var(--trans-smooth);
+    }
+    .buy-btn:hover { background: var(--neon-blue); color: var(--bg-dark); box-shadow: 0 0 20px rgba(0, 229, 255, 0.3); }
+    .buy-btn.disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; border-color: var(--text-sec); color: var(--text-sec); }
+
+    /* --- WhatsApp Style (Dark Mode) --- */
+    .wa-float-container {
+        position: fixed; bottom: 30px; right: 30px; z-index: 9999;
+        display: flex; flex-direction: column; align-items: flex-end; gap: 15px;
+    }
+    .wa-contact-list {
+        display: none; flex-direction: column; gap: 10px; margin-bottom: 5px; transform-origin: bottom right;
+    }
+    .wa-contact-item {
+        background: var(--bg-panel); color: var(--text-main);
+        padding: 12px 20px; border-radius: 50px;
+        border: 1px solid var(--glass-border); text-decoration: none;
+        display: flex; align-items: center; gap: 12px;
+        font-size: 14px; font-weight: 600;
+        transition: var(--trans-smooth); backdrop-filter: blur(10px);
+        white-space: nowrap;
+    }
+    .wa-contact-item i { color: var(--whatsapp-green); font-size: 18px; }
+    .wa-contact-item:hover { transform: translateX(-10px); border-color: var(--whatsapp-green); box-shadow: 0 0 15px rgba(37, 211, 102, 0.2); }
+    .wa-main-btn {
+        width: 65px; height: 65px; background: var(--whatsapp-green);
+        border-radius: 50%; display: flex; align-items: center; justify-content: center;
+        color: white; font-size: 32px; cursor: pointer;
+        box-shadow: 0 10px 20px rgba(37, 211, 102, 0.3); transition: 0.4s;
+    }
+    .wa-main-btn:hover { transform: scale(1.1) rotate(15deg); }
+    .wa-float-container.active .wa-contact-list { display: flex; animation: slideIn 0.4s var(--trans-smooth) forwards; }
+
+    @keyframes slideIn {
+        from { opacity: 0; transform: translateY(20px) scale(0.8); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @media (max-width: 1200px) { .product-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 768px) {
+        .offers-wrapper { padding: 100px 5% 60px; } 
+        .product-grid { grid-template-columns: 1fr; gap: 25px; max-width: 400px; margin: 0 auto; }
+        .offers-header h1 { font-size: 2.5rem; }
+        .offer-card { padding-bottom: 15px; }
+        .view-full-btn { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<div class="wa-float-container" id="waContainer">
+    <div class="wa-contact-list">
+        <a href="https://wa.me/201031011001" target="_blank" class="wa-contact-item">
+            <span>مبيعات / استفسارات واتس: 01031011001</span>
+            <i class="fa-brands fa-whatsapp"></i>
+        </a>
+        
+        <!-- تم تعديل هذا الجزء -->
+        <a href="tel:01225793952" class="wa-contact-item">
+            <span>مكالمات : 01225793952</span>
+            <i class="fa-solid fa-phone"></i>
+        </a>
+    </div>
+    <div class="wa-main-btn" onclick="document.getElementById('waContainer').classList.toggle('active')">
+        <i class="fa-brands fa-whatsapp"></i>
+    </div>
+</div>
+
+<div class="offers-wrapper">
+    <div class="offers-header">
+        <h1><span>Offers &</span> Packages</h1>
+        <div class="promo-banner">باقات وأنظمة حماية حصرية</div>
+    </div>
+
+    <div class="product-grid">
+      {% for product in products %}
+        <div class="offer-card" id="card-{{ product.id }}">
+            <div class="sold-out-badge" id="badge-{{ product.id }}">غير متوفر حالياً</div>
+            
+            {% if product.discount_percentage > 0 %}
+                <div class="badge-common sale-badge">-{{ product.discount_percentage }}%</div>
+            {% endif %}
+
+            {% if product.is_new %}
+                <div class="badge-common new-arrival-badge">جديد</div>
+            {% endif %}
+
+            <div class="img-container" id="cont-{{ product.id }}">
+                <img src="{{ product.main_image }}" alt="{{ product.name }}" id="img-{{ product.id }}" loading="lazy">
+                
+                <button class="view-full-btn" onclick="openFullImage('{{ product.id }}', event)" title="عرض الصورة كاملة">
+                    <i class="fa-regular fa-eye"></i>
+                </button>
+
+                <div class="image-nav-arrows" id="arrows-{{ product.id }}">
+                    <button class="nav-arrow prev" onclick="changeOfferImg('{{ product.id }}', -1, event)">❮</button>
+                    <button class="nav-arrow next" onclick="changeOfferImg('{{ product.id }}', 1, event)">❯</button>
+                </div>
+            </div>
+
+            <h3 style="font-size: 20px; font-weight: 700; margin: 0 0 12px; text-align: center; color: var(--text-main);">{{ product.name }}</h3>
+
+            <div class="color-swatches">
+                {% for v in product.variants.all %}
+                <div class="swatch {% if v.total_stock == 0 %}is-sold-out-swatch{% endif %}" 
+                     style="background: {{ v.color_code }};" 
+                     onclick="updateOfferVariant(this, '{{ product.id }}')">
+                    
+                    <script type="application/json" class="v-data">
+                        {
+                            "images": ["{{ v.variant_image.url }}"{% for extra in v.additional_images.all %}, "{{ extra.image.url }}"{% endfor %}],
+                            "stock": {{ v.total_stock|default:0 }}
+                        }
+                    </script>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div class="price-box">
+                <span class="new-price">{{ product.get_effective_price|floatformat:0 }} LE</span>
+                {% if product.discount_price %}<span class="old-price">{{ product.price|floatformat:0 }} LE</span>{% endif %}
+            </div>
+            <a href="{% url 'product_detail' product.id %}" class="buy-btn" id="btn-{{ product.id }}">عرض التفاصيل</a>
+        </div>
+      {% empty %}
+        <div style="text-align:center; grid-column:1/-1; padding:100px; border:1px solid var(--glass-border); background: var(--bg-panel); border-radius: 12px;">
+            <h2 style="color: var(--neon-blue); font-size: 35px;">انتظروا أقوى عروضنا القادمة</h2>
+            <p style="font-size: 16px; color: var(--text-sec);">نحن نعمل على تجهيز باقات أمنية متكاملة تليق بكم.</p>
+        </div>
+      {% endfor %}
+    </div>
+
+    {% if products.has_other_pages %}
+    <div class="pagination-wrapper">
+        {% if products.has_previous %}
+            <a href="?page={{ products.previous_page_number }}" class="pag-btn">السابق</a>
+        {% else %}
+            <span class="pag-btn disabled">السابق</span>
+        {% endif %}
+
+        {% for i in products.paginator.page_range %}
+            {% if products.number == i %}
+                <span class="pag-btn active">{{ i }}</span>
+            {% elif i > products.number|add:'-3' and i < products.number|add:'3' %}
+                <a href="?page={{ i }}" class="pag-btn">{{ i }}</a>
+            {% endif %}
+        {% endfor %}
+
+        {% if products.has_next %}
+            <a href="?page={{ products.next_page_number }}" class="pag-btn">التالي</a>
+        {% else %}
+            <span class="pag-btn disabled">التالي</span>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<div id="fullImageModal" class="image-modal">
+    <span class="close-modal" onclick="closeModal()">&times;</span>
+    <img class="image-modal-content" id="modalImage">
+</div>
+
+<script>
+    let activeOfferImages = {};
+
+    function updateOfferVariant(el, pId) {
+        const card = document.getElementById('card-' + pId);
+        const img = document.getElementById('img-' + pId);
+        const arrows = document.getElementById('arrows-' + pId);
+        const btn = document.getElementById('btn-' + pId);
+        const badge = document.getElementById('badge-' + pId);
+        const cont = document.getElementById('cont-' + pId);
+
+        const data = JSON.parse(el.querySelector('.v-data').textContent);
+        
+        activeOfferImages[pId] = {
+            list: data.images,
+            index: 0
+        };
+
+        card.querySelectorAll('.swatch').forEach(s => s.classList.remove('active'));
+        el.classList.add('active');
+
+        img.style.opacity = '0.3';
+        setTimeout(() => {
+            img.src = data.images[0];
+            img.style.opacity = '1';
+        }, 150);
+
+        arrows.style.display = data.images.length > 1 ? 'flex' : 'none';
+
+        if (data.stock <= 0) {
+            cont.classList.add('is-sold-out');
+            badge.style.display = 'block';
+            btn.classList.add('disabled');
+            btn.innerText = 'غير متوفر حالياً';
+        } else {
+            cont.classList.remove('is-sold-out');
+            badge.style.display = 'none';
+            btn.classList.remove('disabled');
+            btn.innerText = 'عرض التفاصيل';
+        }
+    }
+
+    function changeOfferImg(pId, dir, e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const data = activeOfferImages[pId];
+        if (!data || data.list.length <= 1) return;
+
+        data.index = (data.index + dir + data.list.length) % data.list.length;
+        document.getElementById('img-' + pId).src = data.list[data.index];
+    }
+
+    function openFullImage(pId, event) {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        const imgElement = document.getElementById('img-' + pId);
+        const modal = document.getElementById('fullImageModal');
+        const modalImg = document.getElementById('modalImage');
+        
+        modalImg.src = imgElement.src;
+        modal.style.display = 'flex';
+        
+        setTimeout(() => {
+            modal.classList.add('show');
+        }, 10);
+    }
+
+    function closeModal() {
+        const modal = document.getElementById('fullImageModal');
+        modal.classList.remove('show');
+        setTimeout(() => {
+            modal.style.display = 'none';
+        }, 400); 
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.offer-card').forEach(card => {
+            const pId = card.id.replace('card-', '');
+            const target = Array.from(card.querySelectorAll('.swatch')).find(s => {
+                const d = JSON.parse(s.querySelector('.v-data').textContent);
+                return d.stock > 0;
+            }) || card.querySelector('.swatch');
+            
+            if (target) updateOfferVariant(target, pId);
+        });
+    });
+
+    window.onclick = function(event) {
+        const waContainer = document.getElementById('waContainer');
+        if (waContainer && !waContainer.contains(event.target)) {
+            waContainer.classList.remove('active');
+        }
+
+        const modal = document.getElementById('fullImageModal');
+        if (event.target === modal) {
+            closeModal();
+        }
+    }
+</script>
+{% endblock %}

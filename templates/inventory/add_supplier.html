@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --navy: #0a192f; --blue: #007bff; --neon: #64ffda; --gold: #ffd700; --slate: #8892b0; --white: #e6f1ff; --card-bg: #112240; --border: rgba(100,255,218,0.15); --danger: #ff4d4d; }
+    body { background: var(--navy); color: var(--white); font-family: 'Cairo', sans-serif; min-height: 100vh; }
+    {% include 'inventory/shared_css.html' %}
+    .page-wrap { max-width: 600px; margin: 40px auto; padding: 0 20px 60px; }
+    .back-link { display: inline-flex; align-items: center; gap: 6px; color: var(--slate); text-decoration: none; font-size: 14px; margin-bottom: 20px; }
+    .back-link:hover { color: var(--neon); }
+    .page-title { font-size: 22px; font-weight: 900; margin-bottom: 25px; }
+    .page-title i { color: var(--neon); margin-left: 10px; }
+    .form-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; padding: 30px; }
+    .form-group { margin-bottom: 20px; }
+    label { display: block; font-size: 14px; font-weight: 600; color: var(--slate); margin-bottom: 7px; }
+    input, textarea { width: 100%; padding: 11px 14px; border-radius: 8px; background: rgba(255,255,255,0.05); border: 1px solid rgba(100,255,218,0.2); color: var(--white); font-family: 'Cairo', sans-serif; font-size: 14px; }
+    input:focus, textarea:focus { outline: none; border-color: var(--neon); }
+    .submit-btn { width: 100%; padding: 14px; background: var(--blue); color: #fff; border: none; border-radius: 10px; font-family: 'Cairo', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; }
+    .submit-btn:hover { background: #0056b3; }
+    .alert-error { background: rgba(255,77,77,0.15); border: 1px solid rgba(255,77,77,0.3); color: var(--danger); padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; font-size: 14px; }
+</style>
+
+<div class="page-wrap">
+    <a href="{% url 'suppliers_list' %}" class="back-link"><i class="fas fa-arrow-right"></i> رجوع للموردين</a>
+    <div class="page-title"><i class="fas fa-plus-circle"></i> إضافة مورد جديد</div>
+    
+    {% if messages %}
+        {% for m in messages %}
+            <div class="alert-error">{{ m }}</div>
+        {% endfor %}
+    {% endif %}
+    
+    <div class="form-card">
+        <form method="POST">
+            {% csrf_token %}
+            <div class="form-group">
+                <label>اسم المورد *</label>
+                <input type="text" name="name" required placeholder="اسم الشركة أو المورد">
+            </div>
+            <div class="form-group">
+                <label>رقم الهاتف</label>
+                <input type="text" name="phone" placeholder="01xxxxxxxxx">
+            </div>
+            <div class="form-group">
+                <label>البريد الإلكتروني</label>
+                <input type="email" name="email" placeholder="example@domain.com">
+            </div>
+            <div class="form-group">
+                <label>العنوان</label>
+                <input type="text" name="address" placeholder="عنوان المورد">
+            </div>
+            <div class="form-group">
+                <label>ملاحظات</label>
+                <textarea name="notes" rows="3" placeholder="أي ملاحظات عن المورد..."></textarea>
+            </div>
+            <button type="submit" class="submit-btn"><i class="fas fa-save"></i> حفظ المورد</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
