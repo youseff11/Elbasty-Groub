@@ -148,7 +148,7 @@
     }
 
     /* =========================================
-       ✨ زر الترجمة ✨ 
+        ✨ زر الترجمة ✨ 
        ========================================= */
     .lang-btn {
         background: transparent;
@@ -173,7 +173,7 @@
     }
 
     /* =========================================
-       ✨ القائمة المنسدلة لمدير النظام (Desktop) ✨ 
+        ✨ القائمة المنسدلة لمدير النظام (Desktop) ✨ 
        ========================================= */
     .admin-dropdown {
         position: relative;
@@ -330,7 +330,47 @@
     }
 
     @media (max-width: 768px) {
-        .mobile-controls { display: flex; }
+        .navbar {
+            padding: 10px 15px; /* تقليل الحشو لزيادة المساحة */
+        }
+
+        .nav-logo-text {
+            font-size: 20px; /* تصغير اسم البراند */
+        }
+
+        .logo-icon {
+            font-size: 18px; /* تصغير أيقونة البصمة */
+        }
+
+        .nav-logo-subtext {
+            font-size: 10px; /* تصغير النص الفرعي */
+            padding-left: 28px;
+            letter-spacing: 0.5px;
+        }
+
+        .mobile-controls {
+            display: flex;
+            gap: 12px; /* تقليل المسافة بين الأزرار */
+        }
+
+        .lang-btn {
+            padding: 4px 8px;
+            font-size: 12px;
+            gap: 4px;
+        }
+
+        .cart-icon-wrapper i {
+            font-size: 18px !important;
+        }
+
+        .cart-badge-main {
+            width: 15px;
+            height: 15px;
+            font-size: 9px;
+            top: -6px;
+            right: -8px;
+        }
+
         .nav-actions { display: none; } /* القائمة المنسدلة للديسكتوب ستختفي هنا */
         
         .nav-links {
@@ -349,6 +389,19 @@
         }
 
         .nav-links.active { display: flex; }
+    }
+
+    /* للهواتف الصغيرة جداً (تحت 400px) */
+    @media (max-width: 400px) {
+        .langText {
+            display: none; /* إخفاء كلمة عربي وإبقاء الأيقونة فقط لتوفير مساحة */
+        }
+        .nav-logo-subtext {
+            display: none; /* إخفاء النص الفرعي تماماً في الشاشات شديدة الصغر لعدم التداخل */
+        }
+        .mobile-controls {
+            gap: 10px;
+        }
     }
 </style>
 
