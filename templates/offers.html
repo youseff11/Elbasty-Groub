@@ -272,13 +272,12 @@
 <div class="wa-float-container" id="waContainer">
     <div class="wa-contact-list">
         <a href="https://wa.me/201031011001" target="_blank" class="wa-contact-item">
-            <span>مبيعات / استفسارات واتس: 01031011001</span>
+            <span class="translatable" data-en="Sales / Inquiries WhatsApp: 01031011001" data-ar="مبيعات / استفسارات واتس: 01031011001">مبيعات / استفسارات واتس: 01031011001</span>
             <i class="fa-brands fa-whatsapp"></i>
         </a>
         
-        <!-- تم تعديل هذا الجزء -->
         <a href="tel:01225793952" class="wa-contact-item">
-            <span>مكالمات : 01225793952</span>
+            <span class="translatable" data-en="Calls: 01225793952" data-ar="مكالمات : 01225793952">مكالمات : 01225793952</span>
             <i class="fa-solid fa-phone"></i>
         </a>
     </div>
@@ -290,20 +289,20 @@
 <div class="offers-wrapper">
     <div class="offers-header">
         <h1><span>Offers &</span> Packages</h1>
-        <div class="promo-banner">باقات وأنظمة حماية حصرية</div>
+        <div class="promo-banner translatable" data-en="Exclusive Security Packages & Systems" data-ar="باقات وأنظمة حماية حصرية">باقات وأنظمة حماية حصرية</div>
     </div>
 
     <div class="product-grid">
       {% for product in products %}
         <div class="offer-card" id="card-{{ product.id }}">
-            <div class="sold-out-badge" id="badge-{{ product.id }}">غير متوفر حالياً</div>
+            <div class="sold-out-badge translatable" id="badge-{{ product.id }}" data-en="Out of Stock" data-ar="غير متوفر حالياً">غير متوفر حالياً</div>
             
             {% if product.discount_percentage > 0 %}
                 <div class="badge-common sale-badge">-{{ product.discount_percentage }}%</div>
             {% endif %}
 
             {% if product.is_new %}
-                <div class="badge-common new-arrival-badge">جديد</div>
+                <div class="badge-common new-arrival-badge translatable" data-en="New" data-ar="جديد">جديد</div>
             {% endif %}
 
             <div class="img-container" id="cont-{{ product.id }}">
@@ -341,12 +340,12 @@
                 <span class="new-price">{{ product.get_effective_price|floatformat:0 }} LE</span>
                 {% if product.discount_price %}<span class="old-price">{{ product.price|floatformat:0 }} LE</span>{% endif %}
             </div>
-            <a href="{% url 'product_detail' product.id %}" class="buy-btn" id="btn-{{ product.id }}">عرض التفاصيل</a>
+            <a href="{% url 'product_detail' product.id %}" class="buy-btn translatable" id="btn-{{ product.id }}" data-en="View Details" data-ar="عرض التفاصيل">عرض التفاصيل</a>
         </div>
       {% empty %}
         <div style="text-align:center; grid-column:1/-1; padding:100px; border:1px solid var(--glass-border); background: var(--bg-panel); border-radius: 12px;">
-            <h2 style="color: var(--neon-blue); font-size: 35px;">انتظروا أقوى عروضنا القادمة</h2>
-            <p style="font-size: 16px; color: var(--text-sec);">نحن نعمل على تجهيز باقات أمنية متكاملة تليق بكم.</p>
+            <h2 class="translatable" style="color: var(--neon-blue); font-size: 35px;" data-en="Wait for our upcoming powerful offers" data-ar="انتظروا أقوى عروضنا القادمة">انتظروا أقوى عروضنا القادمة</h2>
+            <p class="translatable" style="font-size: 16px; color: var(--text-sec);" data-en="We are preparing integrated security packages worthy of you." data-ar="نحن نعمل على تجهيز باقات أمنية متكاملة تليق بكم.">نحن نعمل على تجهيز باقات أمنية متكاملة تليق بكم.</p>
         </div>
       {% endfor %}
     </div>
@@ -354,9 +353,9 @@
     {% if products.has_other_pages %}
     <div class="pagination-wrapper">
         {% if products.has_previous %}
-            <a href="?page={{ products.previous_page_number }}" class="pag-btn">السابق</a>
+            <a href="?page={{ products.previous_page_number }}" class="pag-btn translatable" data-en="Previous" data-ar="السابق">السابق</a>
         {% else %}
-            <span class="pag-btn disabled">السابق</span>
+            <span class="pag-btn disabled translatable" data-en="Previous" data-ar="السابق">السابق</span>
         {% endif %}
 
         {% for i in products.paginator.page_range %}
@@ -368,9 +367,9 @@
         {% endfor %}
 
         {% if products.has_next %}
-            <a href="?page={{ products.next_page_number }}" class="pag-btn">التالي</a>
+            <a href="?page={{ products.next_page_number }}" class="pag-btn translatable" data-en="Next" data-ar="التالي">التالي</a>
         {% else %}
-            <span class="pag-btn disabled">التالي</span>
+            <span class="pag-btn disabled translatable" data-en="Next" data-ar="التالي">التالي</span>
         {% endif %}
     </div>
     {% endif %}
@@ -410,16 +409,27 @@
 
         arrows.style.display = data.images.length > 1 ? 'flex' : 'none';
 
+        // استخدام لغة الموقع الحالية
+        const lang = (typeof currentLang !== 'undefined') ? currentLang : 'en';
+
         if (data.stock <= 0) {
             cont.classList.add('is-sold-out');
             badge.style.display = 'block';
             btn.classList.add('disabled');
-            btn.innerText = 'غير متوفر حالياً';
+            
+            // تحديث قيم الترجمة والنص
+            btn.setAttribute('data-ar', 'غير متوفر حالياً');
+            btn.setAttribute('data-en', 'Out of Stock');
+            btn.innerText = (lang === 'en') ? 'Out of Stock' : 'غير متوفر حالياً';
         } else {
             cont.classList.remove('is-sold-out');
             badge.style.display = 'none';
             btn.classList.remove('disabled');
-            btn.innerText = 'عرض التفاصيل';
+            
+            // تحديث قيم الترجمة والنص
+            btn.setAttribute('data-ar', 'عرض التفاصيل');
+            btn.setAttribute('data-en', 'View Details');
+            btn.innerText = (lang === 'en') ? 'View Details' : 'عرض التفاصيل';
         }
     }
 

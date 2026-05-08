@@ -248,13 +248,12 @@
 <div class="wa-float-container" id="waContainer">
     <div class="wa-contact-list">
         <a href="https://wa.me/201031011001" target="_blank" class="wa-contact-item">
-            <span>مبيعات / استفسارات واتس: 01031011001</span>
+            <span class="translatable" data-en="Sales / Inquiries WhatsApp: 01031011001" data-ar="مبيعات / استفسارات واتس: 01031011001">مبيعات / استفسارات واتس: 01031011001</span>
             <i class="fa-brands fa-whatsapp"></i>
         </a>
         
-        <!-- تم تعديل هذا الجزء -->
         <a href="tel:01225793952" class="wa-contact-item">
-            <span>مكالمات : 01225793952</span>
+            <span class="translatable" data-en="Calls: 01225793952" data-ar="مكالمات : 01225793952">مكالمات : 01225793952</span>
             <i class="fa-solid fa-phone"></i>
         </a>
     </div>
@@ -266,13 +265,15 @@
 <section class="shop-wrapper">
     <header class="shop-header">
         <h1>Al-Basty <span>Security</span></h1>
-        <p>الباسطى جروب - حماية بتكنولوجيا المستقبل</p>
+        <p dir="rtl">
+            <span class="translatable" data-en="Exclusive supplier with certified warranty from" data-ar="مورد حصري بضمان معتمد من شركة">مورد حصري بضمان معتمد من شركة</span> 
+            <span lang="en">Hikvision</span>
+        </p>
     </header>
-
     <nav class="category-filter">
-        <a href="{% url 'shop' %}" class="cat-link {% if not selected_category %}active{% endif %}">كل الأنظمة</a>
+        <a href="{% url 'shop' %}" class="cat-link translatable {% if not selected_category %}active{% endif %}" data-en="All Systems" data-ar="كل الأنظمة">كل الأنظمة</a>
         <div class="dropdown">
-            <button class="drop-btn {% if selected_category %}active-btn{% endif %}" onclick="toggleDropdown(event)">
+            <button class="drop-btn translatable {% if selected_category %}active-btn{% endif %}" onclick="toggleDropdown(event)" data-en="Categories {% if selected_category %}: {{ selected_category.name }}{% endif %} ▾" data-ar="الأقسام {% if selected_category %}: {{ selected_category.name }}{% endif %} ▾">
                 الأقسام {% if selected_category %}: {{ selected_category.name }}{% endif %} ▾
             </button>
             <div class="dropdown-content" id="myDropdown">
@@ -286,14 +287,14 @@
     <div class="product-grid">
        {% for product in products %}
         <article class="product-card" id="prod-{{ product.id }}">
-            <div class="sold-out-overlay" id="ovl-{{ product.id }}">غير متوفر حالياً</div>
+            <div class="sold-out-overlay translatable" id="ovl-{{ product.id }}" data-en="Out of Stock" data-ar="غير متوفر حالياً">غير متوفر حالياً</div>
             
             {% if product.discount_percentage > 0 %}
                 <div class="badge discount-badge">-{{ product.discount_percentage }}%</div>
             {% endif %}
 
             {% if product.is_new %}
-                <div class="badge new-badge">جديد</div>
+                <div class="badge new-badge translatable" data-en="New" data-ar="جديد">جديد</div>
             {% endif %}
 
             <div class="product-card__image-wrap" id="img-wrap-{{ product.id }}">
@@ -334,12 +335,12 @@
                 {% if product.discount_price %}<span class="old-price">{{ product.price|floatformat:0 }} LE</span>{% endif %}
             </div>
 
-            <a href="{% url 'product_detail' product.id %}" class="product-card__btn" id="btn-{{ product.id }}">عرض التفاصيل</a>
+            <a href="{% url 'product_detail' product.id %}" class="product-card__btn translatable" id="btn-{{ product.id }}" data-en="View Details" data-ar="عرض التفاصيل">عرض التفاصيل</a>
         </article>
         {% empty %}
         <div class="empty-catalog" style="grid-column:1/-1; text-align:center; padding:100px; border:1px solid var(--glass-border); background: var(--bg-panel); border-radius: 12px;">
-            <h2 style="color:var(--neon-blue); font-size: 32px;">قريباً</h2>
-            <p style="font-size:15px; color: var(--text-sec);">يتم حالياً تجهيز أحدث الأنظمة الأمنية من أجلك.</p>
+            <h2 class="translatable" style="color:var(--neon-blue); font-size: 32px;" data-en="Coming Soon" data-ar="قريباً">قريباً</h2>
+            <p class="translatable" style="font-size:15px; color: var(--text-sec);" data-en="The latest security systems are currently being prepared for you." data-ar="يتم حالياً تجهيز أحدث الأنظمة الأمنية من أجلك.">يتم حالياً تجهيز أحدث الأنظمة الأمنية من أجلك.</p>
         </div>
         {% endfor %}
     </div>
@@ -347,9 +348,9 @@
     {% if products.has_other_pages %}
     <div class="pagination-wrapper">
         {% if products.has_previous %}
-            <a href="?page={{ products.previous_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}" class="pag-btn">السابق</a>
+            <a href="?page={{ products.previous_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}" class="pag-btn translatable" data-en="Previous" data-ar="السابق">السابق</a>
         {% else %}
-            <span class="pag-btn disabled">السابق</span>
+            <span class="pag-btn disabled translatable" data-en="Previous" data-ar="السابق">السابق</span>
         {% endif %}
 
         {% for i in products.paginator.page_range %}
@@ -361,9 +362,9 @@
         {% endfor %}
 
         {% if products.has_next %}
-            <a href="?page={{ products.next_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}" class="pag-btn">التالي</a>
+            <a href="?page={{ products.next_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}" class="pag-btn translatable" data-en="Next" data-ar="التالي">التالي</a>
         {% else %}
-            <span class="pag-btn disabled">التالي</span>
+            <span class="pag-btn disabled translatable" data-en="Next" data-ar="التالي">التالي</span>
         {% endif %}
     </div>
     {% endif %}
@@ -403,16 +404,27 @@
 
         arrows.style.display = data.images.length > 1 ? 'flex' : 'none';
 
+        // استخدام متغير اللغة اللي موجود في base.html
+        const lang = (typeof currentLang !== 'undefined') ? currentLang : 'en';
+
         if (parseInt(data.stock) <= 0) {
             wrap.classList.add('is-sold-out');
             ovl.style.display = 'block';
             btn.classList.add('btn-disabled');
-            btn.innerText = 'غير متوفر حالياً';
+            
+            // تحديث قيم الترجمة والنص بناءً على اللغة الحالية
+            btn.setAttribute('data-ar', 'غير متوفر حالياً');
+            btn.setAttribute('data-en', 'Out of Stock');
+            btn.innerText = (lang === 'en') ? 'Out of Stock' : 'غير متوفر حالياً';
         } else {
             wrap.classList.remove('is-sold-out');
             ovl.style.display = 'none';
             btn.classList.remove('btn-disabled');
-            btn.innerText = 'عرض التفاصيل';
+            
+            // تحديث قيم الترجمة والنص بناءً على اللغة الحالية
+            btn.setAttribute('data-ar', 'عرض التفاصيل');
+            btn.setAttribute('data-en', 'View Details');
+            btn.innerText = (lang === 'en') ? 'View Details' : 'عرض التفاصيل';
         }
     }
 

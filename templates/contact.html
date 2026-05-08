@@ -291,13 +291,12 @@
 <div class="wa-float-container" id="waContainer">
     <div class="wa-contact-list">
         <a href="https://wa.me/201031011001" target="_blank" class="wa-contact-item">
-            <span>مبيعات / استفسارات واتس: 01031011001</span>
+            <span class="translatable" data-en="Sales / Inquiries WhatsApp: 01031011001" data-ar="مبيعات / استفسارات واتس: 01031011001">مبيعات / استفسارات واتس: 01031011001</span>
             <i class="fa-brands fa-whatsapp"></i>
         </a>
         
-        <!-- تم تعديل هذا الجزء -->
         <a href="tel:01225793952" class="wa-contact-item">
-            <span>مكالمات : 01225793952</span>
+            <span class="translatable" data-en="Calls: 01225793952" data-ar="مكالمات : 01225793952">مكالمات : 01225793952</span>
             <i class="fa-solid fa-phone"></i>
         </a>
     </div>
@@ -308,28 +307,31 @@
 
 <div class="contact-wrapper">
     <div class="section-title">
-        <h1>تواصل مع <span>Al-Basty Group</span></h1>
-        <p>نحن هنا لتأمين منشأتك بأحدث التقنيات الذكية</p>
+        <h1>
+            <span class="translatable" style="all: unset;" data-en="Contact " data-ar="تواصل مع ">تواصل مع </span>
+            <span>Al-Basty Group</span>
+        </h1>
+        <p class="translatable" data-en="We are here to secure your facility with the latest smart technologies" data-ar="نحن هنا لتأمين منشأتك بأحدث التقنيات الذكية">نحن هنا لتأمين منشأتك بأحدث التقنيات الذكية</p>
     </div>
 
     <div class="contact-grid">
         <div class="cyber-card">
             <div class="card-inner">
-                <h3 style="font-size: 22px; color: var(--neon-blue); margin-top: 0; margin-bottom: 30px; font-weight: 800;">بيانات الدعم والاتصال</h3>
+                <h3 class="translatable" style="font-size: 22px; color: var(--neon-blue); margin-top: 0; margin-bottom: 30px; font-weight: 800;" data-en="Support & Contact Info" data-ar="بيانات الدعم والاتصال">بيانات الدعم والاتصال</h3>
                 
                 <div class="info-item">
                     <div class="info-icon"><i class="fas fa-map-marker-alt"></i></div>
                     <div class="info-text">
-                        <h4>المقر الرئيسي للشركة</h4>
-                        <p>بنها , طوخ</p>
+                        <h4 class="translatable" data-en="Company Headquarters" data-ar="المقر الرئيسي للشركة">المقر الرئيسي للشركة</h4>
+                        <p class="translatable" data-en="Banha, Toukh" data-ar="بنها , طوخ">بنها , طوخ</p>
                     </div>
                 </div>
 
                 <div class="info-item">
                     <div class="info-icon"><i class="fas fa-phone"></i></div>
                     <div class="info-text">
-                        <h4>أرقام التواصل</h4>
-                        <p style="font-family: var(--font-english); font-size: 15px;">
+                        <h4 class="translatable" data-en="Contact Numbers" data-ar="أرقام التواصل">أرقام التواصل</h4>
+                        <p style="font-family: var(--font-english); font-size: 15px; direction: ltr; text-align: right;">
                             Sales: 01031011001<br>
                             Support: 01225793952
                         </p>
@@ -339,40 +341,34 @@
                 <div class="info-item">
                     <div class="info-icon"><i class="fas fa-clock"></i></div>
                     <div class="info-text">
-                        <h4>مواعيد العمل الرسمية</h4>
-                        <p>يومياً من الساعة 9 صباحا حتى 10 مساءً</p>
+                        <h4 class="translatable" data-en="Official Working Hours" data-ar="مواعيد العمل الرسمية">مواعيد العمل الرسمية</h4>
+                        <p class="translatable" data-en="Daily from 9:00 AM to 10:00 PM" data-ar="يومياً من الساعة 9 صباحا حتى 10 مساءً">يومياً من الساعة 9 صباحا حتى 10 مساءً</p>
                     </div>
                 </div>
 
-                <!-- <div class="map-container">
-                    <iframe 
-                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d13824.22591605371!2d31.144414!3d29.9778!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1458466e3a6c2f35%3A0xc665551f38e6e87b!2z2KfZhNmF2LHZitmI2LfZitip2Iwg2KfZhNmH2LHZhQ!5e0!3m2!1sar!2seg!4v1700000000000" 
-                        width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade">
-                    </iframe>
-                </div> -->
-            </div>
+                </div>
         </div>
 
         <div class="cyber-card">
             <div class="card-inner">
-                <h3 style="font-size: 22px; color: var(--text-main); margin-top: 0; margin-bottom: 30px; font-weight: 800;">أرسل استفسارك الأمني</h3>
+                <h3 class="translatable" style="font-size: 22px; color: var(--text-main); margin-top: 0; margin-bottom: 30px; font-weight: 800;" data-en="Send Your Security Inquiry" data-ar="أرسل استفسارك الأمني">أرسل استفسارك الأمني</h3>
                 
                 <form class="contact-form" method="POST">
                     {% csrf_token %}
                     
                     <div class="form-row">
-                        <input type="text" name="name" placeholder="الاسم الكامل / اسم الشركة" required>
-                        <input type="email" name="email" placeholder="البريد الإلكتروني" required>
+                        <input type="text" name="name" class="translatable-placeholder" data-en-placeholder="Full Name / Company Name" data-ar-placeholder="الاسم الكامل / اسم الشركة" placeholder="الاسم الكامل / اسم الشركة" required>
+                        <input type="email" name="email" class="translatable-placeholder" data-en-placeholder="Email Address" data-ar-placeholder="البريد الإلكتروني" placeholder="البريد الإلكتروني" required>
                     </div>
 
                     <div class="form-row">
-                        <input type="tel" name="phone" placeholder="رقم الهاتف" required>
-                        <input type="text" name="subject" placeholder="بخصوص (كاميرات مراقبة، أبواب ذكية، شبكات...)">
+                        <input type="tel" name="phone" class="translatable-placeholder" data-en-placeholder="Phone Number" data-ar-placeholder="رقم الهاتف" placeholder="رقم الهاتف" required>
+                        <input type="text" name="subject" class="translatable-placeholder" data-en-placeholder="Regarding (CCTV, Smart Doors, Networks...)" data-ar-placeholder="بخصوص (كاميرات مراقبة، أبواب ذكية، شبكات...)" placeholder="بخصوص (كاميرات مراقبة، أبواب ذكية، شبكات...)">
                     </div>
 
-                    <textarea name="message" rows="6" placeholder="اكتب تفاصيل طلبك أو استفسارك هنا..." required></textarea>
+                    <textarea name="message" rows="6" class="translatable-placeholder" data-en-placeholder="Write the details of your request or inquiry here..." data-ar-placeholder="اكتب تفاصيل طلبك أو استفسارك هنا..." placeholder="اكتب تفاصيل طلبك أو استفسارك هنا..." required></textarea>
                     
-                    <button type="submit" class="btn-submit">إرسال الطلب الآمن</button>
+                    <button type="submit" class="btn-submit translatable" data-en="Send Secure Request" data-ar="إرسال الطلب الآمن">إرسال الطلب الآمن</button>
                 </form>
             </div>
         </div>
@@ -386,6 +382,28 @@
         if (!container.contains(e.target)) {
             container.classList.remove('active');
         }
+    });
+
+    // سكريبت إضافي صغير لتحديث الـ Placeholders بناءً على اللغة
+    function updateFormPlaceholders() {
+        const lang = localStorage.getItem('elbasty_lang') || 'en';
+        document.querySelectorAll('.translatable-placeholder').forEach(el => {
+            const newPlaceholder = el.getAttribute(`data-${lang}-placeholder`);
+            if (newPlaceholder) {
+                el.placeholder = newPlaceholder;
+            }
+        });
+    }
+
+    // تشغيل التحديث عند التحميل
+    document.addEventListener('DOMContentLoaded', updateFormPlaceholders);
+
+    // ربط التحديث بأزرار تغيير اللغة في الموقع
+    document.querySelectorAll('.langToggleBtn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            // بنعمل تأخير بسيط عشان نضمن إن الـ LocalStorage اتحدثت من السكريبت الأساسي
+            setTimeout(updateFormPlaceholders, 50); 
+        });
     });
 </script>
 {% endblock %}

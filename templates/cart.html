@@ -265,18 +265,23 @@
     <div class="cart-container-outer animate__animated animate__fadeIn">
         <div class="cart-container">
             <div class="cart-header">
-                <h2>سلة <span style="color: var(--neon-blue);">الطلبات</span></h2>
-                <span style="font-size: 12px; font-weight: 700; color: var(--text-sec); font-family: var(--font-english);">{{ cart_items|length }} ITEMS</span>
+                <h2>
+                    <span class="translatable" style="all: unset;" data-en="Your " data-ar="سلة ">سلة </span>
+                    <span style="color: var(--neon-blue);" class="translatable" data-en="Cart" data-ar="الطلبات">الطلبات</span>
+                </h2>
+                <span style="font-size: 12px; font-weight: 700; color: var(--text-sec); font-family: var(--font-english);">
+                    {{ cart_items|length }} <span class="translatable" data-en="ITEMS" data-ar="عناصر">ITEMS</span>
+                </span>
             </div>
 
             {% if cart_items %}
             <table class="cart-table">
                 <thead>
                     <tr>
-                        <th>النظام الأمني</th>
-                        <th class="desktop-only">السعر</th>
-                        <th>الكمية</th>
-                        <th class="desktop-only">الإجمالي الفرعي</th>
+                        <th class="translatable" data-en="Security System" data-ar="النظام الأمني">النظام الأمني</th>
+                        <th class="desktop-only translatable" data-en="Price" data-ar="السعر">السعر</th>
+                        <th class="translatable" data-en="Quantity" data-ar="الكمية">الكمية</th>
+                        <th class="desktop-only translatable" data-en="Subtotal" data-ar="الإجمالي الفرعي">الإجمالي الفرعي</th>
                         <th></th>
                     </tr>
                 </thead>
@@ -293,7 +298,9 @@
                             </div>
                         </td>
                         <td class="desktop-only">
-                            <span style="font-family: var(--font-english); font-weight: 700;">{{ item.actual_price|floatformat:0 }} ج.م</span>
+                            <span style="font-family: var(--font-english); font-weight: 700;">
+                                {{ item.actual_price|floatformat:0 }} <span class="translatable" data-en="LE" data-ar="ج.م">ج.م</span>
+                            </span>
                         </td>
                         <td>
                             <div class="qty-controls">
@@ -303,7 +310,7 @@
                             </div>
                         </td>
                         <td class="desktop-only" style="color: var(--cyber-neon); font-weight: 700; font-family: var(--font-english);">
-                            {{ item.subtotal|floatformat:0 }} ج.م
+                            {{ item.subtotal|floatformat:0 }} <span class="translatable" data-en="LE" data-ar="ج.م">ج.م</span>
                         </td>
                         <td style="text-align: right;">
                             <a href="{% url 'remove_from_cart' item.item_key %}" class="btn-remove" title="إزالة من السلة">
@@ -317,17 +324,19 @@
 
             <div class="cart-summary">
                 <div class="total-price">
-                    <span style="font-size: 13px; color: var(--text-sec); font-family: var(--font-arabic); font-weight: 700; display: block; margin-bottom: 5px;">الإجمالي الكلي</span>
-                    <span>{{ total_price|floatformat:0 }}</span> <span style="font-size: 1.2rem; color: #fff; font-family: var(--font-arabic);">ج.م</span>
+                    <span class="translatable" data-en="Grand Total" data-ar="الإجمالي الكلي" style="font-size: 13px; color: var(--text-sec); font-family: var(--font-arabic); font-weight: 700; display: block; margin-bottom: 5px;">الإجمالي الكلي</span>
+                    <span>{{ total_price|floatformat:0 }}</span> <span class="translatable" data-en="LE" data-ar="ج.م" style="font-size: 1.2rem; color: #fff; font-family: var(--font-arabic);">ج.م</span>
                 </div>
-                <a href="{% url 'checkout' %}" class="checkout-btn">المتابعة لإتمام الدفع الآمن <i class="fa-solid fa-shield-check" style="margin-right: 8px;"></i></a>
+                <a href="{% url 'checkout' %}" class="checkout-btn">
+                    <span class="translatable" data-en="Proceed to Secure Checkout" data-ar="المتابعة لإتمام الدفع الآمن">المتابعة لإتمام الدفع الآمن</span> <i class="fa-solid fa-shield-check" style="margin-right: 8px;"></i>
+                </a>
             </div>
             
             {% else %}
             <div class="empty-cart-msg animate__animated animate__fadeInUp" style="text-align: center;">
                 <i class="fa-solid fa-server" style="font-size: 4rem; color: var(--glass-border); margin-bottom: 25px;"></i>
-                <p style="color: var(--text-sec); font-size: 16px; font-weight: 700;">سلة الطلبات فارغة حالياً</p>
-                <a href="{% url 'shop' %}" class="checkout-btn" style="display:inline-block; margin-top: 30px;">تصفح الأنظمة الذكية</a>
+                <p class="translatable" data-en="Your cart is currently empty" data-ar="سلة الطلبات فارغة حالياً" style="color: var(--text-sec); font-size: 16px; font-weight: 700;">سلة الطلبات فارغة حالياً</p>
+                <a href="{% url 'shop' %}" class="checkout-btn translatable" data-en="Browse Smart Systems" data-ar="تصفح الأنظمة الذكية" style="display:inline-block; margin-top: 30px;">تصفح الأنظمة الذكية</a>
             </div>
             {% endif %}
         </div>
@@ -337,11 +346,11 @@
 <div class="wa-float-container" id="waContainer">
     <div class="wa-contact-list">
         <a href="https://wa.me/201020304907?text=استفسار بخصوص سلة الطلبات في الباسطى جروب" target="_blank" class="wa-contact-item">
-            <span>مبيعات / استفسارات 1</span>
+            <span class="translatable" data-en="Sales / Inquiries 1" data-ar="مبيعات / استفسارات 1">مبيعات / استفسارات 1</span>
             <i class="fa-brands fa-whatsapp"></i>
         </a>
         <a href="https://wa.me/201080504973?text=استفسار بخصوص سلة الطلبات في الباسطى جروب" target="_blank" class="wa-contact-item">
-            <span>مبيعات / استفسارات 2</span>
+            <span class="translatable" data-en="Sales / Inquiries 2" data-ar="مبيعات / استفسارات 2">مبيعات / استفسارات 2</span>
             <i class="fa-brands fa-whatsapp"></i>
         </a>
     </div>

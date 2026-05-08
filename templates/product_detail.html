@@ -185,8 +185,8 @@
 
 <div class="detail-wrapper" dir="rtl">
     <nav class="breadcrumb">
-        <a href="{% url 'home' %}">الرئيسية</a> / 
-        <a href="{% url 'shop' %}">الأنظمة الأمنية</a> / 
+        <a href="{% url 'home' %}" class="translatable" data-en="Home" data-ar="الرئيسية">الرئيسية</a> / 
+        <a href="{% url 'shop' %}" class="translatable" data-en="Security Systems" data-ar="الأنظمة الأمنية">الأنظمة الأمنية</a> / 
         <span style="color: #fff;">{{ product.name }}</span>
     </nav>
 
@@ -194,7 +194,7 @@
         <div class="detail-container">
             <div class="image-section">
                 {% if product.discount_price %}
-                    <div style="position: absolute; top: 20px; right: 20px; z-index: 5; background: var(--danger); color: #fff; padding: 5px 12px; font-weight: 700; font-size: 11px; border-radius: 4px; box-shadow: 0 0 10px rgba(255, 51, 102, 0.4);">
+                    <div class="translatable" data-en="{{ product.discount_percentage }}% OFF" data-ar="خصم {{ product.discount_percentage }}%" style="position: absolute; top: 20px; right: 20px; z-index: 5; background: var(--danger); color: #fff; padding: 5px 12px; font-weight: 700; font-size: 11px; border-radius: 4px; box-shadow: 0 0 10px rgba(255, 51, 102, 0.4);">
                         خصم {{ product.discount_percentage }}%
                     </div>
                 {% endif %}
@@ -214,16 +214,19 @@
                 <h1 class="product-title">{{ product.name }}</h1>
 
                 <div class="price-group">
-                    <span class="current-price">{{ product.get_effective_price|floatformat:0 }} ج.م</span>
+                    <span class="current-price">{{ product.get_effective_price|floatformat:0 }} LE</span>
                     {% if product.discount_price %}
-                        <span class="old-price">{{ product.price|floatformat:0 }} ج.م</span>
+                        <span class="old-price">{{ product.price|floatformat:0 }} LE</span>
                     {% endif %}
                     
-                    <span id="stockStatus" class="stock-badge stock-in">متوفر</span>
+                    <span id="stockStatus" class="stock-badge stock-in translatable" data-en="In Stock" data-ar="متوفر">متوفر</span>
                 </div>
 
                 <div class="selection-group">
-                    <label class="selection-label">اللون / الإصدار: <span id="colorNameDisplay" style="color: var(--neon-blue); margin-right: 10px; font-family: var(--font-english);"></span></label>
+                    <label class="selection-label">
+                        <span class="translatable" data-en="Color / Version:" data-ar="اللون / الإصدار:">اللون / الإصدار:</span> 
+                        <span id="colorNameDisplay" style="color: var(--neon-blue); margin-right: 10px; font-family: var(--font-english);"></span>
+                    </label>
                     <div class="color-dots">
                         {% for variant in product.variants.all %}
                         <div class="color-dot" 
@@ -242,12 +245,12 @@
                         {% endfor %}
                     </div>
 
-                    <label class="selection-label">السعة / الفئة:</label>
+                    <label class="selection-label translatable" data-en="Capacity / Category:" data-ar="السعة / الفئة:">السعة / الفئة:</label>
                     <div class="size-options" id="sizeOptionsContainer"></div>
                 </div>
 
                 <div class="description">
-                    <h4 style="color:var(--neon-blue); margin-bottom: 12px; font-size: 1.1rem; font-weight: 800;">المواصفات الفنية:</h4>
+                    <h4 class="translatable" data-en="Technical Specifications:" data-ar="المواصفات الفنية:" style="color:var(--neon-blue); margin-bottom: 12px; font-size: 1.1rem; font-weight: 800;">المواصفات الفنية:</h4>
                     
                     {% if product.description %}
                         {{ product.description|linebreaks }}
@@ -259,7 +262,7 @@
                                 {% for spec in product.specifications.all %}
                                 <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
                                     <td style="padding: 12px 5px; font-weight: 700; color: #fff; width: 40%; font-size: 0.9rem;">{{ spec.spec_name }}</td>
-                                    <td style="padding: 12px 5px; color: var(--text-sec); font-size: 0.9rem; font-family: var(--font-english);">{{ spec.spec_value|linebreaksbr }}</td>
+                                    <td style="padding: 12px 5px; color: var(--text-sec); font-size: 0.9rem; font-family: var(--font-english); direction: ltr; text-align: right;">{{ spec.spec_value|linebreaksbr }}</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -268,9 +271,10 @@
                 </div>
 
                 <div style="margin-top: 35px;">
-                    <button id="add-to-cart-btn" class="btn-primary btn-disabled">اختر الإصدار والسعة</button>
+                    <button id="add-to-cart-btn" class="btn-primary btn-disabled translatable" data-en="Select Version and Capacity" data-ar="اختر الإصدار والسعة">اختر الإصدار والسعة</button>
                     <p style="text-align: center; margin-top: 15px; font-size: 13px; color: var(--text-sec); font-weight: 600;">
-                        <i class="fas fa-shield-alt" style="margin-left: 5px; color: var(--cyber-neon);"></i> توريد وتركيب لجميع محافظات الجمهورية
+                        <i class="fas fa-shield-alt" style="margin-left: 5px; color: var(--cyber-neon);"></i> 
+                        <span class="translatable" data-en="Supply and installation for all governorates" data-ar="توريد وتركيب لجميع محافظات الجمهورية">توريد وتركيب لجميع محافظات الجمهورية</span>
                     </p>
                 </div>
             </div>
@@ -284,8 +288,8 @@
             <i class="fas fa-check"></i>
         </div>
         <div>
-            <strong style="display: block; font-size: 15px; color: #fff; margin-bottom: 3px;">تم تفعيل الطلب!</strong>
-            <small style="color: var(--text-sec); font-size: 12px; font-weight: 600;">تمت إضافة النظام إلى سلة الطلبات</small>
+            <strong class="translatable" data-en="Order Activated!" data-ar="تم تفعيل الطلب!" style="display: block; font-size: 15px; color: #fff; margin-bottom: 3px;">تم تفعيل الطلب!</strong>
+            <small class="translatable" data-en="System added to cart" data-ar="تمت إضافة النظام إلى سلة الطلبات" style="color: var(--text-sec); font-size: 12px; font-weight: 600;">تمت إضافة النظام إلى سلة الطلبات</small>
         </div>
     </div>
 </div>
@@ -335,13 +339,19 @@
         
         sizeContainer.innerHTML = "";
         currentSelSize = "";
+        
+        const lang = localStorage.getItem('elbasty_lang') || 'en';
 
         if (variantTotalStock <= 0) {
-            stockStatus.innerText = "هذا الإصدار غير متوفر حالياً";
-            stockStatus.className = "stock-badge stock-out";
+            stockStatus.setAttribute('data-en', "This version is currently out of stock");
+            stockStatus.setAttribute('data-ar', "هذا الإصدار غير متوفر حالياً");
+            stockStatus.innerText = lang === 'en' ? "This version is currently out of stock" : "هذا الإصدار غير متوفر حالياً";
+            stockStatus.className = "stock-badge stock-out translatable";
         } else {
-            stockStatus.innerText = "متوفر";
-            stockStatus.className = "stock-badge stock-in";
+            stockStatus.setAttribute('data-en', "In Stock");
+            stockStatus.setAttribute('data-ar', "متوفر");
+            stockStatus.innerText = lang === 'en' ? "In Stock" : "متوفر";
+            stockStatus.className = "stock-badge stock-in translatable";
         }
 
         let availableChips = [];
@@ -359,11 +369,15 @@
                     updateMainButton();
                     
                     if(sz.s < 5) {
-                        stockStatus.innerText = `متبقي ${sz.s} أجهزة فقط من هذه الفئة!`;
-                        stockStatus.className = "stock-badge stock-low";
+                        stockStatus.setAttribute('data-en', `Only ${sz.s} devices left in this category!`);
+                        stockStatus.setAttribute('data-ar', `متبقي ${sz.s} أجهزة فقط من هذه الفئة!`);
+                        stockStatus.innerText = lang === 'en' ? `Only ${sz.s} devices left in this category!` : `متبقي ${sz.s} أجهزة فقط من هذه الفئة!`;
+                        stockStatus.className = "stock-badge stock-low translatable";
                     } else {
-                        stockStatus.innerText = "هذه الفئة متوفرة";
-                        stockStatus.className = "stock-badge stock-in";
+                        stockStatus.setAttribute('data-en', "This category is available");
+                        stockStatus.setAttribute('data-ar', "هذه الفئة متوفرة");
+                        stockStatus.innerText = lang === 'en' ? "This category is available" : "هذه الفئة متوفرة";
+                        stockStatus.className = "stock-badge stock-in translatable";
                     }
                 };
                 availableChips.push(chip);
@@ -371,7 +385,6 @@
             sizeContainer.appendChild(chip);
         });
 
-        // التحديد التلقائي لو فئة واحدة مسموحة
         if (availableChips.length === 1) {
             availableChips[0].click();
         }
@@ -383,16 +396,26 @@
         const btn = document.getElementById('add-to-cart-btn');
         const activeColorDot = document.querySelector('.color-dot.active');
         const variantTotalStock = activeColorDot ? parseInt(activeColorDot.dataset.totalStock) : 0;
+        
+        const lang = localStorage.getItem('elbasty_lang') || 'en';
 
         if (variantTotalStock <= 0) {
             btn.classList.add('btn-disabled');
-            btn.innerText = "غير متاح في الوقت الحالي";
+            btn.setAttribute('data-en', "Currently Unavailable");
+            btn.setAttribute('data-ar', "غير متاح في الوقت الحالي");
+            btn.innerText = lang === 'en' ? "Currently Unavailable" : "غير متاح في الوقت الحالي";
         } else if(currentSelColor && currentSelSize) {
             btn.classList.remove('btn-disabled');
-            btn.innerText = "إضافة النظام لسلة الطلبات";
+            btn.setAttribute('data-en', "Add System to Cart");
+            btn.setAttribute('data-ar', "إضافة النظام لسلة الطلبات");
+            btn.innerText = lang === 'en' ? "Add System to Cart" : "إضافة النظام لسلة الطلبات";
         } else {
             btn.classList.add('btn-disabled');
-            btn.innerText = !currentSelColor ? "يرجى تحديد الإصدار أولاً" : "يرجى تحديد السعة/الفئة";
+            let msgEn = !currentSelColor ? "Please select version first" : "Please select capacity/category";
+            let msgAr = !currentSelColor ? "يرجى تحديد الإصدار أولاً" : "يرجى تحديد السعة/الفئة";
+            btn.setAttribute('data-en', msgEn);
+            btn.setAttribute('data-ar', msgAr);
+            btn.innerText = lang === 'en' ? msgEn : msgAr;
         }
     }
 
