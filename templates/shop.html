@@ -166,12 +166,22 @@
     }
 
     .product-card__image-wrap { 
-        width: 100%; aspect-ratio: 4/5; overflow: hidden; 
-        margin-bottom: 25px; background: #0a192f; position: relative; 
+        width: 100%; 
+        aspect-ratio: 4/5; 
+        overflow: hidden; 
+        margin-bottom: 25px; 
+        background: #ffffff; /* تغيير الخلفية للون الأبيض */
+        position: relative; 
+        padding: 30px; /* الـ padding الأبيض حوالين الصورة - تقدر تزوده أو تقلله براحتك */
+        box-sizing: border-box; /* عشان الـ padding ما يبوظش أبعاد الكارت */
     }
+
     .main-product-img { 
-        width: 100%; height: 100%; object-fit: cover; 
-        transition: transform 1.5s var(--trans-smooth), opacity 0.5s; opacity: 0.8;
+        width: 100%; 
+        height: 100%; 
+        object-fit: contain; /* الخاصية دي اللي بتجبر الصورة تظهر بالكامل بدون أي قص */
+        transition: transform 1.5s var(--trans-smooth), opacity 0.5s; 
+        opacity: 1; /* يفضل تخليها 1 مع الخلفية البيضاء عشان تظهر بوضوح من غير ما تكون باهتة */
     }
     .product-card:hover .main-product-img { transform: scale(1.05); opacity: 1; }
 
