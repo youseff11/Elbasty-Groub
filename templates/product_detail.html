@@ -262,12 +262,12 @@
                     {% endif %}
 
                     {% if product.specifications.all %}
-                        <table class="specs-table" style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+                        <table class="specs-table" dir="ltr" style="width: 100%; border-collapse: collapse; margin-top: 15px; text-align: left;">
                             <tbody>
                                 {% for spec in product.specifications.all %}
                                 <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
                                     <td style="padding: 12px 5px; font-weight: 700; color: #fff; width: 40%; font-size: 0.9rem;">{{ spec.spec_name }}</td>
-                                    <td style="padding: 12px 5px; color: var(--text-sec); font-size: 0.9rem; font-family: var(--font-english); direction: ltr; text-align: right;">{{ spec.spec_value|linebreaksbr }}</td>
+                                    <td style="padding: 12px 5px; color: var(--text-sec); font-size: 0.9rem; font-family: var(--font-english);">{{ spec.spec_value|linebreaksbr }}</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
