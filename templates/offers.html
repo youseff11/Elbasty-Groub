@@ -337,6 +337,10 @@
             </div>
 
             <h3 style="font-size: 20px; font-weight: 700; margin: 0 0 12px; text-align: center; color: var(--text-main);">{{ product.name }}</h3>
+            <div class="product-sku" style="text-align: center; font-size: 12px; color: var(--text-sec); margin-top: -5px; margin-bottom: 10px; font-family: var(--font-english);">
+                <span class="translatable" data-en="SKU: " data-ar="كود: ">كود: </span>
+                <span style="color: var(--neon-blue);">{{ product.sku|default:"N/A" }}</span>
+            </div>
 
             <div class="color-swatches">
                 {% for v in product.variants.all %}
