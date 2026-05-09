@@ -23,7 +23,7 @@ from .models import (
     Order, OrderItem, ProductSize, ProductImage,
     Supplier, StockMovement, Invoice, InvoiceItem, InvoicePayment,
     Receivable, ReceivablePayment, Payable, PayablePayment,
-    PaymentSchedule
+    PaymentSchedule, ProductCollection, CollectionItem
 )
 from .forms import ProductForm
 
@@ -161,6 +161,50 @@ def add_to_cart(request, product_id):
         messages.error(request, "عذراً، هذا النوع غير متوفر حالياً.")
 
     return redirect(request.META.get('HTTP_REFERER', 'shop'))
+def add_collection_to_cart(request, collection_id):
+    user_cart_key = get_user_cart_key(request)
+    cart = request.session.get(user_cart_key, {})
+    
+    collection = get_object_or_404(ProductCollection, id=collection_id)
+    item_key = f"col_{collection_id}"
+    
+    # حساب الكمية المطلوبة (لو الباكدج موجودة في السلة هنزود 1، لو مش موجودة هتبقى 1)
+    current_qty = cart.get(item_key, {}).get('quantity', 0)
+    requested_qty = current_qty + 1
+    
+    # فحص المخزون لكل المنتجات داخل الباكدج قبل إضافتها
+    can_add = True
+    for item in collection.items.all():
+        total_required_qty = item.quantity * requested_qty
+        
+        if item.product_size:
+            if item.product_size.stock < total_required_qty:
+                messages.warning(request, f"عذراً، المتاح من {item.product.name} (مقاس {item.product_size.size_name}) لا يكفي للباكدج.")
+                can_add = False
+                break
+        else:
+            # في حالة إن المنتج ملوش نظام مقاسات
+            if item.product.stock < total_required_qty:
+                messages.warning(request, f"عذراً، المتاح من {item.product.name} لا يكفي للباكدج.")
+                can_add = False
+                break
+
+    if can_add:
+        if item_key in cart:
+            cart[item_key]['quantity'] += 1
+        else:
+            cart[item_key] = {
+                'type': 'collection',
+                'collection_id': collection_id,
+                'quantity': 1,
+                'price': str(collection.offer_price)
+            }
+        
+        request.session[user_cart_key] = cart
+        request.session.modified = True
+        messages.success(request, f'تمت إضافة الباكدج ({collection.name}) إلى السلة بنجاح!')
+
+    return redirect(request.META.get('HTTP_REFERER', 'offers'))
 
 def cart_view(request):
     user_cart_key = get_user_cart_key(request)
@@ -176,31 +220,56 @@ def cart_view(request):
     for item_key, item_data in cart.items():
         if not isinstance(item_data, dict): continue
             
-        try:
-            product = Product.objects.get(id=item_data.get('product_id'))
-            quantity = item_data.get('quantity', 1)
-            # تحديد السعر بناءً على وجود خصم
-            price = product.discount_price if product.discount_price else product.price
-            subtotal = price * quantity
-            total_price += subtotal
-            
-            variant = ProductVariant.objects.filter(product=product, color_name=item_data.get('color')).first()
-            display_image = variant.variant_image.url if variant and variant.variant_image else product.main_image.url
-            
-            cart_items.append({
-                'item_key': item_key,
-                'product': product,
-                'quantity': quantity,
-                'color': item_data.get('color'),
-                'size': item_data.get('size', 'N/A'),
-                'display_image': display_image,
-                'subtotal': subtotal,
-                'actual_price': price
-            })
-        except (Product.DoesNotExist, AttributeError):
-            continue
+        quantity = item_data.get('quantity', 1)
+
+        # --- 1. التعامل مع الباكدجات (Collections) ---
+        if item_data.get('type') == 'collection':
+            try:
+                collection = ProductCollection.objects.get(id=item_data.get('collection_id'))
+                price = collection.offer_price
+                subtotal = price * quantity
+                total_price += subtotal
+                
+                cart_items.append({
+                    'item_key': item_key,
+                    'is_collection': True, # عشان نقدر نميزه في الـ Template
+                    'collection': collection,
+                    'quantity': quantity,
+                    'display_image': collection.main_image.url if collection.main_image else '',
+                    'subtotal': subtotal,
+                    'actual_price': price
+                })
+            except ProductCollection.DoesNotExist:
+                continue
+
+        # --- 2. التعامل مع المنتجات العادية ---
+        else:
+            try:
+                product = Product.objects.get(id=item_data.get('product_id'))
+                # تحديد السعر بناءً على وجود خصم
+                price = product.discount_price if product.discount_price else product.price
+                subtotal = price * quantity
+                total_price += subtotal
+                
+                variant = ProductVariant.objects.filter(product=product, color_name=item_data.get('color')).first()
+                display_image = variant.variant_image.url if variant and variant.variant_image else product.main_image.url
+                
+                cart_items.append({
+                    'item_key': item_key,
+                    'is_collection': False,
+                    'product': product,
+                    'quantity': quantity,
+                    'color': item_data.get('color'),
+                    'size': item_data.get('size', 'N/A'),
+                    'display_image': display_image,
+                    'subtotal': subtotal,
+                    'actual_price': price
+                })
+            except (Product.DoesNotExist, AttributeError):
+                continue
         
     return render(request, 'cart.html', {'cart_items': cart_items, 'total_price': total_price})
+
 
 def update_cart(request, item_key, action):
     user_cart_key = get_user_cart_key(request)
@@ -208,35 +277,65 @@ def update_cart(request, item_key, action):
     
     if item_key in cart:
         item_data = cart[item_key]
+        
         if action == 'increase':
-            try:
-                stock_item = ProductSize.objects.get(
-                    variant__product_id=item_data['product_id'],
-                    variant__color_name=item_data['color'],
-                    size_name=item_data['size']
-                )
-                if item_data['quantity'] < stock_item.stock:
-                    cart[item_key]['quantity'] += 1
-                else:
-                    messages.warning(request, f"عذراً، لا يوجد سوى {stock_item.stock} قطع في المخزن.")
-            except ProductSize.DoesNotExist:
-                # التحقق من المخزن العام للمنتج إذا لم توجد تفاصيل مقاسات
-                product = get_object_or_404(Product, id=item_data['product_id'])
-                if item_data['quantity'] < product.stock:
-                    cart[item_key]['quantity'] += 1
-                else:
-                    messages.warning(request, "تم الوصول للحد الأقصى المتاح في المخزن.")
+            # --- زيادة كمية الباكدج ---
+            if item_data.get('type') == 'collection':
+                try:
+                    collection = ProductCollection.objects.get(id=item_data['collection_id'])
+                    requested_qty = item_data['quantity'] + 1
+                    can_add = True
+                    
+                    # فحص المخزون لكل المنتجات داخل الباكدج للتأكد من تحمل الزيادة
+                    for item in collection.items.all():
+                        total_required_qty = item.quantity * requested_qty
+                        if item.product_size:
+                            if item.product_size.stock < total_required_qty:
+                                messages.warning(request, f"عذراً، المتاح من {item.product.name} (مقاس {item.product_size.size_name}) لا يكفي لزيادة الباكدج.")
+                                can_add = False
+                                break
+                        else:
+                            if item.product.stock < total_required_qty:
+                                messages.warning(request, f"عذراً، المتاح من {item.product.name} لا يكفي لزيادة الباكدج.")
+                                can_add = False
+                                break
+                    
+                    if can_add:
+                        cart[item_key]['quantity'] += 1
+                        
+                except ProductCollection.DoesNotExist:
+                    messages.error(request, "الباكدج غير موجودة.")
+            
+            # --- زيادة كمية المنتج العادي ---
+            else:
+                try:
+                    stock_item = ProductSize.objects.get(
+                        variant__product_id=item_data['product_id'],
+                        variant__color_name=item_data['color'],
+                        size_name=item_data['size']
+                    )
+                    if item_data['quantity'] < stock_item.stock:
+                        cart[item_key]['quantity'] += 1
+                    else:
+                        messages.warning(request, f"عذراً، لا يوجد سوى {stock_item.stock} قطع في المخزن.")
+                except ProductSize.DoesNotExist:
+                    # التحقق من المخزن العام للمنتج إذا لم توجد تفاصيل مقاسات
+                    product = get_object_or_404(Product, id=item_data['product_id'])
+                    if item_data['quantity'] < product.stock:
+                        cart[item_key]['quantity'] += 1
+                    else:
+                        messages.warning(request, "تم الوصول للحد الأقصى المتاح في المخزن.")
                 
         elif action == 'decrease':
             cart[item_key]['quantity'] -= 1
             if cart[item_key]['quantity'] <= 0: 
                 del cart[item_key]
-                messages.info(request, "تمت إزالة المنتج من السلة.")
+                messages.info(request, "تمت الإزالة من السلة.")
                 
         request.session[user_cart_key] = cart
         request.session.modified = True
     else:
-        messages.error(request, "تعذر العثور على المنتج في سلتك.")
+        messages.error(request, "تعذر العثور على العنصر في سلتك.")
         
     return redirect('cart_view')
 
@@ -265,47 +364,85 @@ def checkout_view(request):
     total_price = 0
     checkout_items = []
     
+    # --- 1. التحقق من المخزن وحساب الإجمالي ---
     for item_key, item_data in cart.items():
-        product = get_object_or_404(Product, id=item_data['product_id'])
-        color_name = item_data.get('color')
-        size_name = item_data.get('size')
         quantity_requested = item_data['quantity']
         
-        variant_size = ProductSize.objects.filter(
-            variant__product=product, 
-            variant__color_name=color_name, 
-            size_name=size_name
-        ).first()
-        
-        if variant_size:
-            if variant_size.stock < quantity_requested:
-                messages.error(request, f"عذراً، المتاح فقط {variant_size.stock} من {product.name} ({color_name} - {size_name}).")
-                return redirect('cart_view')
+        # إذا كان العنصر باكدج (Collection)
+        if item_data.get('type') == 'collection':
+            collection = get_object_or_404(ProductCollection, id=item_data['collection_id'])
+            
+            # التحقق من مخزون كل منتج داخل الباكدج
+            for c_item in collection.items.all():
+                total_req_qty = c_item.quantity * quantity_requested
+                if c_item.product_size:
+                    if c_item.product_size.stock < total_req_qty:
+                        messages.error(request, f"عذراً، المتاح من {c_item.product.name} (مقاس {c_item.product_size.size_name}) لا يكفي للباكدج.")
+                        return redirect('cart_view')
+                else:
+                    if c_item.product.stock < total_req_qty:
+                        messages.error(request, f"عذراً، المنتج {c_item.product.name} لا يكفي للباكدج.")
+                        return redirect('cart_view')
+
+            subtotal = collection.offer_price * quantity_requested
+            total_price += subtotal
+            
+            domain = request.get_host()
+            protocol = 'https' if request.is_secure() else 'http'
+            image_url = f"{protocol}://{domain}{collection.main_image.url}" if collection.main_image else ""
+
+            checkout_items.append({
+                'is_collection': True,
+                'collection': collection,
+                'subtotal': subtotal,
+                'data': item_data,
+                'unit_price': collection.offer_price,
+                'image_url': image_url
+            })
+
+        # إذا كان العنصر منتج عادي
         else:
-            if product.stock < quantity_requested:
-                messages.error(request, f"عذراً، المنتج {product.name} غير متوفر حالياً.")
-                return redirect('cart_view')
+            product = get_object_or_404(Product, id=item_data['product_id'])
+            color_name = item_data.get('color')
+            size_name = item_data.get('size')
+            
+            variant_size = ProductSize.objects.filter(
+                variant__product=product, 
+                variant__color_name=color_name, 
+                size_name=size_name
+            ).first()
+            
+            if variant_size:
+                if variant_size.stock < quantity_requested:
+                    messages.error(request, f"عذراً، المتاح فقط {variant_size.stock} من {product.name} ({color_name} - {size_name}).")
+                    return redirect('cart_view')
+            else:
+                if product.stock < quantity_requested:
+                    messages.error(request, f"عذراً، المنتج {product.name} غير متوفر حالياً.")
+                    return redirect('cart_view')
 
-        price = product.discount_price if product.discount_price else product.price
-        subtotal = price * quantity_requested
-        total_price += subtotal
+            price = product.discount_price if product.discount_price else product.price
+            subtotal = price * quantity_requested
+            total_price += subtotal
 
-        variant = ProductVariant.objects.filter(product=product, color_name=color_name).first()
-        img_path = variant.variant_image.url if variant and variant.variant_image else product.main_image.url
-        
-        domain = request.get_host()
-        protocol = 'https' if request.is_secure() else 'http'
-        image_url = f"{protocol}://{domain}{img_path}"
+            variant = ProductVariant.objects.filter(product=product, color_name=color_name).first()
+            img_path = variant.variant_image.url if variant and variant.variant_image else product.main_image.url
+            
+            domain = request.get_host()
+            protocol = 'https' if request.is_secure() else 'http'
+            image_url = f"{protocol}://{domain}{img_path}"
 
-        checkout_items.append({
-            'product': product, 
-            'subtotal': subtotal, 
-            'data': item_data, 
-            'variant_size': variant_size,
-            'unit_price': price,
-            'image_url': image_url
-        })
+            checkout_items.append({
+                'is_collection': False,
+                'product': product, 
+                'subtotal': subtotal, 
+                'data': item_data, 
+                'variant_size': variant_size,
+                'unit_price': price,
+                'image_url': image_url
+            })
 
+    # --- 2. معالجة الطلب (POST) ---
     if request.method == 'POST':
         name = request.POST.get('name')
         email = request.POST.get('email')
@@ -324,52 +461,100 @@ def checkout_view(request):
             order.save()
 
         email_items_html = ""
+        
         for item in checkout_items:
-            product = item['product']
-            variant_size = item['variant_size']
-            qty = item['data']['quantity']
-            color = item['data']['color']
-            size = item['data']['size']
-            price_each = item['unit_price']
-            img = item['image_url']
-            sku = product.sku if hasattr(product, 'sku') and product.sku else "N/A"
+            qty_requested = item['data']['quantity']
 
-            OrderItem.objects.create(
-                order=order, product=product, color=color, size=size,
-                quantity=qty, price_at_purchase=price_each
-            )
+            # تسجيل الباكدج في قاعدة البيانات والإيميل
+            if item.get('is_collection'):
+                collection = item['collection']
+                bundle_original_price = collection.original_total_price
+                
+                email_items_html += f"""
+                    <tr>
+                        <td style="padding: 12px; border-bottom: 1px solid #e2e8f0; vertical-align: middle; text-align:right;" dir="rtl">
+                            <img src="{item['image_url']}" width="60" height="60" style="border-radius:8px; margin-left:12px; vertical-align:middle; border:1px solid #cbd5e1; object-fit: cover;">
+                            <div style="display: inline-block; vertical-align: middle;">
+                                <strong style="font-size: 15px; color: #00e5ff;">باكدج: {collection.name}</strong><br>
+                                <span style="font-size: 12px; color: #64748b;">مجموعة مكونة من {collection.items.count()} أصناف</span>
+                            </div>
+                        </td>
+                        <td style="padding: 12px; border-bottom: 1px solid #e2e8f0; text-align:center; color: #334155;">{qty_requested}</td>
+                        <td style="padding: 12px; border-bottom: 1px solid #e2e8f0; text-align:left; font-weight: bold; color: #0f172a;">{int(item['subtotal'])} ج.م</td>
+                    </tr>
+                """
 
-            email_items_html += f"""
-                <tr>
-                    <td style="padding: 12px; border-bottom: 1px solid #e2e8f0; vertical-align: middle; text-align:right;" dir="rtl">
-                        <img src="{img}" width="60" height="60" style="border-radius:8px; margin-left:12px; vertical-align:middle; border:1px solid #cbd5e1; object-fit: cover;">
-                        <div style="display: inline-block; vertical-align: middle;">
-                            <strong style="font-size: 15px; color: #0f172a;">{product.name}</strong><br>
-                            <span style="font-size: 12px; color: #64748b;">كود: {sku}</span><br>
-                            <span style="font-size: 12px; color: #475569;">اللون: {color} | الموديل/المقاس: {size}</span>
-                        </div>
-                    </td>
-                    <td style="padding: 12px; border-bottom: 1px solid #e2e8f0; text-align:center; color: #334155;">{qty}</td>
-                    <td style="padding: 12px; border-bottom: 1px solid #e2e8f0; text-align:left; font-weight: bold; color: #0f172a;">{int(price_each * qty)} ج.م</td>
-                </tr>
-            """
+                # تسجيل المنتجات اللي جوه الباكدج وخصمها من المخزن
+                for c_item in collection.items.all():
+                    # التوزيع النسبي للسعر عشان الأرباح
+                    item_orig_price = Decimal(str(c_item.product.get_effective_price)) * c_item.quantity
+                    ratio = item_orig_price / bundle_original_price if bundle_original_price > 0 else 0
+                    proportional_unit_price = (collection.offer_price * ratio) / c_item.quantity
 
-            if variant_size:
-                variant_size.stock -= qty
-                variant_size.save()
+                    variant_color = c_item.variant.color_name if c_item.variant else 'Default'
+                    size_name = c_item.product_size.size_name if c_item.product_size else 'N/A'
+                    total_item_qty = c_item.quantity * qty_requested
+
+                    OrderItem.objects.create(
+                        order=order, product=c_item.product, color=variant_color, size=size_name,
+                        quantity=total_item_qty, price_at_purchase=proportional_unit_price
+                    )
+
+                    # الخصم من المخزن
+                    if c_item.product_size:
+                        c_item.product_size.stock -= total_item_qty
+                        c_item.product_size.save()
+                    else:
+                        c_item.product.stock -= total_item_qty
+                        c_item.product.save()
+
+            # تسجيل المنتج العادي في قاعدة البيانات والإيميل
             else:
-                product.stock -= qty
-                product.save()
+                product = item['product']
+                variant_size = item['variant_size']
+                color = item['data']['color']
+                size = item['data']['size']
+                price_each = item['unit_price']
+                sku = product.sku if hasattr(product, 'sku') and product.sku else "N/A"
 
+                OrderItem.objects.create(
+                    order=order, product=product, color=color, size=size,
+                    quantity=qty_requested, price_at_purchase=price_each
+                )
+
+                email_items_html += f"""
+                    <tr>
+                        <td style="padding: 12px; border-bottom: 1px solid #e2e8f0; vertical-align: middle; text-align:right;" dir="rtl">
+                            <img src="{item['image_url']}" width="60" height="60" style="border-radius:8px; margin-left:12px; vertical-align:middle; border:1px solid #cbd5e1; object-fit: cover;">
+                            <div style="display: inline-block; vertical-align: middle;">
+                                <strong style="font-size: 15px; color: #0f172a;">{product.name}</strong><br>
+                                <span style="font-size: 12px; color: #64748b;">كود: {sku}</span><br>
+                                <span style="font-size: 12px; color: #475569;">اللون: {color} | المقاس: {size}</span>
+                            </div>
+                        </td>
+                        <td style="padding: 12px; border-bottom: 1px solid #e2e8f0; text-align:center; color: #334155;">{qty_requested}</td>
+                        <td style="padding: 12px; border-bottom: 1px solid #e2e8f0; text-align:left; font-weight: bold; color: #0f172a;">{int(item['subtotal'])} ج.م</td>
+                    </tr>
+                """
+
+                # الخصم من المخزن
+                if variant_size:
+                    variant_size.stock -= qty_requested
+                    variant_size.save()
+                else:
+                    product.stock -= qty_requested
+                    product.save()
+
+        # إرسال الإيميل
         html_message = f"""
         <div dir="rtl" style="font-family: 'Cairo', Tahoma, Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #00e5ff; border-radius: 12px; overflow: hidden; background-color: #ffffff; text-align: right; box-shadow: 0 4px 20px rgba(0, 229, 255, 0.1);">
             <div style="background-color: #020617; padding: 30px; text-align: center; border-bottom: 3px solid #00e5ff;">
                 <h1 style="margin: 0; font-size: 28px; font-weight: 800; color: #00e5ff;">الباسطى جروب</h1>
-                <p style="margin: 5px 0 0; font-size: 14px; color: #94a3b8;">للأنظمة الأمنية والذكية - تأكيد طلب رقم #{order.id}</p>
+                <p style="margin: 5px 0 0; font-size: 14px; color: #94a3b8;">تأكيد طلب رقم #{order.id}</p>
             </div>
             <div style="padding: 30px;">
                 <h2 style="color: #0f172a; margin-top: 0;">أهلاً {name}،</h2>
-                <p style="color: #475569; line-height: 1.6; font-size: 15px;">شكراً لثقتك في "الباسطى جروب". لقد استلمنا طلبك بنجاح وجاري العمل على تجهيز الأنظمة الخاصة بك لإرسالها في أسرع وقت.</p>
+                <p style="color: #475569; line-height: 1.6; font-size: 15px;">لقد استلمنا طلبك بنجاح وجاري العمل على تجهيزه لإرساله في أسرع وقت.</p>
                 <table style="width: 100%; border-collapse: collapse; margin-top: 25px;">
                     <thead>
                         <tr style="background-color: #0f172a; color: #ffffff;">
@@ -394,8 +579,8 @@ def checkout_view(request):
                 </div>
             </div>
             <div style="background-color: #f1f5f9; padding: 20px; text-align: center; font-size: 12px; color: #64748b; border-top: 1px solid #e2e8f0;">
-                هذه رسالة تلقائية، يرجى عدم الرد عليها مباشرة. للمساعدة تواصل معنا عبر الواتساب.<br><br>
-                © 2026 الباسطى جروب للأنظمة الأمنية والذكية. جميع الحقوق محفوظة.
+                هذه رسالة تلقائية، يرجى عدم الرد عليها مباشرة.<br><br>
+                © 2026 الباسطى جروب. جميع الحقوق محفوظة.
             </div>
         </div>
         """
@@ -413,9 +598,9 @@ def checkout_view(request):
                 fail_silently=True
             )
         except Exception as e:
-            # يمكنك طباعة الخطأ في الكونسول أثناء التطوير
             print(f"Error sending email: {e}")
 
+        # تصفير السلة بعد نجاح الطلب
         request.session[user_cart_key] = {}
         request.session.modified = True
         return render(request, 'order_success.html', {'order': order})
@@ -748,7 +933,7 @@ def about_view(request):
     return render(request, 'about.html')
 
 def offers_view(request):
-    # تحسين الأداء باستخدام prefetch_related لجلب بيانات الألوان والمقاسات مرة واحدة
+    # 1. جلب المنتجات اللي عليها خصم (نفس الكود الأصلي بتاعك مع تحسين الأداء)
     products_list = Product.objects.filter(
         discount_price__gt=0
     ).prefetch_related(
@@ -767,15 +952,23 @@ def offers_view(request):
         )
     ).order_by('is_available_group', '-manual_new_priority', '-created_at')
 
-    # --- إعداد نظام التقسيم ---
-    # عرض 20 منتج فقط في كل صفحة لتقليل وقت التحميل
+    # 💡 2. الإضافة الجديدة: جلب الباكدجات (Collections) المفعلة
+    # بنستخدم prefetch_related عشان نجلب المنتجات اللي جوه الباكدج بطلبة واحدة لقاعدة البيانات
+    collections = ProductCollection.objects.filter(is_active=True).prefetch_related(
+        'items__product', 
+        'items__variant',
+        'items__product_size'
+    )
+
+    # --- إعداد نظام التقسيم للمنتجات ---
     paginator = Paginator(products_list, 20) 
     page_number = request.GET.get('page')
     products = paginator.get_page(page_number)
 
     context = {
         'products': products, 
-        'title': 'Exclusive Offers'
+        'collections': collections, # <-- ضفنا الباكدجات هنا عشان تظهر في الـ Template
+        'title': 'Exclusive Offers & Packages'
     }
     return render(request, 'offers.html', context)
 
@@ -1659,3 +1852,12 @@ def get_product_variants(request, product_id):
         data.append({'id': v.pk, 'color': v.color_name, 'sizes': sizes})
     from django.http import JsonResponse
     return JsonResponse({'variants': data})
+
+    
+def collection_detail(request, id):
+    collection = get_object_or_404(
+        ProductCollection.objects.prefetch_related('items__product', 'items__variant', 'items__product_size'), 
+        id=id, 
+        is_active=True
+    )
+    return render(request, 'collection_detail.html', {'collection': collection})

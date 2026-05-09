@@ -137,6 +137,7 @@
 
     .item-name { font-size: 1.2rem; font-weight: 700; color: var(--text-main); margin-bottom: 8px; display: block; }
     .item-meta-tag { font-size: 12px; color: var(--text-sec); font-weight: 600; }
+    .package-tag { color: var(--cyber-neon); border: 1px solid var(--cyber-neon); padding: 2px 8px; border-radius: 4px; font-size: 10px; margin-right: 5px;}
 
     .qty-controls {
         display: flex;
@@ -290,10 +291,20 @@
                     <tr class="cart-item">
                         <td>
                             <div class="item-detail">
-                                <img src="{{ item.display_image }}" class="item-img" alt="{{ item.product.name }}">
+                                {% if item.display_image %}
+                                    <img src="{{ item.display_image }}" class="item-img" alt="Product Image">
+                                {% else %}
+                                    <div class="item-img" style="display:flex; align-items:center; justify-content:center; color:#555; font-size:24px;"><i class="fa-solid fa-box"></i></div>
+                                {% endif %}
+                                
                                 <div class="item-info">
-                                    <span class="item-name">{{ item.product.name }}</span>
-                                    <span class="item-meta-tag">{{ item.color }} / {{ item.size }}</span>
+                                    {% if item.is_collection %}
+                                        <span class="item-name">{{ item.collection.name }}</span>
+                                        <span class="item-meta-tag"><span class="package-tag translatable" data-en="Package" data-ar="باكدج">باكدج</span> <span class="translatable" data-en="Complete Security Package" data-ar="باقة أنظمة متكاملة">باقة أنظمة متكاملة</span></span>
+                                    {% else %}
+                                        <span class="item-name">{{ item.product.name }}</span>
+                                        <span class="item-meta-tag">{{ item.color }} / {{ item.size }}</span>
+                                    {% endif %}
                                 </div>
                             </div>
                         </td>
@@ -374,8 +385,13 @@
             items: [
                 {% for item in cart_items %}
                 {
-                    item_id: '{{ item.product.id }}',
-                    item_name: '{{ item.product.name }}',
+                    {% if item.is_collection %}
+                    item_id: 'col_{{ item.collection.id }}',
+                    item_name: '{{ item.collection.name|escapejs }}',
+                    {% else %}
+                    item_id: 'prod_{{ item.product.id }}',
+                    item_name: '{{ item.product.name|escapejs }}',
+                    {% endif %}
                     price: {{ item.actual_price }},
                     quantity: {{ item.quantity }}
                 }{% if not forloop.last %},{% endif %}

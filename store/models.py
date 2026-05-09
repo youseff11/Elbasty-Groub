@@ -633,3 +633,56 @@ class PaymentSchedule(models.Model):
             PaymentSchedule.objects.filter(pk=self.pk).update(reminder_sent=True)
         except Exception as e:
             print(f"Email error: {e}")
+
+# ============================================================
+# Product Collections (Bundles / Packages)
+# ============================================================
+
+class ProductCollection(models.Model):
+    name = models.CharField(max_length=200, verbose_name="اسم الباكدج / الكوليكشن")
+    description = models.TextField(blank=True, null=True, verbose_name="وصف الباكدج")
+    main_image = ResizedImageField(
+        size=[800, 1000], quality=75, upload_to='collections/', 
+        force_format='WEBP', blank=True, null=True, verbose_name="صورة الباكدج"
+    )
+    
+    # --- التسعير والأرباح ---
+    offer_price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="سعر البيع للباكدج (في العرض)")
+    cost_price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="التكلفة الفعلية للباكدج (لحساب صافي الربح)")
+    
+    is_active = models.BooleanField(default=True, verbose_name="متاح للبيع؟")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "باكدج / كوليكشن"
+        verbose_name_plural = "الباكدجات والكوليكشنز"
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return self.name
+
+    @property
+    def original_total_price(self):
+        """دالة بتحسب السعر الطبيعي للمنتجات الفردية المضافة داخل الباكدج تلقائياً"""
+        total = Decimal('0.00')
+        for item in self.items.all():
+            if item.product:
+                # بنستخدم get_effective_price عشان لو المنتج نفسه عليه خصم يحسبه صح
+                price = item.product.get_effective_price 
+                total += Decimal(str(price)) * item.quantity
+        return total
+
+
+class CollectionItem(models.Model):
+    collection = models.ForeignKey(ProductCollection, on_delete=models.CASCADE, related_name='items')
+    product = models.ForeignKey('Product', on_delete=models.CASCADE, verbose_name="المنتج")
+    variant = models.ForeignKey('ProductVariant', on_delete=models.SET_NULL, null=True, blank=True, verbose_name="اللون")
+    product_size = models.ForeignKey('ProductSize', on_delete=models.SET_NULL, null=True, blank=True, verbose_name="المقاس")
+    quantity = models.PositiveIntegerField(default=1, verbose_name="الكمية")
+
+    class Meta:
+        verbose_name = "منتج داخل الباكدج"
+        verbose_name_plural = "المنتجات داخل الباكدج"
+
+    def __str__(self):
+        return f"{self.quantity}x {self.product.name}"

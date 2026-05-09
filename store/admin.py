@@ -3,7 +3,7 @@ from django.utils.html import format_html
 from django.db import models # تم إضافة الاستيراد هنا للتحكم في شكل الحقول
 import nested_admin
 from .models import Product, Category, ContactMessage, ProductVariant, ProductSize, Order, OrderItem, ProductImage, ProductSpecification
-
+from .models import ProductCollection, CollectionItem
 # --- 1. ProductSpecificationInline ---
 class ProductSpecificationInline(nested_admin.NestedTabularInline):
     model = ProductSpecification
@@ -315,3 +315,45 @@ class PayableAdmin(admin.ModelAdmin):
         if not obj.pk:
             obj.created_by = request.user
         super().save_model(request, obj, form, change)
+
+# ********************************************************************
+# --- CollectionItem Inline ---
+class CollectionItemInline(admin.TabularInline):
+    model = CollectionItem
+    extra = 1
+    fields = ['product', 'variant', 'product_size', 'quantity']
+
+
+# --- ProductCollection Admin ---
+@admin.register(ProductCollection)
+class ProductCollectionAdmin(admin.ModelAdmin):
+    list_display = ['name', 'offer_price', 'cost_price', 'display_original_price', 'is_active', 'created_at']
+    list_editable = ['is_active']
+    list_filter = ['is_active', 'created_at']
+    search_fields = ['name']
+    inlines = [CollectionItemInline]
+    readonly_fields = ['display_original_price']
+    
+    fieldsets = (
+        ('المعلومات الأساسية', {
+            'fields': ('name', 'description', 'main_image', 'is_active')
+        }),
+        ('التسعير والأرباح (Dashboard Info)', {
+            'fields': ('display_original_price', 'offer_price', 'cost_price'),
+            'description': 'قم بإضافة المنتجات بالأسفل وحفظ الباكدج، وسيتم حساب "السعر الطبيعي" تلقائياً هنا لتتمكن من تحديد سعر العرض المناسب.'
+        }),
+    )
+
+    # 💡 الإضافة الجديدة لربط الجافاسكريبت
+    class Media:
+        js = ('js/admin_collection_filter.js',)
+
+    def display_original_price(self, obj):
+        if obj.pk:
+            return format_html(
+                '<b style="color: #e91e63; font-size: 16px;">{} ج.م</b>', 
+                obj.original_total_price
+            )
+        return format_html('<span style="color:#777;">يتم الحساب تلقائياً بعد إضافة المنتجات والحفظ</span>')
+    
+    display_original_price.short_description = "السعر الطبيعي (قبل العرض)"

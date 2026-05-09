@@ -30,10 +30,14 @@ urlpatterns = [
     # --- عربة التسوق (Cart) ---
     path('cart/', views.cart_view, name='cart_view'),
     
-    # إضافة للمنتج
+    # إضافة للمنتج العادي
     path('add-to-cart/<int:product_id>/', views.add_to_cart, name='add_to_cart'),
     
-    # التعامل مع مفاتيح السلة النصية (مثل 1_Black)
+    # 💡 الإضافة الجديدة: إضافة باكدج (Collection) للسلة
+    path('add-collection-to-cart/<int:collection_id>/', views.add_collection_to_cart, name='add_collection_to_cart'),
+    path('collection/<int:id>/', views.collection_detail, name='collection_detail'),
+    
+    # التعامل مع مفاتيح السلة النصية (مثل 1_Black أو col_1)
     path('remove-from-cart/<str:item_key>/', views.remove_from_cart, name='remove_from_cart'), 
     path('cart/update/<str:item_key>/<str:action>/', views.update_cart, name='update_cart'),
 
