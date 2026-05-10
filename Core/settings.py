@@ -10,7 +10,13 @@ SECRET_KEY = '^95=&e#^w8h@__x(tz*az-dqk*jx2v@!jgw&)y4b2-_&trs)(q'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = [
+    'www.elbasty-groub.com', 
+    'elbasty-groub.com', 
+    'Elbasty.pythonanywhere.com', 
+    '127.0.0.1', 
+    'localhost'
+]
 
 # Application definition
 
