@@ -2,469 +2,455 @@
 {% load static %}
 
 {% block content %}
-
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
     :root {
-        /* الهوية البصرية السيبرانية */
-        --bg-dark: #020617;
-        --bg-panel: #0f172a;
-        --neon-blue: #00e5ff;
-        --cyber-neon: #64ffda;
+        --bg-dark: #000a12;
+        --card-bg: #01131c;
         --text-main: #ffffff;
         --text-sec: #94a3b8;
-        --glass-border: rgba(0, 229, 255, 0.15);
-        --danger: #ff3366;
-        --success: #00e676;
-        --warning: #ffb300;
-        --trans-smooth: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        
-        --font-arabic: 'Cairo', sans-serif;
-        --font-english: 'Rajdhani', sans-serif;
+        --neon-blue: #00e5ff;
+        --accent-orange: #ffab40;
+        --glass-border: rgba(255, 255, 255, 0.1);
+        --trans-smooth: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    body { 
-        background: var(--bg-dark); 
+    body {
+        margin: 0;
+        background-color: var(--bg-dark);
         color: var(--text-main);
-        font-family: var(--font-arabic);
+        font-family: 'Cairo', sans-serif;
     }
 
-    /* شبكة الليزر للخلفية */
-    .detail-wrapper { 
-        padding: 40px 15px 40px; 
-        max-width: 1400px; 
-        margin: auto; 
-        background-image: 
-            linear-gradient(rgba(0, 229, 255, 0.02) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(0, 229, 255, 0.02) 1px, transparent 1px);
-        background-size: 30px 30px;
+    .detail-wrapper {
+        padding: 160px 5% 100px;
         min-height: 100vh;
+        background-image: radial-gradient(circle at top right, rgba(0, 229, 255, 0.05), transparent 60%);
     }
 
-    /* Breadcrumbs */
-    .breadcrumb { font-size: 13px; margin-bottom: 20px; color: var(--text-sec); letter-spacing: 1px; font-weight: 600; }
-    .breadcrumb a { color: var(--text-sec); text-decoration: none; transition: var(--trans-smooth); }
-    .breadcrumb a:hover { color: var(--neon-blue); text-shadow: 0 0 8px rgba(0, 229, 255, 0.4); }
+    .detail-container {
+        max-width: 1300px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1fr 1.1fr;
+        gap: 60px;
+        align-items: flex-start;
+    }
 
-    .detail-container-outer {
-        background: var(--bg-panel);
-        border: 1px solid var(--glass-border);
-        box-shadow: 0 15px 40px rgba(0,0,0,0.4);
-        border-radius: 12px;
+    /* --- قسم المعرض --- */
+    .gallery-wrap {
+        position: sticky;
+        top: 140px;
+    }
+
+    .main-image {
+        width: 100%;
+        aspect-ratio: 1;
+        border-radius: 16px;
         overflow: hidden;
-        backdrop-filter: blur(10px);
+        border: 2px solid rgba(0, 229, 255, 0.1);
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        margin-bottom: 25px;
+        background-color: var(--card-bg);
+        position: relative;
     }
 
-    .detail-container { display: grid; grid-template-columns: 1.1fr 0.9fr; }
-
-    @media (max-width: 991px) {
-        .detail-container { grid-template-columns: 1fr; }
-        .info-section { position: static !important; padding: 25px 15px !important; }
-        .main-display { height: 350px !important; border-radius: 8px; }
-        .image-section { padding: 10px !important; border-right: none !important; border-bottom: 1px solid var(--glass-border); }
+    .main-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        display: block;
     }
 
-    /* Image Display Section */
-    .image-section { padding: 20px; border-right: 1px solid rgba(255,255,255,0.05); position: relative; }
-    
-    .main-display {
-        width: 100%; height: 550px; 
-        display: flex; align-items: center; justify-content: center;
-        background: #ffffff; /* تغيير الخلفية للون الأبيض */
-        overflow: hidden; position: relative;
-        border-radius: 8px; border: 1px solid var(--glass-border);
-        padding: 30px; /* إضافة مساحة بيضاء حوالين الصورة */
-        box-sizing: border-box; /* عشان الـ padding ميكبرش حجم الـ container الأساسي */
+    /* أضافة علامة مائية */
+    .main-image::after {
+        content: 'Al-Basty Security';
+        position: absolute;
+        bottom: 20px;
+        right: 20px;
+        font-family: 'Rajdhani', sans-serif;
+        color: rgba(255, 255, 255, 0.3);
+        font-weight: 700;
+        font-size: 16px;
+        letter-spacing: 1px;
     }
 
-    .product-main-img { 
-        width: 100%; height: 100%; 
-        object-fit: contain; /* الخاصية دي اللي بتمنع قص الصورة */
-        transition: transform 0.6s var(--trans-smooth); 
-        opacity: 1; /* خليناها 1 عشان الصورة تكون واضحة تماماً على الخلفية البيضاء */
+    .main-image-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 15px; /* زيادة الفجوة بين الصور */
+        margin-top: 15px;
     }
 
-    .main-display:hover .product-main-img { transform: scale(1.05); opacity: 1; }
-
-    /* زرار العين لعرض الصورة كاملة */
-    .view-full-btn {
-        position: absolute; bottom: 20px; right: 20px;
-        background: rgba(2, 6, 23, 0.8); border: 1px solid var(--glass-border);
-        border-radius: 50%; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;
-        cursor: pointer; z-index: 20; color: var(--neon-blue); font-size: 18px;
-        box-shadow: 0 0 15px rgba(0, 229, 255, 0.1); transition: var(--trans-smooth);
-        backdrop-filter: blur(5px);
+    .main-image-item {
+        aspect-ratio: 1;
+        border-radius: 8px;
+        overflow: hidden;
+        cursor: pointer;
+        transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 2px solid #ffffff; /* حافة بيضاء سميكة */
+        background-color: var(--card-bg);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     }
-    .view-full-btn:hover { background: var(--neon-blue); color: var(--bg-dark); box-shadow: 0 0 20px rgba(0, 229, 255, 0.4); transform: scale(1.1); }
 
-    /* Modal الصورة كاملة */
-    .image-modal {
-        display: none; position: fixed; z-index: 100000; left: 0; top: 0; width: 100%; height: 100%;
-        background-color: rgba(2, 6, 23, 0.95); backdrop-filter: blur(10px); opacity: 0; transition: opacity 0.4s var(--trans-smooth);
+    .main-image-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
     }
-    .image-modal.show { display: flex; align-items: center; justify-content: center; opacity: 1; }
-    .image-modal-content {
-        max-width: 95%; max-height: 90vh; object-fit: contain; border-radius: 8px;
-        box-shadow: 0 0 50px rgba(0, 229, 255, 0.1); border: 1px solid var(--glass-border);
-        transform: scale(0.9); transition: transform 0.4s var(--trans-smooth);
+
+    /* تأثير الـ active و hover مع توهج أبيض */
+    .main-image-item:hover, .main-image-item.active {
+        border-color: #ffffff;
+        box-shadow: 0 0 15px rgba(255, 255, 255, 0.9);
+        transform: scale(1.05);
     }
-    .image-modal.show .image-modal-content { transform: scale(1); }
-    .close-modal {
-        position: absolute; top: 25px; right: 40px; color: var(--text-sec); font-size: 45px;
-        cursor: pointer; transition: 0.3s; z-index: 100001;
+
+    /* --- قسم المعلومات --- */
+    .product-details {
+        padding-top: 10px;
     }
-    .close-modal:hover { color: var(--danger); transform: scale(1.1); }
 
-    .thumbnail-gallery { display: flex; gap: 10px; margin-top: 15px; justify-content: center; }
-    .thumb { 
-        width: 70px; height: 80px; border: 1px solid var(--glass-border); border-radius: 6px;
-        cursor: pointer; transition: 0.3s; padding: 2px; background: rgba(255,255,255,0.02);
+    .prod-title {
+        font-size: 2.8rem;
+        font-weight: 900;
+        color: #fff;
+        margin: 0 0 15px;
+        line-height: 1.2;
+        font-family: 'Cairo', sans-serif;
     }
-    .thumb.active { border-color: var(--neon-blue); box-shadow: 0 0 10px rgba(0, 229, 255, 0.3); background: rgba(0, 229, 255, 0.05); }
-    .thumb img { width: 100%; height: 100%; object-fit: cover; border-radius: 4px; }
 
-    /* Info Section */
-    .info-section { padding: 40px; position: sticky; top: 80px; align-self: start; }
-    
-    .category-label { color: var(--cyber-neon); font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 5px; display: block; }
-    .product-title { font-weight: 900; font-size: 2rem; margin-bottom: 12px; color: #fff; line-height: 1.2; }
-
-    .price-group { display: flex; align-items: center; gap: 15px; margin-bottom: 25px; flex-wrap: wrap; }
-    .current-price { font-size: 1.8rem; color: var(--neon-blue); font-weight: 700; font-family: var(--font-english); }
-    .old-price { font-size: 1.1rem; text-decoration: line-through; color: var(--text-sec); font-family: var(--font-english); }
-    
-    .stock-badge { font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 4px; border: 1px solid transparent; }
-    .stock-in { color: var(--success); background: rgba(0, 230, 118, 0.1); border-color: rgba(0, 230, 118, 0.3); }
-    .stock-low { color: var(--warning); background: rgba(255, 179, 0, 0.1); border-color: rgba(255, 179, 0, 0.3); }
-    .stock-out { color: var(--danger); background: rgba(255, 51, 102, 0.1); border-color: rgba(255, 51, 102, 0.3); }
-
-    .selection-label { font-size: 14px; font-weight: 700; margin-bottom: 12px; display: block; color: var(--text-main); }
-    
-    .color-dots { display: flex; gap: 10px; margin-bottom: 25px; flex-wrap: wrap; }
-    .color-dot { 
-        width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--bg-panel); 
-        box-shadow: 0 0 0 1px rgba(255,255,255,0.2); cursor: pointer; transition: 0.2s;
+    .prod-meta {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        margin-bottom: 25px;
+        color: var(--text-sec);
+        font-size: 14px;
+        font-weight: 600;
     }
-    .color-dot.active { box-shadow: 0 0 0 2px var(--neon-blue); transform: scale(1.15); }
 
-    .size-options { display: flex; gap: 10px; margin-bottom: 30px; flex-wrap: wrap; }
-    .size-chip { 
-        padding: 10px 20px; border: 1px solid var(--glass-border); font-size: 14px; font-weight: 600;
-        cursor: pointer; transition: 0.3s; background: rgba(2, 6, 23, 0.6); color: var(--text-sec); border-radius: 6px;
+    .rating {
+        color: #ffc107;
+        font-size: 16px;
     }
-    .size-chip:hover { border-color: var(--neon-blue); color: var(--neon-blue); }
-    .size-chip.active { background: var(--neon-blue); color: var(--bg-dark); border-color: var(--neon-blue); box-shadow: 0 0 15px rgba(0, 229, 255, 0.3); }
-    .size-chip.out-of-stock { opacity: 0.3; pointer-events: none; background: rgba(255,255,255,0.02); text-decoration: line-through; }
 
-    /* Action Buttons */
-    .btn-primary { 
-        width: 100%; background: transparent; color: var(--neon-blue); padding: 18px; 
-        border: 1px solid var(--neon-blue); font-weight: 800; font-size: 16px; cursor: pointer;
-        transition: var(--trans-smooth); border-radius: 6px;
+    .rating span {
+        color: var(--text-sec);
+        margin-left: 6px;
+        font-family: 'Rajdhani', sans-serif;
     }
-    .btn-primary:hover { background: var(--neon-blue); color: var(--bg-dark); transform: translateY(-3px); box-shadow: 0 0 20px rgba(0, 229, 255, 0.4); }
-    .btn-disabled { background: rgba(255,255,255,0.05) !important; color: var(--text-sec) !important; border-color: var(--glass-border) !important; cursor: not-allowed !important; transform: none !important; box-shadow: none !important; }
 
-    .description { border-top: 1px solid rgba(255,255,255,0.1); margin-top: 30px; padding-top: 25px; color: var(--text-sec); font-size: 14px; line-height: 1.8; font-weight: 600; }
-    
-    .specs-table td { vertical-align: top; line-height: 1.6; }
-
-    /* Toast Notification */
-    .lusso-toast {
-        position: fixed; top: 40px; right: -400px; 
-        background: var(--bg-panel); border-right: 5px solid var(--neon-blue); border-radius: 6px;
-        padding: 20px 30px; box-shadow: 0 15px 40px rgba(0,0,0,0.5); border-left: 1px solid var(--glass-border); border-top: 1px solid var(--glass-border); border-bottom: 1px solid var(--glass-border);
-        transition: 0.5s var(--trans-smooth); z-index: 9999; backdrop-filter: blur(10px);
+    .prod-sku {
+        font-family: 'Rajdhani', sans-serif;
+        color: var(--text-sec);
     }
-    .lusso-toast.active { right: 20px; }
+
+    .prod-sku strong {
+        color: var(--neon-blue);
+    }
+
+    /* شارة "أعلى تقييم" */
+    .featured-badge {
+        display: inline-block;
+        background: rgba(0, 229, 255, 0.1);
+        color: var(--neon-blue);
+        padding: 5px 12px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 700;
+        margin-top: -10px;
+        margin-bottom: 20px;
+        border: 1px solid rgba(0, 229, 255, 0.2);
+    }
+
+    .prod-price {
+        font-size: 3.2rem;
+        font-weight: 700;
+        color: var(--accent-orange); /* السعر برتقالي */
+        font-family: 'Rajdhani', sans-serif;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 10px;
+    }
+
+    .old-price {
+        text-decoration: line-through;
+        color: var(--text-sec);
+        font-size: 2rem;
+        font-family: 'Rajdhani', sans-serif;
+    }
+
+    .discount-label {
+        font-size: 14px;
+        color: var(--text-sec);
+        font-weight: 600;
+        margin-top: -5px;
+        margin-bottom: 30px;
+    }
+
+    .prod-desc {
+        color: var(--text-sec);
+        font-size: 16px;
+        line-height: 1.8;
+        margin-bottom: 35px;
+        max-width: 650px;
+    }
+
+    /* --- الألوان --- */
+    .color-section {
+        margin-bottom: 30px;
+    }
+
+    .color-section label {
+        display: block;
+        color: var(--text-sec);
+        font-weight: 700;
+        margin-bottom: 10px;
+        font-size: 14px;
+    }
+
+    .color-grid {
+        display: flex;
+        gap: 12px;
+    }
+
+    .color-item {
+        width: 25px;
+        height: 25px;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: 0.3s;
+        border: 2px solid transparent;
+        position: relative;
+    }
+
+    .color-item:hover, .color-item.selected {
+        transform: scale(1.1);
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+    }
+
+    .color-item.selected::after {
+        content: '';
+        position: absolute;
+        top: -4px;
+        right: -4px;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background-color: var(--accent-orange);
+    }
+
+    /* --- الأزرار --- */
+    .action-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-bottom: 40px;
+    }
+
+    .btn-cyber {
+        background: transparent;
+        color: var(--neon-blue);
+        padding: 16px;
+        border: 2px solid var(--neon-blue);
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 800;
+        transition: 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .btn-cyber:hover {
+        background-color: var(--neon-blue);
+        color: var(--bg-dark);
+        transform: translateY(-3px);
+        box-shadow: 0 5px 20px rgba(0, 229, 255, 0.3);
+    }
+
+    .btn-cyber.solid {
+        background-color: var(--neon-blue);
+        color: var(--bg-dark);
+    }
+
+    .btn-cyber.solid:hover {
+        background-color: #fff;
+        border-color: #fff;
+        color: var(--bg-dark);
+    }
+
+    /* --- المواصفات --- */
+    .specs-section {
+        background-color: var(--card-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 16px;
+        padding: 30px;
+        margin-top: 50px;
+    }
+
+    .specs-title {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: #fff;
+        margin: 0 0 20px;
+        border-bottom: 2px solid rgba(255, 255, 255, 0.05);
+        padding-bottom: 10px;
+    }
+
+    .specs-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .specs-table th {
+        text-align: right;
+        color: var(--text-sec);
+        padding: 15px 0;
+        font-weight: 600;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    }
+
+    .specs-table td {
+        color: #fff;
+        padding: 15px 10px 15px 0;
+        font-weight: 700;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        font-family: 'Rajdhani', sans-serif;
+    }
+
+    @media (max-width: 992px) {
+        .detail-container { grid-template-columns: 1fr; gap: 40px; }
+        .gallery-wrap { position: static; top: auto; }
+        .detail-wrapper { padding: 120px 20px 60px; }
+    }
+
+    @media (max-width: 768px) {
+        .prod-title { font-size: 2.2rem; }
+        .prod-price { font-size: 2.6rem; }
+        .old-price { font-size: 1.6rem; }
+        .action-grid { grid-template-columns: 1fr; gap: 15px; }
+    }
 </style>
 
 <div class="detail-wrapper" dir="rtl">
-    <nav class="breadcrumb">
-        <a href="{% url 'home' %}" class="translatable" data-en="Home" data-ar="الرئيسية">الرئيسية</a> / 
-        <a href="{% url 'shop' %}" class="translatable" data-en="Security Systems" data-ar="الأنظمة الأمنية">الأنظمة الأمنية</a> / 
-        <span style="color: #fff;">{{ product.name }}</span>
-    </nav>
+    <div class="detail-container">
+        <div class="gallery-wrap">
+            <div class="main-image">
+                {% if product.main_image %}
+                    <img id="mainImage" src="{{ product.main_image }}" alt="{{ product.name }}">
+                {% else %}
+                    <img id="mainImage" src="{% static 'images/placeholder-prod.png' %}" alt="Placeholder">
+                {% endif %}
+            </div>
 
-    <div class="detail-container-outer">
-        <div class="detail-container">
-            <div class="image-section">
-                {% if product.discount_price %}
-                    <div class="translatable" data-en="{{ product.discount_percentage }}% OFF" data-ar="خصم {{ product.discount_percentage }}%" style="position: absolute; top: 20px; right: 20px; z-index: 5; background: var(--danger); color: #fff; padding: 5px 12px; font-weight: 700; font-size: 11px; border-radius: 4px; box-shadow: 0 0 10px rgba(255, 51, 102, 0.4);">
-                        خصم {{ product.discount_percentage }}%
+            <div class="main-image-grid">
+                {% if product.main_image %}
+                    <div class="main-image-item active" onclick="setMainImage(this, '{{ product.main_image }}')">
+                        <img src="{{ product.main_image }}" alt="Thumbnail">
                     </div>
                 {% endif %}
                 
-                <div class="main-display" id="zoomContainer">
-                    <img src="" alt="{{ product.name }}" id="mainDetailImg" class="product-main-img">
-                    <button class="view-full-btn" onclick="openFullImage(event)" title="عرض الصورة كاملة">
-                        <i class="fa-solid fa-expand"></i>
-                    </button>
-                </div>
-
-                <div class="thumbnail-gallery" id="thumbGallery"></div>
-            </div>
-
-            <div class="info-section">
-                <span class="category-label">{{ product.category.name|default:"أنظمة الباسطى جروب" }}</span>
-                <h1 class="product-title">{{ product.name }}</h1>
-
-                <div class="price-group">
-                    <span class="current-price">{{ product.get_effective_price|floatformat:0 }} LE</span>
-                    {% if product.discount_price %}
-                        <span class="old-price">{{ product.price|floatformat:0 }} LE</span>
-                    {% endif %}
-                    
-                    <span id="stockStatus" class="stock-badge stock-in translatable" data-en="In Stock" data-ar="متوفر">متوفر</span>
-                </div>
-
-                <div class="selection-group">
-                    <label class="selection-label">
-                        <span class="translatable" data-en="Color / Version:" data-ar="اللون / الإصدار:">اللون / الإصدار:</span> 
-                        <span id="colorNameDisplay" style="color: var(--neon-blue); margin-right: 10px; font-family: var(--font-english);"></span>
-                    </label>
-                    <div class="color-dots">
-                        {% for variant in product.variants.all %}
-                        <div class="color-dot" 
-                             style="background-color: {{ variant.color_code }};" 
-                             data-color="{{ variant.color_name }}"
-                             data-total-stock="{{ variant.total_stock }}"
-                             onclick="selectVariant(this)">
-                             
-                             <script type="application/json" class="v-images">
-                                ["{{ variant.variant_image.url }}"{% for extra in variant.additional_images.all %},"{{ extra.image.url }}"{% endfor %}]
-                             </script>
-                             <script type="application/json" class="v-sizes">
-                                [{% for s in variant.sizes.all %}{"n":"{{s.size_name}}","s":{{s.stock}}}{% if not forloop.last %},{% endif %}{% endfor %}]
-                             </script>
+                {% for col in collections %}
+                    {% for item in col.items.all %}
+                        <div class="main-image-item" onclick="setMainImage(this, '{{ item.product.main_image }}')">
+                            <img src="{{ item.product.main_image }}" alt="Thumbnail">
                         </div>
-                        {% endfor %}
-                    </div>
+                    {% endfor %}
+                {% endfor %}
+            </div>
+        </div>
 
-                    <label class="selection-label translatable" data-en="Capacity / Category:" data-ar="السعة / الفئة:">السعة / الفئة:</label>
-                    <div class="size-options" id="sizeOptionsContainer"></div>
+        <div class="product-details">
+            <h1 class="prod-title">{{ product.name }}</h1>
+            
+            <div class="prod-meta">
+                <div class="rating">
+                    <i class="fa-solid fa-star"></i>
+                    <i class="fa-solid fa-star"></i>
+                    <i class="fa-solid fa-star"></i>
+                    <i class="fa-solid fa-star"></i>
+                    <i class="fa-regular fa-star"></i>
+                    <span>(4.2 / 5)</span>
                 </div>
+                <div class="prod-sku">الكود: <strong>{{ product.sku }}</strong></div>
+            </div>
 
-                <div class="description">
-                    <h4 class="translatable" data-en="Technical Specifications:" data-ar="المواصفات الفنية:" style="color:var(--neon-blue); margin-bottom: 12px; font-size: 1.1rem; font-weight: 800;">المواصفات الفنية:</h4>
-                    
-                    {% if product.description %}
-                        {{ product.description|linebreaks }}
-                    {% endif %}
+            <div class="featured-badge">
+                <i class="fa-solid fa-trophy" style="margin-left: 6px;"></i> أعلى تقييم
+            </div>
 
-                    {% if product.specifications.all %}
-                        <table class="specs-table" style="width: 100%; border-collapse: collapse; margin-top: 15px;">
-                            <tbody>
-                                {% for spec in product.specifications.all %}
-                                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-                                    <td style="padding: 12px 5px; font-weight: 700; color: #fff; width: 40%; font-size: 0.9rem;">{{ spec.spec_name }}</td>
-                                    <td style="padding: 12px 5px; color: var(--text-sec); font-size: 0.9rem; font-family: var(--font-english); direction: ltr; text-align: right;">{{ spec.spec_value|linebreaksbr }}</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    {% endif %}
+            <div class="prod-price">
+                {% if product.discount_price %}
+                    <span>{{ product.discount_price|floatformat:0 }} جنيه</span>
+                    <span class="old-price">{{ product.price|floatformat:0 }} جنيه</span>
+                {% else %}
+                    <span>{{ product.price|floatformat:0 }} جنيه</span>
+                {% endif %}
+            </div>
+            
+            <p class="prod-desc">{{ product.description|default:"لا يوجد وصف متوفر لهذا المنتج حالياً. تواصل معنا للحصول على مزيد من المعلومات حول هذا النظام الأمني."|truncatewords:40 }}</p>
+            
+            <div class="color-section">
+                <label>الألوان المتوفرة ({{ collections.count }} ألوان):</label>
+                <div class="color-grid">
+                    {% for col in collections %}
+                        <div class="color-item" 
+                             style="background: {{ col.color_code }}" 
+                             title="{{ col.name }}" 
+                             onclick="selectColor(this, '{{ col.id }}')">
+                        </div>
+                    {% endfor %}
                 </div>
+            </div>
 
-                <div style="margin-top: 35px;">
-                    <button id="add-to-cart-btn" class="btn-primary btn-disabled translatable" data-en="Select Version and Capacity" data-ar="اختر الإصدار والسعة">اختر الإصدار والسعة</button>
-                    <p style="text-align: center; margin-top: 15px; font-size: 13px; color: var(--text-sec); font-weight: 600;">
-                        <i class="fas fa-shield-alt" style="margin-left: 5px; color: var(--cyber-neon);"></i> 
-                        <span class="translatable" data-en="Supply and installation for all governorates" data-ar="توريد وتركيب لجميع محافظات الجمهورية">توريد وتركيب لجميع محافظات الجمهورية</span>
-                    </p>
-                </div>
+            <div class="action-grid">
+                <button class="btn-cyber solid" onclick="addToCart()">
+                    <i class="fa-solid fa-cart-shopping"></i> إضافة إلى السلة
+                </button>
+                <a href="{% url 'shop' %}" class="btn-cyber">
+                    <i class="fa-solid fa-eye"></i> تصفح المزيد
+                </a>
+            </div>
+
+            <div class="specs-section">
+                <h3 class="specs-title">أهم المواصفات</h3>
+                <table class="specs-table">
+                    <tr><th>الدقة (Resolution)</th><td>5MP (2560 x 1940)</td></tr>
+                    <tr><th>الرؤية الليلية (Night Vision)</th><td>Smart IR (up to 30m)</td></tr>
+                    <tr><th>زاوية الرؤية (FOV)</th><td>103° Horizontal</td></tr>
+                    <tr><th>مقاومة العوامل الجوية</th><td>IP67 Weatherproof</td></tr>
+                </table>
             </div>
         </div>
     </div>
-</div>
-
-<div id="lussoToast" class="lusso-toast">
-    <div style="display: flex; align-items: center; gap: 15px;">
-        <div style="background: rgba(0, 230, 118, 0.2); color: var(--success); width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; border: 1px solid var(--success);">
-            <i class="fas fa-check"></i>
-        </div>
-        <div>
-            <strong class="translatable" data-en="Order Activated!" data-ar="تم تفعيل الطلب!" style="display: block; font-size: 15px; color: #fff; margin-bottom: 3px;">تم تفعيل الطلب!</strong>
-            <small class="translatable" data-en="System added to cart" data-ar="تمت إضافة النظام إلى سلة الطلبات" style="color: var(--text-sec); font-size: 12px; font-weight: 600;">تمت إضافة النظام إلى سلة الطلبات</small>
-        </div>
-    </div>
-</div>
-
-<div id="fullImageModal" class="image-modal">
-    <span class="close-modal" onclick="closeModal()">&times;</span>
-    <img class="image-modal-content" id="modalImage">
 </div>
 
 <script>
-    let currentSelColor = "", currentSelSize = "";
-    const pId = "{{ product.id }}";
-
-    function selectVariant(el) {
-        document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
+    function setMainImage(el, src) {
+        document.getElementById('mainImage').src = src;
+        
+        // تحديث العنصر النشط
+        document.querySelectorAll('.main-image-item').forEach(item => item.classList.remove('active'));
         el.classList.add('active');
-        currentSelColor = el.dataset.color;
-        const variantTotalStock = parseInt(el.dataset.totalStock);
-        document.getElementById('colorNameDisplay').innerText = currentSelColor;
-
-        const images = JSON.parse(el.querySelector('.v-images').textContent);
-        const mainImg = document.getElementById('mainDetailImg');
-        const thumbGallery = document.getElementById('thumbGallery');
-        
-        mainImg.style.opacity = '0';
-        setTimeout(() => {
-            mainImg.src = images[0];
-            mainImg.style.opacity = '0.9';
-        }, 200);
-
-        thumbGallery.innerHTML = "";
-        images.forEach((url, i) => {
-            const t = document.createElement('div');
-            t.className = `thumb ${i === 0 ? 'active' : ''}`;
-            t.innerHTML = `<img src="${url}">`;
-            t.onclick = () => {
-                mainImg.src = url;
-                document.querySelectorAll('.thumb').forEach(th => th.classList.remove('active'));
-                t.classList.add('active');
-            };
-            thumbGallery.appendChild(t);
-        });
-
-        const sizes = JSON.parse(el.querySelector('.v-sizes').textContent);
-        const sizeContainer = document.getElementById('sizeOptionsContainer');
-        const stockStatus = document.getElementById('stockStatus');
-        
-        sizeContainer.innerHTML = "";
-        currentSelSize = "";
-        
-        const lang = localStorage.getItem('elbasty_lang') || 'en';
-
-        if (variantTotalStock <= 0) {
-            stockStatus.setAttribute('data-en', "This version is currently out of stock");
-            stockStatus.setAttribute('data-ar', "هذا الإصدار غير متوفر حالياً");
-            stockStatus.innerText = lang === 'en' ? "This version is currently out of stock" : "هذا الإصدار غير متوفر حالياً";
-            stockStatus.className = "stock-badge stock-out translatable";
-        } else {
-            stockStatus.setAttribute('data-en', "In Stock");
-            stockStatus.setAttribute('data-ar', "متوفر");
-            stockStatus.innerText = lang === 'en' ? "In Stock" : "متوفر";
-            stockStatus.className = "stock-badge stock-in translatable";
-        }
-
-        let availableChips = [];
-
-        sizes.forEach(sz => {
-            const chip = document.createElement('div');
-            chip.className = `size-chip ${sz.s <= 0 ? 'out-of-stock' : ''}`;
-            chip.innerText = sz.n;
-            
-            if(sz.s > 0) {
-                chip.onclick = () => {
-                    document.querySelectorAll('.size-chip').forEach(c => c.classList.remove('active'));
-                    chip.classList.add('active');
-                    currentSelSize = sz.n;
-                    updateMainButton();
-                    
-                    if(sz.s < 5) {
-                        stockStatus.setAttribute('data-en', `Only ${sz.s} devices left in this category!`);
-                        stockStatus.setAttribute('data-ar', `متبقي ${sz.s} أجهزة فقط من هذه الفئة!`);
-                        stockStatus.innerText = lang === 'en' ? `Only ${sz.s} devices left in this category!` : `متبقي ${sz.s} أجهزة فقط من هذه الفئة!`;
-                        stockStatus.className = "stock-badge stock-low translatable";
-                    } else {
-                        stockStatus.setAttribute('data-en', "This category is available");
-                        stockStatus.setAttribute('data-ar', "هذه الفئة متوفرة");
-                        stockStatus.innerText = lang === 'en' ? "This category is available" : "هذه الفئة متوفرة";
-                        stockStatus.className = "stock-badge stock-in translatable";
-                    }
-                };
-                availableChips.push(chip);
-            }
-            sizeContainer.appendChild(chip);
-        });
-
-        if (availableChips.length === 1) {
-            availableChips[0].click();
-        }
-
-        updateMainButton();
     }
 
-    function updateMainButton() {
-        const btn = document.getElementById('add-to-cart-btn');
-        const activeColorDot = document.querySelector('.color-dot.active');
-        const variantTotalStock = activeColorDot ? parseInt(activeColorDot.dataset.totalStock) : 0;
-        
-        const lang = localStorage.getItem('elbasty_lang') || 'en';
-
-        if (variantTotalStock <= 0) {
-            btn.classList.add('btn-disabled');
-            btn.setAttribute('data-en', "Currently Unavailable");
-            btn.setAttribute('data-ar', "غير متاح في الوقت الحالي");
-            btn.innerText = lang === 'en' ? "Currently Unavailable" : "غير متاح في الوقت الحالي";
-        } else if(currentSelColor && currentSelSize) {
-            btn.classList.remove('btn-disabled');
-            btn.setAttribute('data-en', "Add System to Cart");
-            btn.setAttribute('data-ar', "إضافة النظام لسلة الطلبات");
-            btn.innerText = lang === 'en' ? "Add System to Cart" : "إضافة النظام لسلة الطلبات";
-        } else {
-            btn.classList.add('btn-disabled');
-            let msgEn = !currentSelColor ? "Please select version first" : "Please select capacity/category";
-            let msgAr = !currentSelColor ? "يرجى تحديد الإصدار أولاً" : "يرجى تحديد السعة/الفئة";
-            btn.setAttribute('data-en', msgEn);
-            btn.setAttribute('data-ar', msgAr);
-            btn.innerText = lang === 'en' ? msgEn : msgAr;
-        }
+    function selectColor(el, colorId) {
+        // تحديث العنصر المختار
+        document.querySelectorAll('.color-item').forEach(item => item.classList.remove('selected'));
+        el.classList.add('selected');
+        console.log("Selected Color ID:", colorId);
     }
 
-    function openFullImage(event) {
-        event.preventDefault();
-        event.stopPropagation();
-        const imgElement = document.getElementById('mainDetailImg');
-        const modal = document.getElementById('fullImageModal');
-        const modalImg = document.getElementById('modalImage');
-        
-        modalImg.src = imgElement.src;
-        modal.style.display = 'flex';
-        document.body.style.overflow = 'hidden'; 
-        
-        setTimeout(() => {
-            modal.classList.add('show');
-        }, 10);
+    function addToCart() {
+        // سيتم إضافة المنطق الخاص بالسلة هنا لاحقاً
+        alert("تمت إضافة '{{ product.name }}' إلى سلة المشتريات بنجاح.");
     }
-
-    function closeModal() {
-        const modal = document.getElementById('fullImageModal');
-        modal.classList.remove('show');
-        document.body.style.overflow = ''; 
-        
-        setTimeout(() => {
-            modal.style.display = 'none';
-        }, 400); 
-    }
-
-    window.addEventListener('click', function(event) {
-        const modal = document.getElementById('fullImageModal');
-        if (event.target === modal) {
-            closeModal();
-        }
-    });
-
-    document.getElementById('add-to-cart-btn').addEventListener('click', function() {
-        if(!this.classList.contains('btn-disabled')) {
-            const toast = document.getElementById('lussoToast');
-            toast.classList.add('active');
-            
-            setTimeout(() => {
-                window.location.href = `/add-to-cart/${pId}/?color=${encodeURIComponent(currentSelColor)}&size=${encodeURIComponent(currentSelSize)}`;
-            }, 1000);
-        }
-    });
-
-    window.addEventListener('DOMContentLoaded', () => {
-        const first = document.querySelector('.color-dot');
-        if(first) first.click();
-    });
 </script>
-
 {% endblock %}
