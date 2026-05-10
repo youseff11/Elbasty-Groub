@@ -113,11 +113,11 @@
 
     .thumbnail-gallery { display: flex; gap: 10px; margin-top: 15px; justify-content: center; }
     .thumb { 
-        width: 70px; height: 80px; border: 2px solid #ffffff; border-radius: 6px;
-        cursor: pointer; transition: 0.3s; padding: 2px; background: rgba(255,255,255,0.02);
+        width: 70px; height: 80px; border: 2px solid transparent; border-radius: 6px;
+        cursor: pointer; transition: 0.3s; padding: 5px; background: #ffffff;
     }
-    .thumb.active { border-color: var(--neon-blue); box-shadow: 0 0 10px rgba(0, 229, 255, 0.3); background: rgba(0, 229, 255, 0.05); }
-    .thumb img { width: 100%; height: 100%; object-fit: cover; border-radius: 4px; }
+    .thumb.active { border-color: var(--neon-blue); box-shadow: 0 0 10px rgba(0, 229, 255, 0.3); }
+    .thumb img { width: 100%; height: 100%; object-fit: contain; }
 
     .info-section { padding: 40px; position: sticky; top: 80px; align-self: start; }
     
