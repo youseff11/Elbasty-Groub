@@ -119,17 +119,24 @@
     .cart-item td { padding: 30px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
 
     .item-detail { display: flex; align-items: center; gap: 25px; }
+    
+    /* تعديل تنسيق الصورة لتصبح بخلفية بيضاء وتظهر بالكامل */
     .item-img {
         width: 110px; height: 110px;
-        object-fit: cover;
+        object-fit: contain;
+        padding: 10px;
+        box-sizing: border-box;
         border: 1px solid var(--glass-border);
         border-radius: 8px;
         transition: var(--trans-smooth);
-        background: #0a192f;
+        background: #ffffff;
     }
     .item-img:hover { transform: scale(1.05); border-color: var(--neon-blue); box-shadow: 0 0 15px rgba(0, 229, 255, 0.2); }
 
-    .item-name { font-size: 1.2rem; font-weight: 700; color: var(--text-main); margin-bottom: 8px; display: block; }
+    .item-name { font-size: 1.2rem; font-weight: 700; color: var(--text-main); margin-bottom: 4px; display: block; }
+    /* تنسيق خاص لكود الـ SKU */
+    .item-sku { font-size: 12px; color: var(--text-sec); font-family: var(--font-english); margin-bottom: 8px; display: block; }
+    
     .item-meta-tag { font-size: 12px; color: var(--text-sec); font-weight: 600; }
     .package-tag { color: var(--cyber-neon); border: 1px solid var(--cyber-neon); padding: 2px 8px; border-radius: 4px; font-size: 10px; margin-right: 5px;}
 
@@ -294,9 +301,17 @@
                                 <div class="item-info">
                                     {% if item.is_collection %}
                                         <span class="item-name">{{ item.collection.name }}</span>
+                                        <span class="item-sku">
+                                            <span class="translatable" data-en="SKU: " data-ar="كود: ">كود: </span>
+                                            <span style="color: var(--neon-blue);">{{ item.collection.sku|default:"N/A" }}</span>
+                                        </span>
                                         <span class="item-meta-tag"><span class="package-tag translatable" data-en="Package" data-ar="باكدج">باكدج</span> <span class="translatable" data-en="Complete Security Package" data-ar="باقة أنظمة متكاملة">باقة أنظمة متكاملة</span></span>
                                     {% else %}
                                         <span class="item-name">{{ item.product.name }}</span>
+                                        <span class="item-sku">
+                                            <span class="translatable" data-en="SKU: " data-ar="كود: ">كود: </span>
+                                            <span style="color: var(--neon-blue);">{{ item.product.sku|default:"N/A" }}</span>
+                                        </span>
                                         <span class="item-meta-tag">{{ item.color }} / {{ item.size }}</span>
                                     {% endif %}
                                 </div>
