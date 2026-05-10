@@ -107,13 +107,17 @@
     @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
     /* --- Category Filter --- */
-    /* تم تعديل z-index إلى 50 لحل مشكلة تداخل القائمة المنسدلة مع الكروت */
     .category-filter { display: flex; justify-content: center; gap: 15px; margin-bottom: 60px; flex-wrap: wrap; position: relative; z-index: 50; }
     
     .cat-link, .drop-btn { 
-        padding: 12px 30px; border: 1px solid var(--glass-border); border-radius: 6px;
+        padding: 12px 20px; border: 1px solid var(--glass-border); border-radius: 6px;
         color: var(--text-main); text-decoration: none; transition: var(--trans-smooth); 
         background: var(--bg-panel); cursor: pointer; font-size: 14px; font-weight: 600;
+        min-width: 180px; /* لتوحيد حجم المربعات */
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        box-sizing: border-box;
     }
     .cat-link.active, .cat-link:hover, .drop-btn:hover, .drop-btn.active-btn { 
         background: rgba(0, 229, 255, 0.1); color: var(--neon-blue); border-color: var(--neon-blue); transform: translateY(-3px); 
@@ -125,7 +129,10 @@
         background: var(--bg-panel); min-width: 220px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); 
         z-index: 100; border: 1px solid var(--glass-border); margin-top: 15px; border-radius: 8px; overflow: hidden;
     }
-    .dropdown-content.show { display: block; animation: dropFade 0.4s var(--trans-smooth); }
+    .dropdown-content.show { 
+        display: block; 
+        animation: dropFade 0.3s ease-out forwards; /* تعديل الأنيميشن لمنع التداخل واللاج */
+    }
     .dropdown-content a {
         color: var(--text-sec); padding: 15px 20px; text-decoration: none; display: block;
         transition: 0.3s; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: center; font-size: 14px;
@@ -170,18 +177,18 @@
         aspect-ratio: 4/5; 
         overflow: hidden; 
         margin-bottom: 25px; 
-        background: #ffffff; /* تغيير الخلفية للون الأبيض */
+        background: #ffffff; 
         position: relative; 
-        padding: 30px; /* الـ padding الأبيض حوالين الصورة - تقدر تزوده أو تقلله براحتك */
-        box-sizing: border-box; /* عشان الـ padding ما يبوظش أبعاد الكارت */
+        padding: 30px; 
+        box-sizing: border-box; 
     }
 
     .main-product-img { 
         width: 100%; 
         height: 100%; 
-        object-fit: contain; /* الخاصية دي اللي بتجبر الصورة تظهر بالكامل بدون أي قص */
+        object-fit: contain; 
         transition: transform 1.5s var(--trans-smooth), opacity 0.5s; 
-        opacity: 1; /* يفضل تخليها 1 مع الخلفية البيضاء عشان تظهر بوضوح من غير ما تكون باهتة */
+        opacity: 1; 
     }
     .product-card:hover .main-product-img { transform: scale(1.05); opacity: 1; }
 
@@ -231,7 +238,9 @@
     .color-dot.active { transform: scale(1.2); box-shadow: 0 0 0 2px var(--neon-blue); }
 
     .product-card__name { 
-        font-size: 22px; font-weight: 700; margin: 0 0 10px; text-align: center; color: var(--text-main);
+        font-size: 16px; /* تم تصغير حجم الخط */
+        font-weight: 700; margin: 0 0 10px; text-align: center; color: var(--text-main);
+        padding: 0 15px; line-height: 1.4;
     }
 
     .current-price { color: var(--neon-blue); font-weight: 700; font-size: 1.3rem; font-family: var(--font-english); }
@@ -418,7 +427,6 @@
 
         arrows.style.display = data.images.length > 1 ? 'flex' : 'none';
 
-        // استخدام متغير اللغة اللي موجود في base.html
         const lang = (typeof currentLang !== 'undefined') ? currentLang : 'en';
 
         if (parseInt(data.stock) <= 0) {
@@ -426,7 +434,6 @@
             ovl.style.display = 'block';
             btn.classList.add('btn-disabled');
             
-            // تحديث قيم الترجمة والنص بناءً على اللغة الحالية
             btn.setAttribute('data-ar', 'غير متوفر حالياً');
             btn.setAttribute('data-en', 'Out of Stock');
             btn.innerText = (lang === 'en') ? 'Out of Stock' : 'غير متوفر حالياً';
@@ -435,7 +442,6 @@
             ovl.style.display = 'none';
             btn.classList.remove('btn-disabled');
             
-            // تحديث قيم الترجمة والنص بناءً على اللغة الحالية
             btn.setAttribute('data-ar', 'عرض التفاصيل');
             btn.setAttribute('data-en', 'View Details');
             btn.innerText = (lang === 'en') ? 'View Details' : 'عرض التفاصيل';
@@ -458,13 +464,7 @@
         event.stopPropagation();
         event.preventDefault();
         const dd = document.getElementById("myDropdown");
-        const isOpen = dd.classList.contains('show');
-        // أغلق أي dropdown مفتوح
-        dd.classList.remove('show');
-        // افتحه لو كان مغلق
-        if (!isOpen) {
-            dd.classList.add('show');
-        }
+        dd.classList.toggle('show'); // تم استخدام toggle لتجنب مشاكل اللاج
     }
 
     function openFullImage(productId, event) {
@@ -500,13 +500,11 @@
     });
 
     window.onclick = function(event) {
-        // إغلاق قائمة WhatsApp
         const waContainer = document.getElementById('waContainer');
         if (waContainer && !waContainer.contains(event.target)) {
             waContainer.classList.remove('active');
         }
 
-        // إغلاق قائمة الأقسام فقط (بـ id محدد، مش class عام)
         const shopDropdown = document.getElementById('myDropdown');
         if (shopDropdown && shopDropdown.classList.contains('show')) {
             const dropBtn = document.querySelector('.drop-btn');
@@ -517,7 +515,6 @@
             }
         }
 
-        // إغلاق المودال لو ضغط برا
         const modal = document.getElementById('fullImageModal');
         if (event.target === modal) {
             closeModal();
