@@ -252,7 +252,7 @@ def cart_view(request):
                 total_price += subtotal
                 
                 variant = ProductVariant.objects.filter(product=product, color_name=item_data.get('color')).first()
-                display_image = variant.variant_image.url if variant and variant.variant_image else product.main_image.url
+                display_image = variant.variant_image.url if variant and variant.variant_image else product.main_image
                 
                 cart_items.append({
                     'item_key': item_key,
@@ -387,9 +387,9 @@ def checkout_view(request):
             subtotal = collection.offer_price * quantity_requested
             total_price += subtotal
             
-            domain = request.get_host()
-            protocol = 'https' if request.is_secure() else 'http'
-            image_url = f"{protocol}://{domain}{collection.main_image.url}" if collection.main_image else ""
+            domain = "www.elbasty-groub.com"
+            protocol = "https" # لأننا فعلنا الـ SSL خلاص
+            image_url = f"{protocol}://{domain}{img_path}"
 
             checkout_items.append({
                 'is_collection': True,
@@ -426,7 +426,7 @@ def checkout_view(request):
             total_price += subtotal
 
             variant = ProductVariant.objects.filter(product=product, color_name=color_name).first()
-            img_path = variant.variant_image.url if variant and variant.variant_image else product.main_image.url
+            img_path = variant.variant_image.url if variant and variant.variant_image else product.main_image
             
             domain = request.get_host()
             protocol = 'https' if request.is_secure() else 'http'
@@ -816,7 +816,7 @@ def apply_order_discount(request, order_id):
 
                 for item in order.items.all():
                     variant = ProductVariant.objects.filter(product=item.product, color_name=item.color).first()
-                    img_path = variant.variant_image.url if variant and variant.variant_image else item.product.main_image.url
+                    img_path = variant.variant_image.url if variant and variant.variant_image else item.product.main_image
                     image_url = f"{protocol}://{domain}{img_path}"
                     
                     items_html += f"""
