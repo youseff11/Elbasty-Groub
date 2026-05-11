@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://www.elbasty-groub.com/sitemap.xml
+Sitemap: https://www.elbasty-group.com/sitemap.xml

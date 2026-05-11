@@ -15,7 +15,7 @@ sitemaps = {
 
 # الفنكشن بتاعة الـ robots.txt ضيفها هنا قبل الـ urlpatterns
 def robots_txt(request):
-    content = "User-agent: *\nAllow: /\nSitemap: https://www.elbasty-groub.com/sitemap.xml"
+    content = "User-agent: *\nAllow: /\nSitemap: https://www.elbasty-group.com/sitemap.xml"
     return HttpResponse(content, content_type="text/plain")
 
 urlpatterns = [
