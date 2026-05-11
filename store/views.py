@@ -388,7 +388,9 @@ def checkout_view(request):
             total_price += subtotal
             
             domain = "www.elbasty-groub.com"
-            protocol = "https" # لأننا فعلنا الـ SSL خلاص
+            protocol = "https"
+            # لاحظ هنا شلنا .url من أخر السطر عشان الـ Bug اللي قلناه
+            img_path = variant.variant_image.url if variant and variant.variant_image else product.main_image
             image_url = f"{protocol}://{domain}{img_path}"
 
             checkout_items.append({
