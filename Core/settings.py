@@ -7,7 +7,7 @@ SECRET_KEY = '^95=&e#^w8h@__x(tz*az-dqk*jx2v@!jgw&)y4b2-_&trs)(q'
 # طالما دي True، إعدادات الـ SSL هتكون مقفولة تماماً
 DEBUG = False
 
-ALLOWED_HOSTS = ['www.elbasty-groub.com', 'elbasty-groub.com', 'Elbasty.pythonanywhere.com', '127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['www.elbasty-group.com', 'elbasty-group.com', 'Elbasty.pythonanywhere.com', '127.0.0.1', 'localhost']
 
 INSTALLED_APPS = [
     'admin_interface',
