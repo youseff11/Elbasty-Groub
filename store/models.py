@@ -88,6 +88,10 @@ class Product(models.Model):
             return variant.variant_image.url
         return None
 
+    def get_absolute_url(self):
+        from django.urls import reverse
+        return reverse('product_detail', args=[self.id])
+
 
 # --- Product Specifications (الجدول الجديد للمواصفات) ---
 
@@ -671,6 +675,10 @@ class ProductCollection(models.Model):
                 price = item.product.get_effective_price 
                 total += Decimal(str(price)) * item.quantity
         return total
+
+    def get_absolute_url(self):
+        from django.urls import reverse
+        return reverse('collection_detail', args=[self.id])
 
 
 class CollectionItem(models.Model):
