@@ -120,6 +120,7 @@
 
     .item-detail { display: flex; align-items: center; gap: 25px; }
     
+    /* تعديل تنسيق الصورة لتصبح بخلفية بيضاء وتظهر بالكامل */
     .item-img {
         width: 110px; height: 110px;
         object-fit: contain;
@@ -133,6 +134,7 @@
     .item-img:hover { transform: scale(1.05); border-color: var(--neon-blue); box-shadow: 0 0 15px rgba(0, 229, 255, 0.2); }
 
     .item-name { font-size: 1.2rem; font-weight: 700; color: var(--text-main); margin-bottom: 4px; display: block; }
+    /* تنسيق خاص لكود الـ SKU */
     .item-sku { font-size: 12px; color: var(--text-sec); font-family: var(--font-english); margin-bottom: 8px; display: block; }
     
     .item-meta-tag { font-size: 12px; color: var(--text-sec); font-weight: 600; }
@@ -193,37 +195,17 @@
         box-shadow: 0 0 20px rgba(0, 229, 255, 0.4); 
     }
 
-    /* --- WhatsApp Styles (بدون رعشة وتداخل الانيميشن) --- */
-    .wa-float-container { 
-        position: fixed; 
-        bottom: 30px; 
-        right: 30px; 
-        z-index: 9999; 
-    }
-    .wa-contact-list { 
-        position: absolute;
-        bottom: 80px; /* المسافة فوق الزرار */
-        right: 0;
-        display: flex; 
-        flex-direction: column; 
-        gap: 10px; 
-        transform-origin: bottom right; 
-        opacity: 0;
-        visibility: hidden;
-        transform: translateY(20px) scale(0.8);
-        transition: all 0.4s var(--trans-smooth);
-    }
+    /* --- WhatsApp Styles Matching offers.html --- */
+    .wa-float-container { position: fixed; bottom: 30px; right: 30px; z-index: 9999; display: flex; flex-direction: column; align-items: flex-end; gap: 15px; }
+    .wa-contact-list { display: none; flex-direction: column; gap: 10px; margin-bottom: 5px; transform-origin: bottom right; }
     .wa-contact-item { background: var(--bg-panel); color: var(--text-main); padding: 12px 20px; border-radius: 50px; border: 1px solid var(--glass-border); text-decoration: none; display: flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 600; transition: var(--trans-smooth); backdrop-filter: blur(10px); white-space: nowrap; }
     .wa-contact-item i { color: var(--whatsapp-green); font-size: 18px; }
     .wa-contact-item:hover { transform: translateX(-10px); border-color: var(--whatsapp-green); box-shadow: 0 0 15px rgba(37, 211, 102, 0.2); }
-    .wa-main-btn { width: 65px; height: 65px; background: var(--whatsapp-green); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 32px; cursor: pointer; box-shadow: 0 10px 20px rgba(37, 211, 102, 0.3); transition: 0.4s; position: relative; z-index: 2;}
+    .wa-main-btn { width: 65px; height: 65px; background: var(--whatsapp-green); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 32px; cursor: pointer; box-shadow: 0 10px 20px rgba(37, 211, 102, 0.3); transition: 0.4s; }
     .wa-main-btn:hover { transform: scale(1.1) rotate(15deg); }
-    
-    .wa-float-container.active .wa-contact-list { 
-        opacity: 1;
-        visibility: visible;
-        transform: translateY(0) scale(1);
-    }
+    .wa-float-container.active .wa-contact-list { display: flex; animation: slideIn 0.4s var(--trans-smooth) forwards; }
+
+    @keyframes slideIn { from { opacity: 0; transform: translateY(20px) scale(0.8); } to { opacity: 1; transform: translateY(0) scale(1); } }
     /* ------------------------------------------ */
 
     @media (max-width: 768px) {
