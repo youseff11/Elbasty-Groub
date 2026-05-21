@@ -4,8 +4,7 @@ import os
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = '^95=&e#^w8h@__x(tz*az-dqk*jx2v@!jgw&)y4b2-_&trs)(q'
 
-# طالما دي True، إعدادات الـ SSL هتكون مقفولة تماماً
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['www.elbasty-group.com', 'elbasty-group.com', 'Elbasty.pythonanywhere.com', '127.0.0.1', 'localhost']
 

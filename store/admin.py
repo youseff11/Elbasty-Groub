@@ -37,9 +37,12 @@ class ProductSizeInline(nested_admin.NestedTabularInline):
 class ProductVariantInline(nested_admin.NestedStackedInline):
     model = ProductVariant
     extra = 1
-    fields = ['color_name', 'color_code', 'variant_image', 'image_preview']
+    fields = ['color_name', 'color_code', 'variant_image', 'image_preview', 'position']
     readonly_fields = ['image_preview']
     inlines = [ProductSizeInline, ProductImageInline]
+    
+    # السطر السحري اللي بيفعل الـ Drag and Drop في المكتبة دي
+    sortable_field_name = "position"
 
     def image_preview(self, obj):
         if obj.variant_image:
