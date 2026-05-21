@@ -1863,3 +1863,68 @@ def collection_detail(request, id):
         is_active=True
     )
     return render(request, 'collection_detail.html', {'collection': collection})
+
+@user_passes_test(is_admin, login_url='login')
+def swap_images_ajax(request):
+    """
+    AJAX endpoint: يبدّل الصور بين variant_image أو ProductImage records مباشرة في الداتابيز.
+    POST JSON:
+        src_type: 'variant' | 'additional'
+        src_id:   pk
+        dst_type: 'variant' | 'additional'
+        dst_id:   pk
+    """
+    from django.http import JsonResponse
+
+    if request.method != 'POST':
+        return JsonResponse({'ok': False, 'error': 'POST only'}, status=405)
+
+    try:
+        body = json.loads(request.body)
+        src_type = body['src_type']
+        src_id   = int(body['src_id'])
+        dst_type = body['dst_type']
+        dst_id   = int(body['dst_id'])
+    except (KeyError, ValueError, json.JSONDecodeError) as e:
+        return JsonResponse({'ok': False, 'error': str(e)}, status=400)
+
+    try:
+        if src_type == 'variant':
+            src_obj = ProductVariant.objects.get(pk=src_id)
+            src_img_name = src_obj.variant_image.name
+        else:
+            src_obj = ProductImage.objects.get(pk=src_id)
+            src_img_name = src_obj.image.name
+
+        if dst_type == 'variant':
+            dst_obj = ProductVariant.objects.get(pk=dst_id)
+            dst_img_name = dst_obj.variant_image.name
+        else:
+            dst_obj = ProductImage.objects.get(pk=dst_id)
+            dst_img_name = dst_obj.image.name
+
+    except (ProductVariant.DoesNotExist, ProductImage.DoesNotExist) as e:
+        return JsonResponse({'ok': False, 'error': str(e)}, status=404)
+
+    # ---- swap في الداتابيز ----
+    if src_type == 'variant':
+        ProductVariant.objects.filter(pk=src_id).update(variant_image=dst_img_name)
+    else:
+        ProductImage.objects.filter(pk=src_id).update(image=dst_img_name)
+
+    if dst_type == 'variant':
+        ProductVariant.objects.filter(pk=dst_id).update(variant_image=src_img_name)
+    else:
+        ProductImage.objects.filter(pk=dst_id).update(image=src_img_name)
+
+    # ---- إرجاع الـ URLs الجديدة للـ JS ----
+    from django.conf import settings
+
+    def make_url(img_name):
+        return settings.MEDIA_URL + img_name if img_name else ''
+
+    return JsonResponse({
+        'ok': True,
+        'src_new_url': make_url(dst_img_name),
+        'dst_new_url': make_url(src_img_name),
+    })

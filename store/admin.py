@@ -23,9 +23,19 @@ class ProductImageInline(nested_admin.NestedTabularInline):
 
     def image_preview(self, obj):
         if obj.image:
-            return format_html('<img src="{}" style="width: 70px; height: 70px; border-radius: 5px; object-fit: cover;" />', obj.image.url)
+            return format_html(
+                '<img src="{}" '
+                'data-img-id="{}" '
+                'data-img-url="{}" '
+                'data-img-type="additional" '
+                'class="draggable-preview" '
+                'draggable="true" '
+                'title="اسحب لتبديل الصورة" '
+                'style="width: 70px; height: 70px; border-radius: 5px; object-fit: cover; cursor: grab; border: 2px solid transparent; transition: border 0.2s;" />',
+                obj.image.url, obj.pk, obj.image.url
+            )
         return "No Image"
-    image_preview.short_description = 'Preview'
+    image_preview.short_description = 'Preview (اسحب للتبديل)'
 
 # --- 3. ProductSizeInline ---
 class ProductSizeInline(nested_admin.NestedTabularInline):
@@ -43,8 +53,29 @@ class ProductVariantInline(nested_admin.NestedStackedInline):
 
     def image_preview(self, obj):
         if obj.variant_image:
-            return format_html('<img src="{}" style="width: 100px; height: 100px; border-radius: 8px; border: 1px solid #ddd; object-fit: cover;" />', obj.variant_image.url)
-        return "No Image"
+            return format_html(
+                '<div class="variant-main-img-wrap" data-variant-id="{}" style="display:inline-block; position:relative;">'
+                '<img src="{}" '
+                'data-img-id="{}" '
+                'data-img-url="{}" '
+                'data-img-type="variant" '
+                'class="draggable-preview variant-main-preview" '
+                'draggable="true" '
+                'title="اسحب لتبديل الصورة — أو اسحب صورة أخرى هنا" '
+                'style="width: 100px; height: 100px; border-radius: 8px; border: 2px solid #ddd; object-fit: cover; cursor: grab; transition: border 0.2s;" />'
+                '</div>',
+                obj.pk, obj.variant_image.url, obj.pk, obj.variant_image.url
+            )
+        # Empty drop zone - no image yet
+        return format_html(
+            '<div class="variant-main-img-wrap variant-empty-drop" '
+            'data-variant-id="{}" '
+            'title="اسحب صورة من الأسفل وضعها هنا لتصبح الصورة الرئيسية" '
+            'style="width:100px;height:100px;border-radius:8px;border:2px dashed #aaa;display:flex;align-items:center;justify-content:center;color:#aaa;font-size:11px;text-align:center;cursor:pointer;transition: border 0.2s, background 0.2s;">'
+            '⬆️<br>اسحب هنا'
+            '</div>',
+            obj.pk if obj.pk else 0
+        )
     image_preview.short_description = 'Main Image Preview'
 
 # --- 5. ProductAdmin ---
@@ -73,6 +104,7 @@ class ProductAdmin(nested_admin.NestedModelAdmin):
         css = {
             'all': ('css/admin_custom.css',)
         }
+        js = ('js/admin_image_swap.js',)
 
     def display_image(self, obj):
         variant = obj.variants.first() 

@@ -70,4 +70,7 @@ urlpatterns = [
 
     # --- API للـ variants ---
     path('api/product/<int:product_id>/variants/', views.get_product_variants, name='get_product_variants'),
+
+    # --- AJAX: تبديل الصور في الـ admin ---
+    path('api/admin/swap-images/', views.swap_images_ajax, name='swap_images_ajax'),
 ]
