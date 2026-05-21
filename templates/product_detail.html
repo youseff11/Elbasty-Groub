@@ -201,6 +201,10 @@
             <div class="info-section">
                 <span class="category-label">{{ product.category.name|default:"أنظمة الباسطى جروب" }}</span>
                 <h1 class="product-title">{{ product.name }}</h1>
+                <div class="product-sku" style="font-size: 14px; color: var(--text-sec); margin-bottom: 20px; font-family: var(--font-english);">
+                    <span class="translatable" data-en="SKU: " data-ar="كود: ">كود: </span>
+                    <span style="color: var(--neon-blue);">{{ product.sku|default:"N/A" }}</span>
+                </div>
 
                 <div class="price-group">
                     <span class="current-price">{{ product.get_effective_price|floatformat:0 }} LE</span>
