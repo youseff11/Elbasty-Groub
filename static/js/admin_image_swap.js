@@ -1,5 +1,5 @@
 /**
- * admin_image_swap.js  v3
+ * admin_image_swap.js  v5
  * ===================================================
  * Drag-and-drop image swapping for ProductVariant admin.
  * ===================================================
@@ -193,80 +193,75 @@
     }
   }
 
-  /* ---- Drop on empty ADDITIONAL zone (الإضافة الجديدة) ---- */
+  /* ---- Drop on empty ADDITIONAL zone ---- */
   async function doMoveToAdditionalZone(dragSrc, dstZone) {
     const srcSaved = !!dragSrc.dataset.imgId && dragSrc.dataset.imgId !== '0';
     const dstInput = findAdditionalFileInput(dstZone);
 
     if (!dstInput) return;
 
-    // تجهيز الصورة التي ستظهر في المكان الجديد
     const newImg = document.createElement('img');
     newImg.src = dragSrc.src;
     newImg.dataset.imgUrl = dragSrc.dataset.imgUrl || dragSrc.src;
     newImg.dataset.imgType = 'additional';
-    newImg.dataset.imgId = '0'; // لتبدو كصورة جديدة غير محفوظة حتى يقوم المستخدم بحفظ الصفحة
+    newImg.dataset.imgId = '0';
     newImg.className = 'draggable-preview';
     newImg.draggable = true;
     newImg.title = 'اسحب لتبديل الصورة';
     newImg.style.cssText = 'width: 70px; height: 70px; border-radius: 5px; object-fit: contain; background: #ffffff; border: 1px solid #eee; padding: 5px; cursor: grab; transition: border 0.2s;';
 
-    // مساعدة لتغيير المكان الأصلي إلى مساحة فارغة بعد النقل
     const revertSrcToEmpty = () => {
-        const srcWrap = dragSrc.closest('.variant-main-img-wrap');
-        if (srcWrap) {
-            const emptyDiv = document.createElement('div');
-            emptyDiv.className = 'variant-main-img-wrap variant-empty-drop';
-            emptyDiv.dataset.variantId = dragSrc.dataset.imgId || '0';
-            emptyDiv.title = 'اسحب صورة من الأسفل وضعها هنا لتصبح الصورة الرئيسية';
-            emptyDiv.style.cssText = 'width:100px;height:100px;border-radius:8px;border:2px dashed #aaa;display:flex;align-items:center;justify-content:center;color:#aaa;font-size:11px;text-align:center;cursor:pointer;transition: border 0.2s, background 0.2s;';
-            emptyDiv.innerHTML = '⬆️<br>اسحب هنا';
-            dragSrc.replaceWith(emptyDiv);
-        } else {
-            const emptyDiv = document.createElement('div');
-            emptyDiv.className = 'additional-empty-drop';
-            emptyDiv.title = 'اسحب صورة وضعها هنا';
-            emptyDiv.style.cssText = 'width: 70px; height: 70px; border-radius: 5px; border: 2px dashed #aaa; display: flex; align-items: center; justify-content: center; color: #aaa; font-size: 11px; text-align: center; cursor: pointer; transition: border 0.2s, background 0.2s;';
-            emptyDiv.innerHTML = '➕<br>اسحب هنا';
-            dragSrc.replaceWith(emptyDiv);
-        }
+      const srcWrap = dragSrc.closest('.variant-main-img-wrap');
+      if (srcWrap) {
+        const emptyDiv = document.createElement('div');
+        emptyDiv.className = 'variant-main-img-wrap variant-empty-drop';
+        emptyDiv.dataset.variantId = dragSrc.dataset.imgId || '0';
+        emptyDiv.title = 'اسحب صورة من الأسفل وضعها هنا لتصبح الصورة الرئيسية';
+        emptyDiv.style.cssText = 'width:100px;height:100px;border-radius:8px;border:2px dashed #aaa;display:flex;align-items:center;justify-content:center;color:#aaa;font-size:11px;text-align:center;cursor:pointer;transition: border 0.2s, background 0.2s;';
+        emptyDiv.innerHTML = '⬆️<br>اسحب هنا';
+        dragSrc.replaceWith(emptyDiv);
+      } else {
+        const emptyDiv = document.createElement('div');
+        emptyDiv.className = 'additional-empty-drop';
+        emptyDiv.title = 'اسحب صورة وضعها هنا';
+        emptyDiv.style.cssText = 'width: 70px; height: 70px; border-radius: 5px; border: 2px dashed #aaa; display: flex; align-items: center; justify-content: center; color: #aaa; font-size: 11px; text-align: center; cursor: pointer; transition: border 0.2s, background 0.2s;';
+        emptyDiv.innerHTML = '➕<br>اسحب هنا';
+        dragSrc.replaceWith(emptyDiv);
+      }
     };
 
     if (srcSaved) {
-        try {
-            // جلب بيانات الصورة الأصلية كملف وتحويله لخانة الرفع الجديدة
-            const res = await fetch(dragSrc.src);
-            const blob = await res.blob();
-            const filename = dragSrc.src.split('/').pop().split('?')[0] || 'image.webp';
-            const file = new File([blob], filename, { type: blob.type });
-            const dt = new DataTransfer();
-            dt.items.add(file);
-            dstInput.files = dt.files;
+      try {
+        const res = await fetch(dragSrc.src);
+        const blob = await res.blob();
+        const filename = dragSrc.src.split('/').pop().split('?')[0] || 'image.webp';
+        const file = new File([blob], filename, { type: blob.type });
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        dstInput.files = dt.files;
 
-            // تحديد خيار المسح (Clear) للصورة الأصلية لكي يتم حذفها عند الحفظ
-            const td = dragSrc.closest('td, .form-row, .inline-related');
-            if (td) {
-                const clearCb = td.querySelector('input[type="checkbox"][name$="-clear"]');
-                if (clearCb) clearCb.checked = true;
-            }
-
-            dstZone.replaceWith(newImg);
-            revertSrcToEmpty();
-            flash(newImg, '#4caf50');
-        } catch (e) {
-            alert('فشل نقل الصورة المحفوظة: ' + e);
+        const td = dragSrc.closest('td, .form-row, .inline-related');
+        if (td) {
+          const clearCb = td.querySelector('input[type="checkbox"][name$="-clear"]');
+          if (clearCb) clearCb.checked = true;
         }
-    } else {
-        // في حالة إن الصورة مش محفوظة أصلا فبنقل الملف بسهولة
-        const srcInput = findFileInput(dragSrc);
-        moveFileToInput(srcInput, dstInput);
+
         dstZone.replaceWith(newImg);
         revertSrcToEmpty();
         flash(newImg, '#4caf50');
+      } catch (e) {
+        alert('فشل نقل الصورة المحفوظة: ' + e);
+      }
+    } else {
+      const srcInput = findFileInput(dragSrc);
+      moveFileToInput(srcInput, dstInput);
+      dstZone.replaceWith(newImg);
+      revertSrcToEmpty();
+      flash(newImg, '#4caf50');
     }
   }
 
-  /* ---- Drag events (delegated) ---- */
+  /* ---- Drag events ---- */
   function onDragStart(e) {
     const img = e.target.closest('img.draggable-preview');
     if (!img) return;
@@ -285,24 +280,31 @@
     document.querySelectorAll('.additional-empty-drop').forEach(z => highlightAdditionalZone(z, false));
   }
 
+  /* 
+   * ← الإصلاح الرئيسي:
+   * بنستخدم { capture: true } عشان نمسك الـ dragover
+   * قبل ما أي listener تاني في Django يلغيه
+   */
   function onDragOver(e) {
     e.preventDefault();
+    e.stopPropagation();
     e.dataTransfer.dropEffect = 'move';
-    const img  = e.target.closest('img.draggable-preview');
-    const variantZone = e.target.closest('.variant-empty-drop');
+
+    const img            = e.target.closest('img.draggable-preview');
+    const variantZone    = e.target.closest('.variant-empty-drop');
     const additionalZone = e.target.closest('.additional-empty-drop');
 
-    if (img  && img  !== dragSrc) highlight(img, true);
+    if (img && img !== dragSrc) highlight(img, true);
     if (variantZone) highlightZone(variantZone, true);
     if (additionalZone) highlightAdditionalZone(additionalZone, true);
   }
 
   function onDragLeave(e) {
-    const img  = e.target.closest('img.draggable-preview');
-    const variantZone = e.target.closest('.variant-empty-drop');
+    const img            = e.target.closest('img.draggable-preview');
+    const variantZone    = e.target.closest('.variant-empty-drop');
     const additionalZone = e.target.closest('.additional-empty-drop');
 
-    if (img  && img  !== dragSrc) highlight(img, false);
+    if (img && img !== dragSrc) highlight(img, false);
     if (variantZone) highlightZone(variantZone, false);
     if (additionalZone) highlightAdditionalZone(additionalZone, false);
   }
@@ -310,10 +312,11 @@
   function onDrop(e) {
     e.preventDefault();
     e.stopPropagation();
-    const dstImg  = e.target.closest('img.draggable-preview');
-    const variantZone = e.target.closest('.variant-empty-drop');
+
+    const dstImg         = e.target.closest('img.draggable-preview');
+    const variantZone    = e.target.closest('.variant-empty-drop');
     const additionalZone = e.target.closest('.additional-empty-drop');
-    
+
     if (!dragSrc) return;
 
     if (dstImg && dstImg !== dragSrc) {
@@ -330,12 +333,12 @@
 
   /* ---- Bootstrap ---- */
   function init() {
-    const root = document.getElementById('content-main') || document;
-    root.addEventListener('dragstart',  onDragStart);
-    root.addEventListener('dragend',    onDragEnd);
-    root.addEventListener('dragover',   onDragOver);
-    root.addEventListener('dragleave',  onDragLeave);
-    root.addEventListener('drop',       onDrop);
+    // capture: true = بنمسك الحدث في مرحلة الـ capture قبل أي listener تاني
+    document.addEventListener('dragstart',  onDragStart, true);
+    document.addEventListener('dragend',    onDragEnd,   true);
+    document.addEventListener('dragover',   onDragOver,  true);
+    document.addEventListener('dragleave',  onDragLeave, true);
+    document.addEventListener('drop',       onDrop,      true);
   }
 
   if (document.readyState === 'loading') {

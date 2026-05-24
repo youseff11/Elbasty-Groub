@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from django.db import models 
+from django.db import models
+from django import forms
 import nested_admin
 from .models import Product, Category, ContactMessage, ProductVariant, ProductSize, Order, OrderItem, ProductImage, ProductSpecification
 from .models import ProductCollection, CollectionItem
@@ -34,7 +35,6 @@ class ProductImageInline(nested_admin.NestedTabularInline):
                 'style="width: 70px; height: 70px; border-radius: 5px; object-fit: contain; background: #ffffff; border: 1px solid #eee; padding: 5px; cursor: grab; transition: border 0.2s;" />',
                 obj.image.url, obj.pk, obj.image.url
             )
-        # إنشاء منطقة سحب وإفلات في حال كانت الخانة فارغة (التعديل الجديد)
         return format_html(
             '<div class="additional-empty-drop" '
             'title="اسحب صورة وضعها هنا" '
@@ -57,6 +57,19 @@ class ProductVariantInline(nested_admin.NestedStackedInline):
     fields = ['color_name', 'color_code', 'variant_image', 'image_preview']
     readonly_fields = ['image_preview']
     inlines = [ProductSizeInline, ProductImageInline]
+
+    class Media:
+        # نضمن إن colorfield بيحمّل CSS/JS بتاعه داخل الـ inline
+        css = {
+            'all': (
+                'colorfield/css/colorfield.css',
+                'css/admin_custom.css',
+            )
+        }
+        js = (
+            'colorfield/js/colorfield.js',
+            'js/admin_image_swap.js',
+        )
 
     def image_preview(self, obj):
         if obj.variant_image:
@@ -88,7 +101,7 @@ class ProductVariantInline(nested_admin.NestedStackedInline):
 @admin.register(Product)
 class ProductAdmin(nested_admin.NestedModelAdmin):
     inlines = [ProductSpecificationInline, ProductVariantInline]
-    
+
     list_display = ['display_image', 'sku', 'name', 'category', 'is_new_arrival', 'display_new_status', 'colored_stock', 'display_price', 'created_at']
     list_display_links = ['display_image', 'name']
     list_editable = ['sku', 'category', 'is_new_arrival']
@@ -108,24 +121,30 @@ class ProductAdmin(nested_admin.NestedModelAdmin):
 
     class Media:
         css = {
-            'all': ('css/admin_custom.css',)
+            'all': (
+                'colorfield/css/colorfield.css',
+                'css/admin_custom.css',
+            )
         }
-        js = ('js/admin_image_swap.js',)
+        js = (
+            'colorfield/js/colorfield.js',
+            'js/admin_image_swap.js',
+        )
 
     def display_image(self, obj):
-        variant = obj.variants.first() 
+        variant = obj.variants.first()
         if variant and variant.variant_image:
             return format_html(
                 '<div style="background:#ffffff; padding:2px; border-radius:5px; display:inline-block; border: 1px solid #eee;">'
                 '<img src="{}" style="width: 50px; height: 50px; object-fit: contain;" />'
-                '</div>', 
+                '</div>',
                 variant.variant_image.url
             )
         return format_html('<span style="color: #999; font-size: 10px;">No Image</span>')
     display_image.short_description = 'Product Image'
 
     def display_new_status(self, obj):
-        if hasattr(obj, 'is_new') and obj.is_new: 
+        if hasattr(obj, 'is_new') and obj.is_new:
             return format_html('<span style="color: #fff; background: #4fc3f7; padding: 2px 10px; border-radius: 12px; font-size: 11px; font-weight: bold;">LIVE NOW</span>')
         if obj.is_new_arrival:
             return format_html('<span style="color: #d32f2f; font-size: 11px; font-weight: bold;">MANUAL NEW</span>')
@@ -135,7 +154,6 @@ class ProductAdmin(nested_admin.NestedModelAdmin):
     def display_price(self, obj):
         original_price = int(obj.price) if obj.price else 0
         discount_price = int(obj.discount_price) if obj.discount_price else 0
-
         if discount_price > 0:
             return format_html(
                 '<span style="text-decoration: line-through; color: #888; margin-right: 5px;">{}</span>'
@@ -159,7 +177,7 @@ class ProductAdmin(nested_admin.NestedModelAdmin):
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ['name', 'slug']
     prepopulated_fields = {'slug': ('name',)}
-    
+
     class Media:
         css = {
             'all': ('css/admin_custom.css',)
@@ -186,21 +204,18 @@ class OrderItemInline(admin.TabularInline):
                 return format_html(
                     '<div style="background:#ffffff; padding:2px; border-radius:5px; display:inline-block; border: 1px solid #ddd;">'
                     '<img src="{}" style="width: 60px; height: 60px; object-fit: contain;" />'
-                    '</div>', 
+                    '</div>',
                     variant.variant_image.url
                 )
-            
             first_variant = obj.product.variants.first()
             if first_variant and first_variant.variant_image:
                 return format_html(
                     '<div style="background:#ffffff; padding:2px; border-radius:5px; display:inline-block; border: 1px solid #ddd;">'
                     '<img src="{}" style="width: 60px; height: 60px; object-fit: contain; opacity: 0.6;" />'
-                    '</div>', 
+                    '</div>',
                     first_variant.variant_image.url
                 )
-                
         return format_html('<div style="width: 60px; height: 60px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; border-radius: 5px; color: #ccc; font-size: 10px;">No Image</div>')
-    
     display_item_image.short_description = 'Item Preview'
 
     def display_item_price(self, obj):
@@ -212,9 +227,9 @@ class OrderAdmin(admin.ModelAdmin):
     list_display = ['id', 'name', 'phone', 'governorate', 'display_total', 'status', 'is_completed', 'created_at']
     list_filter = ['status', 'is_completed', 'governorate', 'created_at']
     search_fields = ['name', 'phone', 'email', 'id']
-    list_editable = ['status', 'is_completed'] 
+    list_editable = ['status', 'is_completed']
     inlines = [OrderItemInline]
-    
+
     fieldsets = (
         ('Customer Info', {'fields': (('name', 'email'), 'phone', 'governorate', 'address')}),
         ('Status & Total', {'fields': (('status', 'is_completed'), 'total_price')}),
@@ -373,7 +388,7 @@ class ProductCollectionAdmin(admin.ModelAdmin):
     search_fields = ['name']
     inlines = [CollectionItemInline]
     readonly_fields = ['display_original_price']
-    
+
     fieldsets = (
         ('المعلومات الأساسية', {
             'fields': ('name', 'description', 'main_image', 'is_active')
@@ -390,9 +405,8 @@ class ProductCollectionAdmin(admin.ModelAdmin):
     def display_original_price(self, obj):
         if obj.pk:
             return format_html(
-                '<b style="color: #e91e63; font-size: 16px;">{} ج.م</b>', 
+                '<b style="color: #e91e63; font-size: 16px;">{} ج.م</b>',
                 obj.original_total_price
             )
         return format_html('<span style="color:#777;">يتم الحساب تلقائياً بعد إضافة المنتجات والحفظ</span>')
-    
     display_original_price.short_description = "السعر الطبيعي (قبل العرض)"
