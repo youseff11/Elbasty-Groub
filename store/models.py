@@ -9,7 +9,7 @@ from django.dispatch import receiver
 from django.utils import timezone
 from django.core.mail import send_mail
 from django.conf import settings
-from django.contrib.auth.models import User  # إضافة استيراد موديل المستخدمين
+from django.contrib.auth.models import User
 from colorfield.fields import ColorField
 from django_resized import ResizedImageField
 
@@ -72,7 +72,7 @@ class Product(models.Model):
         if self.price and self.discount_price and self.price > self.discount_price:
             discount = self.price - self.discount_price
             percentage = (discount / self.price) * 100
-            return int(percentage)  # إرجاع الرقم كعدد صحيح (مثلاً 20 بدلاً من 20.0)
+            return int(percentage)
         return 0
 
     @property
@@ -93,12 +93,11 @@ class Product(models.Model):
         return reverse('product_detail', args=[self.id])
 
 
-# --- Product Specifications (الجدول الجديد للمواصفات) ---
+# --- Product Specifications ---
 
 class ProductSpecification(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='specifications')
     spec_name = models.CharField(max_length=255, verbose_name="اسم المواصفة (مثال: الألوان)")
-    # تم تغيير الحقل إلى TextField ليسمح بإدخال قيم كثيرة جداً ومفصلة
     spec_value = models.TextField(verbose_name="القيم (يمكنك إدخال أكثر من قيمة مفصولة بفاصلة)")
 
     def __str__(self):
@@ -117,7 +116,6 @@ class ProductVariant(models.Model):
     )
     @property
     def total_stock(self):
-        """حساب مجموع المخزن لكل المقاسات التابعة لهذا اللون"""
         return self.sizes.aggregate(total=models.Sum('stock'))['total'] or 0
     def __str__(self):
         return f"{self.product.name} - {self.color_name}"
@@ -156,7 +154,6 @@ class Order(models.Model):
         ('Canceled', 'Canceled ❌'),
     ]
     
-    # إضافة حقل المستخدم لحل مشكلة TypeError في الـ Checkout
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='orders')
     
     name = models.CharField(max_length=255)
@@ -199,12 +196,10 @@ class Order(models.Model):
 
     @property
     def get_items_total(self):
-        """حساب مجموع أسعار جميع المنتجات في الطلب قبل الخصم اليدوي"""
         return sum(item.subtotal for item in self.items.all())
 
     @property
     def get_discount_amount(self):
-        """حساب قيمة الخصم اليدوي المطبق"""
         total_items = self.get_items_total
         discount = total_items - self.total_price
         return discount if discount > 0 else 0
@@ -304,7 +299,6 @@ class StockMovement(models.Model):
         if self.amount_remaining < 0:
             self.amount_remaining = 0
         super().save(*args, **kwargs)
-        # Update product stock
         if self.movement_type == 'in':
             Product.objects.filter(pk=self.product.pk).update(stock=models.F('stock') + self.quantity)
         else:
@@ -382,17 +376,11 @@ class InvoiceItem(models.Model):
     def __str__(self):
         return f"{self.product.name} x{self.quantity}"
 
-    @property
-    def subtotal(self):
-        return self.quantity * self.unit_price
-
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        # Deduct from stock when invoice item is saved
         Product.objects.filter(pk=self.product.pk).update(
             stock=models.F('stock') - self.quantity
         )
-        # Recalculate invoice total
         self.invoice.recalculate_total()
 
 
@@ -417,7 +405,6 @@ class InvoicePayment(models.Model):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        # Recalculate invoice paid amount
         from django.db.models import Sum
         total_paid = self.invoice.payments.aggregate(total=Sum('amount'))['total'] or 0
         self.invoice.amount_paid = total_paid
@@ -430,10 +417,7 @@ class InvoicePayment(models.Model):
         )
 
 
-# --- جدول الفلوس اللي ليا (مديونيات العملاء) ---
-
 class Receivable(models.Model):
-    """فلوس ليا - عملاء مدينون"""
     STATUS_CHOICES = [
         ('pending', 'لم يُسدَّد'),
         ('partial', 'مسدد جزئياً'),
@@ -474,7 +458,6 @@ class Receivable(models.Model):
 
 
 class ReceivablePayment(models.Model):
-    """دفعات تحصيل المديونيات"""
     PAYMENT_TYPES = [('cash', 'كاش'), ('visa', 'فيزا'), ('transfer', 'تحويل')]
     receivable = models.ForeignKey(Receivable, on_delete=models.CASCADE, related_name='payments', verbose_name="المديونية")
     amount = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="المبلغ المحصّل")
@@ -491,17 +474,13 @@ class ReceivablePayment(models.Model):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        # مجموع الدفعات من السجل
         total_paid_from_log = self.receivable.payments.aggregate(total=Sum('amount'))['total'] or 0
         Receivable.objects.filter(pk=self.receivable.pk).update(amount_paid=total_paid_from_log)
         self.receivable.refresh_from_db()
         self.receivable.save()
 
 
-# --- جدول الفلوس اللي عليا (مديونيات للموردين) ---
-
 class Payable(models.Model):
-    """فلوس عليا - مديونيات للموردين"""
     STATUS_CHOICES = [
         ('pending', 'لم يُسدَّد'),
         ('partial', 'مسدد جزئياً'),
@@ -547,7 +526,6 @@ class Payable(models.Model):
 
 
 class PayablePayment(models.Model):
-    """دفعات سداد المديونيات للموردين"""
     PAYMENT_TYPES = [('cash', 'كاش'), ('visa', 'فيزا'), ('transfer', 'تحويل')]
     payable = models.ForeignKey(Payable, on_delete=models.CASCADE, related_name='payments', verbose_name="المديونية")
     amount = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="المبلغ المدفوع")
@@ -570,10 +548,7 @@ class PayablePayment(models.Model):
         self.payable.save()
 
 
-# --- جدول مواعيد الدفع الآجل ---
-
 class PaymentSchedule(models.Model):
-    """مواعيد تسديد الدفعات الآجلة"""
     SOURCE_TYPES = [
         ('movement', 'حركة مخزن'),
         ('invoice', 'فاتورة بيع'),
@@ -610,7 +585,6 @@ class PaymentSchedule(models.Model):
         return max(Decimal(0), self.amount - self.amount_paid)
 
     def send_reminder_email(self, admin_email):
-        """إرسال إيميل تذكير لموعد الدفعة"""
         days_left = (self.due_date - timezone.now().date()).days
         if self.source_type == 'invoice':
             ref = f"فاتورة #{self.invoice.invoice_number} - {self.invoice.customer_name}" if self.invoice else "فاتورة"
@@ -638,10 +612,6 @@ class PaymentSchedule(models.Model):
         except Exception as e:
             print(f"Email error: {e}")
 
-# ============================================================
-# Product Collections (Bundles / Packages)
-# ============================================================
-
 class ProductCollection(models.Model):
     name = models.CharField(max_length=200, verbose_name="اسم الباكدج / الكوليكشن")
     description = models.TextField(blank=True, null=True, verbose_name="وصف الباكدج")
@@ -649,11 +619,8 @@ class ProductCollection(models.Model):
         size=[800, 1000], quality=75, upload_to='collections/', 
         force_format='WEBP', blank=True, null=True, verbose_name="صورة الباكدج"
     )
-    
-    # --- التسعير والأرباح ---
     offer_price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="سعر البيع للباكدج (في العرض)")
     cost_price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="التكلفة الفعلية للباكدج (لحساب صافي الربح)")
-    
     is_active = models.BooleanField(default=True, verbose_name="متاح للبيع؟")
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -667,11 +634,9 @@ class ProductCollection(models.Model):
 
     @property
     def original_total_price(self):
-        """دالة بتحسب السعر الطبيعي للمنتجات الفردية المضافة داخل الباكدج تلقائياً"""
         total = Decimal('0.00')
         for item in self.items.all():
             if item.product:
-                # بنستخدم get_effective_price عشان لو المنتج نفسه عليه خصم يحسبه صح
                 price = item.product.get_effective_price 
                 total += Decimal(str(price)) * item.quantity
         return total

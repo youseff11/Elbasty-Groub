@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from django.db import models # تم إضافة الاستيراد هنا للتحكم في شكل الحقول
+from django.db import models 
 import nested_admin
 from .models import Product, Category, ContactMessage, ProductVariant, ProductSize, Order, OrderItem, ProductImage, ProductSpecification
 from .models import ProductCollection, CollectionItem
@@ -10,7 +10,6 @@ class ProductSpecificationInline(nested_admin.NestedTabularInline):
     model = ProductSpecification
     extra = 1
     fields = ['spec_name', 'spec_value']
-    # هذا التعديل يجعل خانة القيمة تظهر كمربع نص كبير (Textarea) داخل الجدول
     formfield_overrides = {
         models.TextField: {'widget': admin.widgets.AdminTextareaWidget(attrs={'rows': 2, 'cols': 40})},
     }
@@ -35,7 +34,14 @@ class ProductImageInline(nested_admin.NestedTabularInline):
                 'style="width: 70px; height: 70px; border-radius: 5px; object-fit: contain; background: #ffffff; border: 1px solid #eee; padding: 5px; cursor: grab; transition: border 0.2s;" />',
                 obj.image.url, obj.pk, obj.image.url
             )
-        return "No Image"
+        # إنشاء منطقة سحب وإفلات في حال كانت الخانة فارغة (التعديل الجديد)
+        return format_html(
+            '<div class="additional-empty-drop" '
+            'title="اسحب صورة وضعها هنا" '
+            'style="width: 70px; height: 70px; border-radius: 5px; border: 2px dashed #aaa; display: flex; align-items: center; justify-content: center; color: #aaa; font-size: 11px; text-align: center; cursor: pointer; transition: border 0.2s, background 0.2s;">'
+            '➕<br>اسحب هنا'
+            '</div>'
+        )
     image_preview.short_description = 'Preview (اسحب للتبديل)'
 
 # --- 3. ProductSizeInline ---
@@ -67,7 +73,6 @@ class ProductVariantInline(nested_admin.NestedStackedInline):
                 '</div>',
                 obj.pk, obj.variant_image.url, obj.pk, obj.variant_image.url
             )
-        # Empty drop zone - no image yet
         return format_html(
             '<div class="variant-main-img-wrap variant-empty-drop" '
             'data-variant-id="{}" '
@@ -226,8 +231,6 @@ class OrderAdmin(admin.ModelAdmin):
     display_total.short_description = 'Total'
 
 # ============================================================
-# إدارة المخزن والفواتير والموردين والديون
-# ============================================================
 from .models import (
     Supplier, StockMovement, Invoice, InvoiceItem, InvoicePayment,
     Receivable, ReceivablePayment, Payable, PayablePayment
@@ -235,8 +238,6 @@ from .models import (
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
 
-
-# --- إدارة المستخدمين (ترقية/تخفيض الأدمن) ---
 admin.site.unregister(User)
 
 @admin.register(User)
@@ -248,7 +249,6 @@ class CustomUserAdmin(BaseUserAdmin):
     ordering = ['-date_joined']
 
 
-# --- Supplier Admin ---
 @admin.register(Supplier)
 class SupplierAdmin(admin.ModelAdmin):
     list_display = ['name', 'phone', 'email', 'created_at']
@@ -256,7 +256,6 @@ class SupplierAdmin(admin.ModelAdmin):
     ordering = ['name']
 
 
-# --- StockMovement Admin ---
 @admin.register(StockMovement)
 class StockMovementAdmin(admin.ModelAdmin):
     list_display = ['date', 'movement_type', 'product', 'variant', 'product_size', 'quantity', 'unit_price', 'payment_type', 'supplier', 'created_by']
@@ -271,7 +270,6 @@ class StockMovementAdmin(admin.ModelAdmin):
         super().save_model(request, obj, form, change)
 
 
-# --- InvoiceItem Inline ---
 class InvoiceItemInline(admin.TabularInline):
     model = InvoiceItem
     extra = 1
@@ -282,14 +280,12 @@ class InvoiceItemInline(admin.TabularInline):
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 
-# --- InvoicePayment Inline ---
 class InvoicePaymentInline(admin.TabularInline):
     model = InvoicePayment
     extra = 0
     fields = ['amount', 'payment_type', 'date', 'notes']
 
 
-# --- Invoice Admin ---
 @admin.register(Invoice)
 class InvoiceAdmin(admin.ModelAdmin):
     list_display = ['invoice_number', 'customer_name', 'customer_phone', 'date', 'payment_type',
@@ -319,7 +315,6 @@ class InvoiceAdmin(admin.ModelAdmin):
         super().save_model(request, obj, form, change)
 
 
-# --- Receivable Admin ---
 class ReceivablePaymentInline(admin.TabularInline):
     model = ReceivablePayment
     extra = 0
@@ -340,7 +335,6 @@ class ReceivableAdmin(admin.ModelAdmin):
         super().save_model(request, obj, form, change)
 
 
-# --- Payable Admin ---
 class PayablePaymentInline(admin.TabularInline):
     model = PayablePayment
     extra = 0
@@ -364,15 +358,13 @@ class PayableAdmin(admin.ModelAdmin):
             obj.created_by = request.user
         super().save_model(request, obj, form, change)
 
-# ********************************************************************
-# --- CollectionItem Inline ---
+
 class CollectionItemInline(admin.TabularInline):
     model = CollectionItem
     extra = 1
     fields = ['product', 'variant', 'product_size', 'quantity']
 
 
-# --- ProductCollection Admin ---
 @admin.register(ProductCollection)
 class ProductCollectionAdmin(admin.ModelAdmin):
     list_display = ['name', 'offer_price', 'cost_price', 'display_original_price', 'is_active', 'created_at']
@@ -392,7 +384,6 @@ class ProductCollectionAdmin(admin.ModelAdmin):
         }),
     )
 
-    # 💡 الإضافة الجديدة لربط الجافاسكريبت
     class Media:
         js = ('js/admin_collection_filter.js',)
 
