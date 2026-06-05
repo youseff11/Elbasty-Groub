@@ -288,66 +288,45 @@
     .card-text { font-size: 14px; color: var(--text-sec); margin-bottom: 0; opacity: 0; transform: translateY(20px); transition: var(--trans); }
     .smart-card:hover .card-text { opacity: 1; transform: translateY(0); }
 
-    /* =========================================
-       ✨ التعديل المخصص للشاشات الصغيرة (الموبايل) ✨ 
-       ========================================= */
+    /* --- التعديل المخصص للشاشات الصغيرة --- */
     @media (max-width: 768px) {
         .hero-ultra { 
             justify-content: flex-end; 
-            align-items: flex-start; /* 👈 هنا التعديل لرفع الكلام لفوق بدلاً من التوسيط العمودي */
-            padding: 120px 5% 40px; /* 👈 120px هي المسافة فقط لتجنب شريط التنقل (الهيدر) */
+            align-items: flex-start; /* إضافة هذا السطر لجعل المحتوى يبدأ من الأعلى */
+            padding: 90px 5% 0; /* تم تقليل المسافة العلوية لرفع الكلام لأعلى سيكا */
         }
-        
-        .hero-bg-img { 
-            object-position: 15% center; 
-            transform: scale(1.1);
-        }
-
         .hero-overlay { 
-            background: linear-gradient(to left, rgba(2, 6, 23, 0.95) 0%, rgba(2, 6, 23, 0.8) 55%, rgba(2, 6, 23, 0.1) 100%); 
+            background: linear-gradient(to left, var(--bg-dark) 20%, rgba(2, 6, 23, 0.7) 70%, rgba(2, 6, 23, 0.1) 100%); 
         }
-
         .hero-content { 
             text-align: right; 
             direction: rtl; 
             width: 100%;
-            margin-top: 0; /* 👈 إزالة المسافة العلوية لضمان صعود النص */
         }
-
+        /* تصغير الخطوط */
         .hero-title {
-            font-size: clamp(30px, 8vw, 40px);
-            line-height: 1.3;
+            font-size: clamp(32px, 8vw, 45px); /* تصغير حجم العنوان الرئيسي */
         }
-
         .hero-desc { 
-            font-size: 15px; 
-            line-height: 1.6;
+            font-size: 15px; /* تصغير حجم الوصف */
             border-right: 3px solid var(--neon-blue); 
             padding-right: 15px; 
-            margin-bottom: 30px;
+            margin-bottom: 25px;
         }
-
+        
+        /* [تعديل] إخفاء جملة أنظمة حماية نشطة بالكامل */
         .status-badge { 
-            margin: 0 0 20px 0; 
-            font-size: 12px; 
-            padding: 6px 15px;
+            display: none;
         }
 
         .card-text { 
             opacity: 1; 
             transform: translateY(0); 
         } 
-
-        .showcase-sec {
-            padding: 60px 5%;
-        }
-
-        .sec-header h2 {
-            font-size: clamp(28px, 6vw, 35px);
-        }
-
-        .smart-card {
-            height: 320px; 
+        
+        /* [تعديل] تحريك الباك جراوند شمال شويه مع الحفاظ على الكفر */
+        .hero-bg-img { 
+            object-position: 80% center; /* تحريك محتوى الصورة لليسار عبر ضبط الموقع الأفقي */
         }
     }
 </style>
