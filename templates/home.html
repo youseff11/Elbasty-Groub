@@ -313,20 +313,15 @@
             padding-right: 15px; 
             margin-bottom: 25px;
         }
-        
-        /* [تعديل] إخفاء جملة أنظمة حماية نشطة بالكامل */
         .status-badge { 
-            display: none;
+            display: none; /* إخفاء البادج والكلمة في وضع الشاشة الصغيرة فقط */
         }
-
         .card-text { 
             opacity: 1; 
             transform: translateY(0); 
         } 
-        
-        /* [تعديل] تحريك الباك جراوند شمال شويه مع الحفاظ على الكفر */
         .hero-bg-img { 
-            object-position: 80% center; /* تحريك محتوى الصورة لليسار عبر ضبط الموقع الأفقي */
+            object-position: left center; /* تم تركها كما هي */
         }
     }
 </style>
