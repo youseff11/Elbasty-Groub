@@ -4,7 +4,6 @@ import os
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = '^95=&e#^w8h@__x(tz*az-dqk*jx2v@!jgw&)y4b2-_&trs)(q'
 
-# يمكنك إرجاعها إلى False لاحقاً عند الانتهاء من فحص الموقع
 DEBUG = True
 
 ALLOWED_HOSTS = ['www.elbasty-group.com', 'elbasty-group.com', 'Elbasty.pythonanywhere.com', '127.0.0.1', 'localhost']
@@ -30,7 +29,7 @@ SILENCED_SYSTEM_CHECKS = ["security.W019"]
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.locale.LocaleMiddleware',  # تمت إضافته لحل خطأ لغة واجهة الإدمن
+    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -79,18 +78,12 @@ TIME_ZONE = 'Africa/Cairo'
 USE_I18N = True
 USE_TZ = True
 
-# --- إعدادات الملفات (Static & Media) ---
-
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
-
-# المسارات المطلقة لضمان عملها بشكل مباشر مع PythonAnywhere
-STATIC_ROOT = '/home/Elbasty/Elbasty-Groub/staticfiles'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = '/home/Elbasty/Elbasty-Groub/media'
-
-# ---------------------------------------
+MEDIA_ROOT = BASE_DIR / 'media'
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
