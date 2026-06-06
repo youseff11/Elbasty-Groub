@@ -152,7 +152,6 @@
     .img-container { 
         width: 100%; aspect-ratio: 4/5; overflow: hidden; 
         margin-bottom: 25px; background: #ffffff; position: relative; 
-        /* تم زيادة الحواف البيضاء في الشاشات الكبيرة إلى 55 بكسل */
         padding: 55px; 
         box-sizing: border-box;
     }
@@ -188,9 +187,10 @@
     .close-modal { position: absolute; top: 25px; right: 40px; color: var(--text-sec); font-size: 45px; cursor: pointer; transition: 0.3s; z-index: 100001; }
     .close-modal:hover { color: #ff3366; transform: scale(1.1); }
 
+    /* تم التعديل هنا لضبط موقع الأسهم */
     .image-nav-arrows { 
-        position: absolute; top: 50%; width: 100%; transform: translateY(-50%); 
-        display: none; justify-content: space-between; padding: 0 15px; 
+        position: absolute; top: 50%; left: 0; width: 100%; transform: translateY(-50%); 
+        display: none; justify-content: space-between; padding: 0 15px; box-sizing: border-box;
         pointer-events: none; z-index: 6; 
     }
     .nav-arrow { 
@@ -242,11 +242,9 @@
     
     @media (max-width: 768px) {
         .offers-wrapper { padding: 100px 5% 60px; } 
-        /* تطابق كامل في حجم الكارت مع صفحة الشوب */
         .product-grid { grid-template-columns: repeat(1, 1fr); gap: 30px; padding: 0 1.5rem; max-width: none; margin: 0 auto; }
         .offers-header h1 { font-size: 2.5rem; }
         .offer-card { padding-bottom: 25px; }
-        /* تطابق كامل في الحواف البيضاء مع صفحة الشوب */
         .img-container { padding: 30px; } 
         .view-full-btn { opacity: 1; transform: translateY(0); }
     }
