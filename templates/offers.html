@@ -1,4 +1,3 @@
-
 {% extends 'base.html' %}
 {% block content %}
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
@@ -152,11 +151,12 @@
 
     .img-container { 
         width: 100%; aspect-ratio: 4/5; overflow: hidden; 
-        margin-bottom: 25px; background: #0a192f; position: relative; 
+        margin-bottom: 25px; background: #ffffff; position: relative; 
+        padding: 40px; box-sizing: border-box;
     }
     .img-container img { 
-        width: 100%; height: 100%; object-fit: cover; 
-        transition: transform 1.5s var(--trans-smooth), opacity 0.5s; opacity: 0.8;
+        width: 100%; height: 100%; object-fit: contain; 
+        transition: transform 1.5s var(--trans-smooth), opacity 0.5s; opacity: 1;
     }
     .offer-card:hover .img-container img { transform: scale(1.06); opacity: 1; }
 
